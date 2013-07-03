@@ -31,7 +31,7 @@ class Duolingo(object):
         return data
 
 
-    def get_user_settings(self):
+    def get_settings(self):
         keys = ['notify_comment', 'deactivated', 'is_follower_by', 'is_following']
 
         return self._make_dict(keys, self.user_data)
@@ -43,6 +43,6 @@ if __name__ == '__main__':
     from pprint import pprint as pp
 
     duolingo = Duolingo('kartik')
-    settings = duolingo.get_user_settings()
+    settings = duolingo.get_settings()
 
     pp(settings)
