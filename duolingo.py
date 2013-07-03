@@ -37,12 +37,23 @@ class Duolingo(object):
         return self._make_dict(keys, self.user_data)
 
 
+    def get_languages(self):
+        data = []
+
+        for lang in self.user_data.languages:
+            if lang['learning']:
+                data.append(lang['language_string'])
+
+        return data
+
+
 
 if __name__ == '__main__':
 
     from pprint import pprint as pp
 
-    duolingo = Duolingo('kartik')
-    settings = duolingo.get_settings()
+    duolingo   = Duolingo('kartik')
+    settings   = duolingo.get_settings()
+    languages  = duolingo.get_languages()
 
-    pp(settings)
+    pp(languages)
