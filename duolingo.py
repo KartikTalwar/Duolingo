@@ -22,9 +22,20 @@ class Duolingo(object):
         return json.loads(get)
 
 
-    def get_user_info(self):
-        data = self.user_data
-        return data.id
+    def _make_dict(self, keys, array):
+        data = {}
+
+        for key in keys:
+            data[key] = getattr(array, key, None)
+
+        return data
+
+
+    def get_user_settings(self):
+        keys = ['notify_comment', 'deactivated', 'is_follower_by', 'is_following']
+
+        return self._make_dict(keys, self.user_data)
+
 
 
 if __name__ == '__main__':
@@ -32,5 +43,6 @@ if __name__ == '__main__':
     from pprint import pprint as pp
 
     duolingo = Duolingo('kartik')
+    settings = duolingo.get_user_settings()
 
-    pp(duolingo.get_user_info())
+    pp(settings)
