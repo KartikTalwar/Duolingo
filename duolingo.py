@@ -47,6 +47,14 @@ class Duolingo(object):
         return data
 
 
+    def get_language_details(self, language):
+        for lang in self.user_data.languages:
+            if language == lang['language_string']:
+                return lang
+
+        return {}
+
+
 
 if __name__ == '__main__':
 
@@ -55,5 +63,6 @@ if __name__ == '__main__':
     duolingo   = Duolingo('kartik')
     settings   = duolingo.get_settings()
     languages  = duolingo.get_languages()
+    lang_info  = duolingo.get_language_details('French')
 
-    pp(languages)
+    pp(lang_info)
