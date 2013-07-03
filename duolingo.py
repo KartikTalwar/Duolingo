@@ -2,12 +2,19 @@ import json
 import urllib2
 
 
+class Struct:
+
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
+
+
+
 class Duolingo(object):
 
     def __init__(self, username):
         self.username  = username
         self.user_url  = "http://duolingo.com/users/%s" % self.username
-        self.user_data = self._get_data()
+        self.user_data = Struct(**self._get_data())
 
 
     def _get_data(self):
@@ -15,6 +22,9 @@ class Duolingo(object):
         return json.loads(get)
 
 
+    def get_user_info(self):
+        data = self.user_data
+        return data.id
 
 
 if __name__ == '__main__':
@@ -23,4 +33,4 @@ if __name__ == '__main__':
 
     duolingo = Duolingo('kartik')
 
-    pp(duolingo.user_data)
+    pp(duolingo.get_user_info())
