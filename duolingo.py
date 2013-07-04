@@ -26,7 +26,10 @@ class Duolingo(object):
         data = {}
 
         for key in keys:
-            data[key] = getattr(array, key, None)
+            if type(array) == dict:
+                data[key] = array[key]
+            else:
+                data[key] = getattr(array, key, None)
 
         return data
 
@@ -65,9 +68,11 @@ class Duolingo(object):
 
 
     def get_language_progress(self, lang):
-        fields = ['streak', 'language_string']
+        fields = ['streak', 'language_string', 'level_progress', 'num_skills_learned',
+                  'level_percent', 'level_points', 'points_rank', 'next_level',
+                  'level_left', 'language', 'points']
 
-        return self._make_dict(fields, getattr(self.user_data, lang))
+        return self._make_dict(fields, self.user_data.language_data[lang])
 
 
 
@@ -80,6 +85,7 @@ if __name__ == '__main__':
     languages  = duolingo.get_languages()
     lang_info  = duolingo.get_language_details('French')
     user_info  = duolingo.get_user_info()
+    lang_prog  = duolingo.get_language_progress('fr')
 
-    pp(user_info)
+    pp(lang_prog)
 
