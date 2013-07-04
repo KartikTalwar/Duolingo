@@ -75,6 +75,17 @@ class Duolingo(object):
         return self._make_dict(fields, self.user_data.language_data[lang])
 
 
+    def get_friends(self):
+        for k,v in self.user_data.language_data.iteritems():
+            data = []
+            for friend in v['points_ranking_data']:
+                temp = {'username' : friend['username'], 'points' : friend['points_data']['total']}
+                temp['languages'] = [i['language_string'] for i in friend['points_data']['languages']]
+                data.append(temp)
+
+            return data
+
+
 
 if __name__ == '__main__':
 
@@ -86,6 +97,7 @@ if __name__ == '__main__':
     lang_info  = duolingo.get_language_details('French')
     user_info  = duolingo.get_user_info()
     lang_prog  = duolingo.get_language_progress('fr')
+    frnd_data  = duolingo.get_friends()
 
-    pp(lang_prog)
+    pp(frnd_data)
 
