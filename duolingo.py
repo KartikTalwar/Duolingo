@@ -55,6 +55,14 @@ class Duolingo(object):
         return {}
 
 
+    def get_user_info(self):
+        fields = ['username', 'bio', 'id', 'num_following', 'cohort',
+                  'num_followers', 'learning_language_string', 'created',
+                  'contribution_points', 'gplus_id', 'twitter_id', 'admin',
+                  'invites_left', 'location', 'fullname', 'avatar']
+
+        return self._make_dict(fields, self.user_data)
+
 
 if __name__ == '__main__':
 
@@ -64,5 +72,7 @@ if __name__ == '__main__':
     settings   = duolingo.get_settings()
     languages  = duolingo.get_languages()
     lang_info  = duolingo.get_language_details('French')
+    user_info  = duolingo.get_user_info()
 
-    pp(lang_info)
+    pp(user_info)
+
