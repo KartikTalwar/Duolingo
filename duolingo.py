@@ -86,6 +86,23 @@ class Duolingo(object):
             return data
 
 
+    def get_known_words(self, lang):
+        words = []
+        for word in self.user_data.language_data[lang]['skills']:
+            words += word['words']
+
+        return set(words)
+
+
+    def get_known_topics(self, lang):
+        topics = []
+        for topic in self.user_data.language_data[lang]['skills']:
+            if topic['learned']:
+                topics.append(topic['title'])
+
+        return topics
+
+
 
 if __name__ == '__main__':
 
@@ -98,6 +115,8 @@ if __name__ == '__main__':
     user_info  = duolingo.get_user_info()
     lang_prog  = duolingo.get_language_progress('fr')
     frnd_data  = duolingo.get_friends()
+    known_wrds = duolingo.get_known_words('fr')
+    knowntopic = duolingo.get_known_topics('fr')
 
-    pp(frnd_data)
+    pp(knowntopic)
 
