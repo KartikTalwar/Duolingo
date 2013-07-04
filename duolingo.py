@@ -64,6 +64,13 @@ class Duolingo(object):
         return self._make_dict(fields, self.user_data)
 
 
+    def get_language_progress(self, lang):
+        fields = ['streak', 'language_string']
+
+        return self._make_dict(fields, getattr(self.user_data, lang))
+
+
+
 if __name__ == '__main__':
 
     from pprint import pprint as pp
