@@ -94,6 +94,12 @@ class Duolingo(object):
 
         return set(words)
 
+    def get_learned_skills(self, lang):
+        """ Return the learned skill objects sorted by the order they were
+            learned in.
+        """
+        skills = [ skill for skill in self.user_data.language_data[lang]['skills'] if skill['learned'] ]
+        return sorted(skills, key=lambda skill: int(skill['new_index']))
 
     def get_known_topics(self, lang):
         topics = []
