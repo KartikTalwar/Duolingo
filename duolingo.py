@@ -89,7 +89,8 @@ class Duolingo(object):
     def get_known_words(self, lang):
         words = []
         for word in self.user_data.language_data[lang]['skills']:
-            words += word['words']
+            if word['learned']:
+                words += word['words']
 
         return set(words)
 
