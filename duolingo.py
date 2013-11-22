@@ -45,6 +45,9 @@ class Duolingo(object):
         dependency_to_skill = MultiDict([ (skill['dependencies_name'][0]
                                            if len(skill['dependencies_name']) > 0 else '', skill)
                                           for skill in skills ])
+
+        # Start with the first skill and trace the dependency graph through skill, setting the
+        # order it was learned in.
         index = 0
         previous_skill = ''
         while True:
@@ -52,12 +55,13 @@ class Duolingo(object):
                 skill['dependency_order'] = index
             index += 1
 
-            # Figure out the canonical dependency.
+            # Figure out the canonical dependency for the next set of skills.
             skill_names = set([ skill['name'] for skill in dependency_to_skill.getlist(previous_skill)])
             canonical_dependency = skill_names.intersection(set(dependency_to_skill.keys()))
             if canonical_dependency:
                 previous_skill = canonical_dependency.pop()
             else:
+                # Nothing depends on these skills, so we're done.
                 break
 
         return skills
