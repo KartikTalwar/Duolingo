@@ -23,6 +23,19 @@ lingo  = duolingo.Duolingo('kartik')
 ### Methods
 
 
+#### Summary
+
+- lingo **.get_user_info()**
+- lingo **.get_user_settings()**
+- lingo **.get_languages()**
+- lingo **.get_friends()**
+- lingo **.get_language_details(language_name)**
+- lingo **.get_language_progress(language_abbr)**
+- lingo **.get_known_topics(language_abbr)**
+- lingo **.get_known_words(language_abbr)**
+- lingo **.get_learned_skills(lang)**
+
+
 #### get_user_info()
 
 ```py
