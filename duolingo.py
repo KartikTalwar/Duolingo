@@ -1,6 +1,8 @@
 import json
 import urllib2
 
+from operator import attrgetter
+from werkzeug.datastructures import MultiDict
 
 class Struct:
 
@@ -33,6 +35,32 @@ class Duolingo(object):
 
         return data
 
+    def _compute_dependency_order(self, skills):
+        """ Add a field to each skill indicating the order it was learned
+            based on the skill's dependencies. Multiple skills will have the same
+            position if they have the same dependencies.
+        """
+        # Key skills by first dependency. Dependency sets can be uniquely
+        # identified by one dependency in the set.
+        dependency_to_skill = MultiDict([ (skill['dependencies_name'][0]
+                                           if len(skill['dependencies_name']) > 0 else '', skill)
+                                          for skill in skills ])
+        index = 0
+        previous_skill = ''
+        while True:
+            for skill in dependency_to_skill.getlist(previous_skill):
+                skill['dependency_order'] = index
+            index += 1
+
+            # Figure out the canonical dependency.
+            skill_names = set([ skill['name'] for skill in dependency_to_skill.getlist(previous_skill)])
+            canonical_dependency = skill_names.intersection(set(dependency_to_skill.keys()))
+            if canonical_dependency:
+                previous_skill = canonical_dependency.pop()
+            else:
+                break
+
+        return skills
 
     def get_settings(self):
         keys = ['notify_comment', 'deactivated', 'is_follower_by', 'is_following']
@@ -98,8 +126,11 @@ class Duolingo(object):
         """ Return the learned skill objects sorted by the order they were
             learned in.
         """
-        skills = [ skill for skill in self.user_data.language_data[lang]['skills'] if skill['learned'] ]
-        return sorted(skills, key=lambda skill: int(skill['new_index']))
+        skills = [ skill for skill in self.user_data.language_data[lang]['skills'] ]
+
+        self._compute_dependency_order(skills)
+
+        return [ skill for skill in sorted(skills, key=lambda skill: skill['dependency_order']) if skill['learned'] ]
 
     def get_known_topics(self, lang):
         topics = []
