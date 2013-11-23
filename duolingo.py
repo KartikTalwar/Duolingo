@@ -94,7 +94,7 @@ class Duolingo(object):
         fields = ['username', 'bio', 'id', 'num_following', 'cohort',
                   'num_followers', 'learning_language_string', 'created',
                   'contribution_points', 'gplus_id', 'twitter_id', 'admin',
-                  'invites_left', 'location', 'fullname', 'avatar']
+                  'invites_left', 'location', 'fullname', 'avatar', 'ui_language']
 
         return self._make_dict(fields, self.user_data)
 
