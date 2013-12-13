@@ -59,7 +59,8 @@ print lingo.get_user_info()
  'num_followers': 3,
  'num_following': 4,
  'twitter_id': None,
- 'username': u'kartik'}
+ 'username': u'kartik',
+ 'ui_language': u'en'}
 ```
 
 #### get_user_settings()
@@ -190,6 +191,29 @@ print lingo.get_known_topics()
  u'Questions',
  u'Basics',
  u'Verbs: Present 1',
+ u'Plurals',
+ u'Common Phrases',
+ u'Adjectives 1']
+```
+
+#### get_learned_skills(language_abbr)
+
+```py
+lingo  = duolingo.Duolingo('kartik')
+print lingo.get_learned_skills('fr')
+```
+
+```
+[u'Basics',
+ u'Basics 2',
+ u'Colors',
+ u'Animals',
+ u'Possessives',
+ u'Verbs: \xcatre / Avoir',
+ u'Verbs: Present 1',
+ u'Clothing',
+ u'Food',
+ u'Questions',
  u'Plurals',
  u'Common Phrases',
  u'Adjectives 1']
