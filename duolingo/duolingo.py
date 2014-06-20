@@ -1,5 +1,9 @@
-import json
 import urllib2
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 from operator import attrgetter
 from werkzeug.datastructures import MultiDict
