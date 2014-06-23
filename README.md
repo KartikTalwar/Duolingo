@@ -11,6 +11,13 @@ directly from the api resource dictionary. More methods to come.
 - Add user activity stream
 
 
+## Installation
+
+```sh
+$ pip install duolingo-api
+```
+
+
 ### Usage
 
 
