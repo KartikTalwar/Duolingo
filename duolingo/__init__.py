@@ -40,6 +40,19 @@ class Duolingo(object):
         raise Exception("Login failed")
 
 
+    def _switch_language(self, lang):
+        data = {"learning_language" : lang}
+        url = "https://www.duolingo.com/switch_language"
+        request = self.session.post(url, data)
+
+        try:
+            parse = request.json()['tracking_properties']
+            if parse['learning_language'] == lang:
+                self.user_data = Struct(**self._get_data())
+        except:
+            raise Exception('Failed to switch language')
+
+
     def _get_data(self):
         get = self.session.get(self.user_url).json()
         return get
@@ -113,7 +126,7 @@ class Duolingo(object):
 
 
     def get_user_info(self):
-        fields = ['username', 'bio', 'id', 'num_following', 'cohort',
+        fields = ['username', 'bio', 'id', 'num_following', 'cohort', 'language_data',
                   'num_followers', 'learning_language_string', 'created',
                   'contribution_points', 'gplus_id', 'twitter_id', 'admin',
                   'invites_left', 'location', 'fullname', 'avatar', 'ui_language']
@@ -122,6 +135,11 @@ class Duolingo(object):
 
 
     def get_language_progress(self, lang):
+        current_lang = self.user_data.language_data.keys()
+
+        if lang not in current_lang:
+            self._switch_language(lang)
+
         fields = ['streak', 'language_string', 'level_progress', 'num_skills_learned',
                   'level_percent', 'level_points', 'points_rank', 'next_level',
                   'level_left', 'language', 'points']
