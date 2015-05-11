@@ -1,4 +1,4 @@
-import urllib2
+import requests
 
 try:
     import json
@@ -17,15 +17,32 @@ class Struct:
 
 class Duolingo(object):
 
-    def __init__(self, username):
+    def __init__(self, username, password=None):
         self.username  = username
+        self.password  = password
         self.user_url  = "http://duolingo.com/users/%s" % self.username
+        self.session   = requests.Session()
+
+        if password:
+            self._login()
+
         self.user_data = Struct(**self._get_data())
 
 
+    def _login(self):
+        login_url = "https://www.duolingo.com/login"
+        data = {"login":self.username, "password":self.password}
+        attempt = self.session.post(login_url, data).json()
+
+        if attempt.get('response') == 'OK':
+            return True
+
+        raise Exception("Login failed")
+
+
     def _get_data(self):
-        get = urllib2.urlopen(self.user_url).read()
-        return json.loads(get)
+        get = self.session.get(self.user_url).json()
+        return get
 
 
     def _make_dict(self, keys, array):
@@ -69,6 +86,7 @@ class Duolingo(object):
                 break
 
         return skills
+
 
     def get_settings(self):
         keys = ['notify_comment', 'deactivated', 'is_follower_by', 'is_following']
