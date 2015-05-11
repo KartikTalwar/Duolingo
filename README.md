@@ -25,7 +25,12 @@ $ pip install duolingo-api
 import duolingo
 
 lingo  = duolingo.Duolingo('kartik')
+# or
+lingo  = duolingo.Duolingo('kartik', 'my optional password')
 ```
+
+- if you want to get information on your learning progress, then you must be logged in
+
 
 ### Methods
 

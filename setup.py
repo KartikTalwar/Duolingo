@@ -10,7 +10,7 @@ setup(
     license = 'Apache',
     url = "http://github.com/KartikTalwar/duolingo",
     packages = ['duolingo'],
-    install_requires = ("Werkzeug"),
+    install_requires = ("Werkzeug", "requests"),
     classifiers = [
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
