@@ -67,9 +67,15 @@ lingo  = duolingo.Duolingo('kartik')
 #### get_user_info()
 
 ```py
+import duolingo
+
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_user_info()
+# or
+lingo  = duolingo.Duolingo('kartik', 'my optional password')
 ```
+
+- if you want to get information on your learning progress, then you must be logged in
+
 
 ```
 {'admin': False,
@@ -186,14 +192,11 @@ print lingo.get_known_words()
 
 ```
 [u'absolument',
-u'accept\xe9',
 u'acier',
 u'actuellement',
-u'adopt\xe9',
 u'affirme',
 u'agissant',
 u'agit',
-u'agr\xe9able',
 u'ai',
 u'aient',
 u'ailes',
@@ -213,7 +216,6 @@ print lingo.get_known_topics()
  u'Basics 2',
  u'Animals',
  u'Possessives',
- u'Verbs: \xcatre / Avoir',
  u'Clothing',
  u'Food',
  u'Questions',
@@ -237,7 +239,6 @@ print lingo.get_learned_skills('fr')
  u'Colors',
  u'Animals',
  u'Possessives',
- u'Verbs: \xcatre / Avoir',
  u'Verbs: Present 1',
  u'Clothing',
  u'Food',
