@@ -206,6 +206,7 @@ class Duolingo(object):
 
         return set(words)
 
+
     def get_learned_skills(self, lang):
         """ Return the learned skill objects sorted by the order they were
             learned in.
@@ -216,6 +217,7 @@ class Duolingo(object):
 
         return [ skill for skill in sorted(skills, key=lambda skill: skill['dependency_order']) if skill['learned'] ]
 
+
     def get_known_topics(self, lang):
         topics = []
         for topic in self.user_data.language_data[lang]['skills']:
@@ -224,6 +226,18 @@ class Duolingo(object):
 
         return topics
 
+
+    settings = property(get_settings)
+    languages = property(get_languages)
+    user_info = property(get_user_info)
+    certificates = property(get_certificates)
+    streak_info = property(get_streak_info)
+    calendar = property(get_calendar)
+    language_progress = property(get_language_progress)
+    friends = property(get_friends)
+    known_words = property(get_known_words)
+    learned_skills = property(get_learned_skills)
+    known_topics = property(get_known_topics)
 
 
 if __name__ == '__main__':
