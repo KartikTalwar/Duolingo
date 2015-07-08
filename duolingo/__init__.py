@@ -227,17 +227,16 @@ class Duolingo(object):
         return topics
 
 
-    settings = property(get_settings)
-    languages = property(get_languages)
-    user_info = property(get_user_info)
-    certificates = property(get_certificates)
-    streak_info = property(get_streak_info)
-    calendar = property(get_calendar)
-    language_progress = property(get_language_progress)
-    friends = property(get_friends)
-    known_words = property(get_known_words)
-    learned_skills = property(get_learned_skills)
-    known_topics = property(get_known_topics)
+attrs = [
+    'settings', 'languages', 'user_info', 'certificates', 'streak_info',
+    'calendar', 'language_progress', 'friends', 'known_words',
+    'learned_skills', 'known_topics'
+]
+
+for attr in attrs:
+    getter = getattr(Duolingo, "get_" + attr)
+    prop = property(getter)
+    setattr(Duolingo, attr, prop)
 
 
 if __name__ == '__main__':
