@@ -120,6 +120,20 @@ class Duolingo(object):
         return data
 
 
+    def get_language_from_abbr(self, abbr):
+        for language in self.user_data.languages:
+            if language['language'] == abbr:
+                return language['language_string']
+        return None
+
+
+    def get_abbreviation_of(self, name):
+        for language in self.user_data.languages:
+            if language['language_string'] == name:
+                return language['language']
+        return None
+
+
     def get_language_details(self, language):
         for lang in self.user_data.languages:
             if language == lang['language_string']:
@@ -213,5 +227,7 @@ if __name__ == '__main__':
     frnd_data  = duolingo.get_friends()
     known_wrds = duolingo.get_known_words('fr')
     knowntopic = duolingo.get_known_topics('fr')
+    lang_from =  duolingo.get_language_from_abbr('fr')
+    abbrev =     duolingo.get_abbreviation_of('French')
 
     pp(knowntopic)
