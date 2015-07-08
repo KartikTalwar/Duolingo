@@ -9,7 +9,7 @@ setup(
     keywords = "duolingo, duolingo api, language",
     license = 'Apache',
     url = "http://github.com/KartikTalwar/duolingo",
-    packages = ['duolingo'],
+    py_modules = ['duolingo'],
     install_requires = ("Werkzeug", "requests"),
     classifiers = [
         "Development Status :: 3 - Alpha",

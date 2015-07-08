@@ -1,12 +1,6 @@
 import requests
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
-from operator import attrgetter
 from werkzeug.datastructures import MultiDict
+
 
 class Struct:
 
@@ -14,24 +8,22 @@ class Struct:
         self.__dict__.update(entries)
 
 
-
 class Duolingo(object):
 
     def __init__(self, username, password=None):
-        self.username  = username
-        self.password  = password
-        self.user_url  = "http://duolingo.com/users/%s" % self.username
-        self.session   = requests.Session()
+        self.username = username
+        self.password = password
+        self.user_url = "http://duolingo.com/users/%s" % self.username
+        self.session = requests.Session()
 
         if password:
             self._login()
 
         self.user_data = Struct(**self._get_data())
 
-
     def _login(self):
         login_url = "https://www.duolingo.com/login"
-        data = {"login":self.username, "password":self.password}
+        data = {"login": self.username, "password": self.password}
         attempt = self.session.post(login_url, data).json()
 
         if attempt.get('response') == 'OK':
@@ -39,9 +31,8 @@ class Duolingo(object):
 
         raise Exception("Login failed")
 
-
     def _switch_language(self, lang):
-        data = {"learning_language" : lang}
+        data = {"learning_language": lang}
         url = "https://www.duolingo.com/switch_language"
         request = self.session.post(url, data)
 
@@ -52,11 +43,9 @@ class Duolingo(object):
         except:
             raise Exception('Failed to switch language')
 
-
     def _get_data(self):
         get = self.session.get(self.user_url).json()
         return get
-
 
     def _make_dict(self, keys, array):
         data = {}
@@ -76,9 +65,9 @@ class Duolingo(object):
         """
         # Key skills by first dependency. Dependency sets can be uniquely
         # identified by one dependency in the set.
-        dependency_to_skill = MultiDict([ (skill['dependencies_name'][0]
-                                           if len(skill['dependencies_name']) > 0 else '', skill)
-                                          for skill in skills ])
+        dependency_to_skill = MultiDict([(skill['dependencies_name'][0]
+                                        if len(skill['dependencies_name']) > 0 else '', skill)
+                                        for skill in skills])
 
         # Start with the first skill and trace the dependency graph through skill, setting the
         # order it was learned in.
@@ -90,7 +79,7 @@ class Duolingo(object):
             index += 1
 
             # Figure out the canonical dependency for the next set of skills.
-            skill_names = set([ skill['name'] for skill in dependency_to_skill.getlist(previous_skill)])
+            skill_names = set([skill['name'] for skill in dependency_to_skill.getlist(previous_skill)])
             canonical_dependency = skill_names.intersection(set(dependency_to_skill.keys()))
             if canonical_dependency:
                 previous_skill = canonical_dependency.pop()
@@ -100,12 +89,10 @@ class Duolingo(object):
 
         return skills
 
-
     def get_settings(self):
         keys = ['notify_comment', 'deactivated', 'is_follower_by', 'is_following']
 
         return self._make_dict(keys, self.user_data)
-
 
     def get_languages(self, abbreviations=False):
         data = []
@@ -119,13 +106,11 @@ class Duolingo(object):
 
         return data
 
-
     def get_language_from_abbr(self, abbr):
         for language in self.user_data.languages:
             if language['language'] == abbr:
                 return language['language_string']
         return None
-
 
     def get_abbreviation_of(self, name):
         for language in self.user_data.languages:
@@ -133,14 +118,12 @@ class Duolingo(object):
                 return language['language']
         return None
 
-
     def get_language_details(self, language):
         for lang in self.user_data.languages:
             if language == lang['language_string']:
                 return lang
 
         return {}
-
 
     def get_user_info(self):
         fields = ['username', 'bio', 'id', 'num_following', 'cohort', 'language_data',
@@ -150,22 +133,18 @@ class Duolingo(object):
 
         return self._make_dict(fields, self.user_data)
 
-
     def get_certificates(self):
         for certificate in self.user_data.certificates:
             certificate['datetime'] = certificate['datetime'].strip()
 
         return self.user_data.certificates
 
-
     def get_streak_info(self):
         fields = ['daily_goal', 'site_streak', 'streak_extended_today']
         return self._make_dict(fields, self.user_data)
 
-
     def _is_current_language(self, abbr):
         return abbr in self.user_data.language_data.keys()
-
 
     def get_calendar(self, language_abbr=None):
         if language_abbr:
@@ -174,7 +153,6 @@ class Duolingo(object):
             return self.user_data.language_data[language_abbr]['calendar']
         else:
             return self.user_data.calendar
-
 
     def get_language_progress(self, lang):
         if not self._is_current_language(lang):
@@ -186,17 +164,15 @@ class Duolingo(object):
 
         return self._make_dict(fields, self.user_data.language_data[lang])
 
-
     def get_friends(self):
-        for k,v in self.user_data.language_data.iteritems():
+        for k, v in self.user_data.language_data.iteritems():
             data = []
             for friend in v['points_ranking_data']:
-                temp = {'username' : friend['username'], 'points' : friend['points_data']['total']}
+                temp = {'username': friend['username'], 'points': friend['points_data']['total']}
                 temp['languages'] = [i['language_string'] for i in friend['points_data']['languages']]
                 data.append(temp)
 
             return data
-
 
     def get_known_words(self, lang):
         words = []
@@ -206,17 +182,16 @@ class Duolingo(object):
 
         return set(words)
 
-
     def get_learned_skills(self, lang):
         """ Return the learned skill objects sorted by the order they were
             learned in.
         """
-        skills = [ skill for skill in self.user_data.language_data[lang]['skills'] ]
+        skills = [skill for skill in self.user_data.language_data[lang]['skills']]
 
         self._compute_dependency_order(skills)
 
-        return [ skill for skill in sorted(skills, key=lambda skill: skill['dependency_order']) if skill['learned'] ]
-
+        return [skill for skill in sorted(skills, key=lambda skill: skill['dependency_order'])
+                if skill['learned']]
 
     def get_known_topics(self, lang):
         topics = []
@@ -243,16 +218,7 @@ if __name__ == '__main__':
 
     from pprint import pprint as pp
 
-    duolingo   = Duolingo('kartik')
-    settings   = duolingo.get_settings()
-    languages  = duolingo.get_languages()
-    lang_info  = duolingo.get_language_details('French')
-    user_info  = duolingo.get_user_info()
-    lang_prog  = duolingo.get_language_progress('fr')
-    frnd_data  = duolingo.get_friends()
-    known_wrds = duolingo.get_known_words('fr')
+    duolingo = Duolingo('kartik')
     knowntopic = duolingo.get_known_topics('fr')
-    lang_from =  duolingo.get_language_from_abbr('fr')
-    abbrev =     duolingo.get_abbreviation_of('French')
 
     pp(knowntopic)
