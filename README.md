@@ -42,6 +42,8 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 - lingo **.get_languages(abbreviations=False)**
 - lingo **.get_friends()**
 - lingo **.get_calendar(language_abbr=None)**
+- lingo **.get_streak_info()**
+- lingo **.get_certificates()**
 - lingo **.get_language_details(language_name)**
 - lingo **.get_language_progress(language_abbr)**
 - lingo **.get_known_topics(language_abbr)**
@@ -133,6 +135,37 @@ print lingo.get_friends()
  {'languages': [u'French', u'German'],
   'points': 579,
   'username': u'warrench04'}]
+```
+
+#### get_streak_info()
+
+```py
+lingo  = duolingo.Duolingo('kartik')
+print lingo.get_streak_info()
+```
+{
+    'site_streak': 141,
+    'daily_goal': 30,
+    'streak_extended_today': True
+}
+```
+
+
+#### get_certificates()
+
+```py
+lingo  = duolingo.Duolingo('kartik')
+print lingo.get_certificates()
+```
+
+```
+[{
+    u'language_string': u'German',
+    u'score': 2.09,
+    u'id': u'SgXFt9',
+    u'language': u'de',
+    u'datetime': u'1 month ago'
+}]
 ```
 
 #### get_language_details(language_name)

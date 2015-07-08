@@ -151,6 +151,18 @@ class Duolingo(object):
         return self._make_dict(fields, self.user_data)
 
 
+    def get_certificates(self):
+        for certificate in self.user_data.certificates:
+            certificate['datetime'] = certificate['datetime'].strip()
+
+        return self.user_data.certificates
+
+
+    def get_streak_info(self):
+        fields = ['daily_goal', 'site_streak', 'streak_extended_today']
+        return self._make_dict(fields, self.user_data)
+
+
     def _is_current_language(self, abbr):
         return abbr in self.user_data.language_data.keys()
 
@@ -170,7 +182,7 @@ class Duolingo(object):
 
         fields = ['streak', 'language_string', 'level_progress', 'num_skills_learned',
                   'level_percent', 'level_points', 'points_rank', 'next_level',
-                  'level_left', 'language', 'points']
+                  'level_left', 'language', 'points', 'fluency_score', 'level']
 
         return self._make_dict(fields, self.user_data.language_data[lang])
 
