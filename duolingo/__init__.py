@@ -107,14 +107,31 @@ class Duolingo(object):
         return self._make_dict(keys, self.user_data)
 
 
-    def get_languages(self):
+    def get_languages(self, abbreviations=False):
         data = []
 
         for lang in self.user_data.languages:
             if lang['learning']:
-                data.append(lang['language_string'])
+                if abbreviations:
+                    data.append(lang['language'])
+                else:
+                    data.append(lang['language_string'])
 
         return data
+
+
+    def get_language_from_abbr(self, abbr):
+        for language in self.user_data.languages:
+            if language['language'] == abbr:
+                return language['language_string']
+        return None
+
+
+    def get_abbreviation_of(self, name):
+        for language in self.user_data.languages:
+            if language['language_string'] == name:
+                return language['language']
+        return None
 
 
     def get_language_details(self, language):
@@ -134,10 +151,21 @@ class Duolingo(object):
         return self._make_dict(fields, self.user_data)
 
 
-    def get_language_progress(self, lang):
-        current_lang = self.user_data.language_data.keys()
+    def _is_current_language(self, abbr):
+        return abbr in self.user_data.language_data.keys()
 
-        if lang not in current_lang:
+
+    def get_calendar(self, language_abbr=None):
+        if language_abbr:
+            if not self._is_current_language(language_abbr):
+                self._switch_language(language_abbr)
+            return self.user_data.language_data[language_abbr]['calendar']
+        else:
+            return self.user_data.calendar
+
+
+    def get_language_progress(self, lang):
+        if not self._is_current_language(lang):
             self._switch_language(lang)
 
         fields = ['streak', 'language_string', 'level_progress', 'num_skills_learned',
@@ -199,6 +227,7 @@ if __name__ == '__main__':
     frnd_data  = duolingo.get_friends()
     known_wrds = duolingo.get_known_words('fr')
     knowntopic = duolingo.get_known_topics('fr')
+    lang_from =  duolingo.get_language_from_abbr('fr')
+    abbrev =     duolingo.get_abbreviation_of('French')
 
     pp(knowntopic)
-

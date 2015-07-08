@@ -39,13 +39,16 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 
 - lingo **.get_user_info()**
 - lingo **.get_user_settings()**
-- lingo **.get_languages()**
+- lingo **.get_languages(abbreviations=False)**
 - lingo **.get_friends()**
+- lingo **.get_calendar(language_abbr=None)**
 - lingo **.get_language_details(language_name)**
 - lingo **.get_language_progress(language_abbr)**
 - lingo **.get_known_topics(language_abbr)**
 - lingo **.get_known_words(language_abbr)**
 - lingo **.get_learned_skills(lang)**
+- lingo **.get_language_from_abbr(language_abbr)**
+- lingo **.get_abbreviation_of(language_name)**
 
 
 #### get_user_info()
@@ -89,7 +92,7 @@ print lingo.get_user_settings()
  'notify_comment': True}
 ```
 
-#### get_languages()
+#### get_languages(abbreviations=False)
 
 ```py
 lingo  = duolingo.Duolingo('kartik')
@@ -98,6 +101,15 @@ print lingo.get_languages()
 
 ```
 [u'French', u'German', u'Spanish']
+```
+
+```py
+lingo  = duolingo.Duolingo('kartik')
+print lingo.get_languages(abbreviations=True)
+```
+
+```
+[u'fr', u'de', u'es']
 ```
 
 #### get_friends()
@@ -144,7 +156,7 @@ print lingo.get_language_details('French')
 
 ```py
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_language_progress()
+print lingo.get_language_progress('fr')
 ```
 
 ```
@@ -229,4 +241,26 @@ print lingo.get_learned_skills('fr')
  u'Plurals',
  u'Common Phrases',
  u'Adjectives 1']
+```
+
+#### get_language_from_abbr(language_abbr)
+
+```py
+lingo  = duolingo.Duolingo('kartik')
+print lingo.get_language_from_abbr('fr')
+```
+
+```
+u'French'
+```
+
+#### get_abbreviation_of(language_abbr)
+
+```py
+lingo  = duolingo.Duolingo('kartik')
+print lingo.get_abbreviation_of('French')
+```
+
+```
+u'fr'
 ```
