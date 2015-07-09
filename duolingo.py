@@ -1,6 +1,7 @@
+import re
+import json
 import requests
 from werkzeug.datastructures import MultiDict
-
 
 class Struct:
 
@@ -212,11 +213,68 @@ class Duolingo(object):
 
         return topics
 
+    def get_translations(self, words, source=None, target=None):
+        if not source:
+            source = self.user_data.ui_language
+        if not target:
+            target = self.user_data.language_data.keys()[0]
+
+        word_parameter = json.dumps(words, separators=(',', ':'))
+        url = "https://d2.duolingo.com/api/1/dictionary/hints/{}/{}?tokens={}".format(
+            target, source, word_parameter)
+
+        request = self.session.get(url)
+        try:
+            return request.json()
+        except:
+            raise Exception('Could not get translations')
+
+    def get_vocabulary(self, language_abbr=None):
+        if language_abbr and not self._is_current_language(language_abbr):
+            self._switch_language(language_abbr)
+
+        overview_url = "https://www.duolingo.com/vocabulary/overview"
+        overview_request = self.session.get(overview_url)
+        overview = overview_request.json()
+
+        return overview
+
+    _cloudfront_server_url = None
+
+    def _cloudfront_server(self):
+        if self._cloudfront_server_url:
+            return self._cloudfront_server_url
+
+        homepage_url = "https://www.duolingo.com"
+        request = self.session.get(homepage_url)
+        server_list = re.search('//.+\.cloudfront\.net', request.text)
+        self._cloudfront_server_url = "https:{}".format(server_list.group(0))
+
+        return self._cloudfront_server_url
+
+    def get_audio_url(self, word, language_abbr=None):
+        if not language_abbr:
+            language_abbr = self.user_data.language_data.keys()[0]
+        return "{}/tts/{}/token/{}".format(self._cloudfront_server(), language_abbr, word)
+
+    def get_related_words(self, word, language_abbr=None):
+        if language_abbr and not self._is_current_language(language_abbr):
+            self._switch_language(language_abbr)
+
+        overview_url = "https://www.duolingo.com/vocabulary/overview"
+        overview_request = self.session.get(overview_url)
+        overview = overview_request.json()
+
+        for word_data in overview['vocab_overview']:
+            if word_data['normalized_string'] == word:
+                related_lexemes = word_data['related_lexemes']
+                return [w for w in overview['vocab_overview'] if w['lexeme_id'] in related_lexemes]
+
 
 attrs = [
     'settings', 'languages', 'user_info', 'certificates', 'streak_info',
     'calendar', 'language_progress', 'friends', 'known_words',
-    'learned_skills', 'known_topics'
+    'learned_skills', 'known_topics', 'activity_stream', 'vocabulary'
 ]
 
 for attr in attrs:
