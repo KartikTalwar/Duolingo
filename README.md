@@ -51,6 +51,10 @@ $ pip install duolingo-api
 - lingo **.get_language_from_abbr(language_abbr)**
 - lingo **.get_abbreviation_of(language_name)**
 - lingo **.get_activity_stream(before=None)**
+- lingo **.get_translations(words, source=None, target=None)**
+- lingo **.get_vocabulary(language_abbr=None)**
+- lingo **.get_audio_url(word, language_abbr=None)** (experimental)
+- lingo **.get_related_words(word, language_abbr=None)**
 
 
 #### get_user_info()
@@ -385,4 +389,179 @@ value from the current stream.
     u'js_version': u'js_version': u'//url_to_javascript',
     u'before': u'2015-07-05 07:44:56'
 }
+```
+
+#### get_translations(words, source=None, target=None)
+
+Returns the translations of a list of words passed to it. If source is none,
+it is assumed to be whatever language the user's Duolingo UI is in. If the
+target is none, it is assumed to be the language the user is currently using,
+as determined at login time.
+
+The returned object is a dictionary containing a key for each item in the words
+list, with a list of translations as its value.
+
+```py
+>>> lingo  = duolingo.Duolingo('kartik')
+>>> lingo.get_translations(['de', 'du'])
+{
+    u'de': [u'of', u'in', u'from', u'by'],
+    u'du': [u'of the', u'from the', u'about the', u"'s", u'about',
+            u'by the', u'from', u'some']
+}
+
+>>> lingo.get_translations(['de', 'du'], target='de')
+{
+    u'von': [u'from', u'of', u'to', u'about', u'by', u'off', u'on', u'out of',
+             u'von', u'with'],
+    u'am': [u'the', u'on the', u'at the', u'a', u'about', u'around', u'at',
+            u'by the', u'close to the', u'he', u'in', u'next to the', u'on',
+            u'that', u'the one who', u'this', u'to', u'which', u'who']
+}
+
+>>> lingo.get_translation(['de', 'du'], source='de', target='fr')
+{
+    u'de': [u'zu', u'von', u'des', u'an', u'auf', u'aus', u'mit', u'um',
+            u'vor', u'\xfcber'],
+    u'du': [u'der', u'nach', u'zur', u'\u2205']
+}
+```
+
+#### get_vocabulary(language_abbr=None)
+
+Gets the user's vocabulary for a given language. If language_abbr is none, the
+user's current language is used.
+
+```py
+>>> lingo  = duolingo.Duolingo('kartik')
+>>> print lingo.get_vocabulary()
+{
+    language_string: "French",
+    learning_language: "fr",
+    from_language: "en",
+    language_information: {...},
+    vocab_overview: [
+    {
+        strength_bars: 4,
+        infinitive: null,
+        normalized_string: "beaucoup",
+        pos: "Adverb",
+        last_practiced_ms: 1436317448000,
+        skill: "Adverbs 1",
+        related_lexemes: [ ],
+        last_practiced: "2015-07-08T01:04:08Z",
+        strength: 0.961873,
+        skill_url_title: "Adverbs-1",
+        gender: null,
+        id: "cb6d7331b5f41a3d3e3d85f678495259",
+        lexeme_id: "cb6d7331b5f41a3d3e3d85f678495259",
+        word_string: "beaucoup"
+        },
+        ...
+    ]
+}
+
+>>> print lingo.get_vocabulary(language_abbr='de')
+{
+    language_string: "German",
+    learning_language: "de",
+    from_language: "en",
+    language_information: {...},
+    vocab_overview: [
+    {
+        strength_bars: 4,
+        infinitive: null,
+        normalized_string: "am",
+        pos: "Preposition",
+        last_practiced_ms: 1436422057000,
+        skill: "Dative Case",
+        related_lexemes: [
+        "bb7397cbcb9f6665fcba49eced7b8619"
+        ],
+        last_practiced: "2015-07-09T06:07:37Z",
+        strength: 0.999987,
+        skill_url_title: "Dative-Case",
+        gender: "Masculine",
+        id: "2ffcc3aea9f3005d69b38083a6cac19d",
+        lexeme_id: "2ffcc3aea9f3005d69b38083a6cac19d",
+        word_string: "am"
+        },
+        ...
+    ]
+}
+```
+
+#### get_audio_url(word, language_abbr=None)
+
+**EXPERIMENTAL**
+
+Returns the path to an audio file containing the pronunciation of the word
+given. The language defaults to the user's current learning language.
+
+This method is considered experimental because it relies heavily on
+implementation-specific information on Duolingo and will not function for
+certain languages. It has been tested and works with French, German, and
+Spanish, but does not work for Turkish and Irish.
+
+```py
+>>> lingo  = duolingo.Duolingo('kartik')
+>>> print lingo.get_audio_url('bonjour')
+'https://d7mj4aqfscim2.cloudfront.net/tts/fr/token/bonjour'
+
+>>> print lingo.get_audio_url('hallo', language_abbr='de')
+'https://d7mj4aqfscim2.cloudfront.net/tts/de/token/hallo'
+```
+
+#### get_related_words(word, language_abbr=None)
+
+Returns a list of "related words" from the user's vocabulary list. For instance,
+for the German verb "gehen", ```get_related_words``` will return a list of
+miscellaneous conjugations like "gehe" and "gingen".
+
+The dictionaries it returns are identical in format to those returned by
+get_vocabulary.
+
+```py
+>>> lingo  = duolingo.Duolingo('kartik')
+>>> print lingo.get_related_words('aller')
+[
+    {
+        u'last_practiced': u'2015-05-27T06:01:18Z',
+        u'strength': 0.991741,
+        u'strength_bars': 4,
+        u'infinitive': u'aller',
+        u'lexeme_id': u'51a2297870df84c13c7ce0b5f987ae70',
+        u'normalized_string': u'allait',
+        u'pos': u'Verb',
+        u'id': u'51a2297870df84c13c7ce0b5f987ae70',
+        u'last_practiced_ms': 1432706478000.0,
+        u'gender': None,
+        u'skill': u'Verbs: Past Imperfect',
+        u'word_string': u'allait',
+        u'related_lexemes': [...],
+        u'skill_url_title': u'Verbs:-Past-Imperfect'
+    },
+    ...
+]
+
+>>> print lingo.get_audio_url('hallo', language_abbr='de')
+[
+    {
+        u'last_practiced': u'2015-07-09T06:07:37Z',
+        u'strength': 0.999987,
+        u'strength_bars': 4,
+        u'infinitive': u'gehen',
+        u'lexeme_id': u'e29e6fb5291a3c4167f67d9d31dc86aa',
+        u'normalized_string': u'ging',
+        u'pos': u'Verb',
+        u'id': u'e29e6fb5291a3c4167f67d9d31dc86aa',
+        u'last_practiced_ms': 1436422057000.0,
+        u'gender': None,
+        u'skill': u'Verbs: Preterite',
+        u'word_string': u'ging',
+        u'related_lexemes': [...],
+        u'skill_url_title': u'Verbs:-Preterite'
+    },
+    ...
+]
 ```
