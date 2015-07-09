@@ -8,7 +8,6 @@ directly from the api resource dictionary. More methods to come.
 #### TODO
 
 - Integrate authenticated data
-- Add user activity stream
 
 
 ## Installation
@@ -51,6 +50,7 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 - lingo **.get_learned_skills(lang)**
 - lingo **.get_language_from_abbr(language_abbr)**
 - lingo **.get_abbreviation_of(language_name)**
+- lingo **.get_activity_stream(before=None)**
 
 
 #### get_user_info()
@@ -296,4 +296,42 @@ print lingo.get_abbreviation_of('French')
 
 ```
 u'fr'
+```
+
+#### get_activity_stream(before=None)
+
+The Duolingo API returns a "before" value with each request to the activity
+stream. To get the previous set of data in the stream, feed it the 'before'
+value from the current stream.
+
+```py
+>>> lingo  = duolingo.Duolingo('kartik')
+>>> print lingo.get_activity_stream()
+{
+    u'more_events': True,
+    u'events': [
+        {
+            u'type': 'practice',
+            u'language_string': 'German',
+            ...
+        },
+        ...
+    ],
+    u'js_version': u'//url_to_javascript',
+    u'before': u'2015-07-06 05:42:24'
+}
+>>> print lingo.get_activity_stream(before='2015-07-06 05:42:24')
+{
+    u'more_events': True,
+    u'events': [
+        {
+            u'type': "unlock",
+            u'skills': [...],
+            ...
+        },
+        ...
+    ],
+    u'js_version': u'js_version': u'//url_to_javascript',
+    u'before': u'2015-07-05 07:44:56'
+}
 ```

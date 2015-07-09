@@ -31,6 +31,17 @@ class Duolingo(object):
 
         raise Exception("Login failed")
 
+    def get_activity_stream(self, before=None):
+        if before:
+            url = "https://www.duolingo.com/stream/{}?before={}".format(self.user_data.id, before)
+        else:
+            url = "https://www.duolingo.com/activity/{}".format(self.user_data.id)
+        request = self.session.get(url)
+        try:
+            return request.json()
+        except:
+            raise Exception('Could not get activity stream')
+
     def _switch_language(self, lang):
         data = {"learning_language": lang}
         url = "https://www.duolingo.com/switch_language"
