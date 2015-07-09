@@ -8,6 +8,7 @@ directly from the api resource dictionary. More methods to come.
 #### TODO
 
 - Integrate authenticated data
+- Exception when user tries to get data that requires login
 
 
 ## Installation
@@ -21,11 +22,10 @@ $ pip install duolingo-api
 
 
 ```py
-import duolingo
-
-lingo  = duolingo.Duolingo('kartik')
+>>> import duolingo
+>>> lingo  = duolingo.Duolingo('kartik')
 # or
-lingo  = duolingo.Duolingo('kartik', password='my optional password')
+>>> lingo  = duolingo.Duolingo('kartik', password='my optional password')
 ```
 
 - if you want to get information on your learning progress, then you must be logged in
@@ -37,7 +37,7 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 #### Summary
 
 - lingo **.get_user_info()**
-- lingo **.get_user_settings()**
+- lingo **.get_settings()**
 - lingo **.get_languages(abbreviations=False)**
 - lingo **.get_friends()**
 - lingo **.get_calendar(language_abbr=None)**
@@ -54,6 +54,9 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 
 
 #### get_user_info()
+
+Returns a dictionary containing various information on the user, including their
+avatar, their user id, their location, their current language, etc.
 
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
@@ -79,7 +82,9 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 }
 ```
 
-#### get_user_settings()
+#### get_settings()
+
+Returns the user's settings.
 
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
@@ -94,6 +99,9 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 
 #### get_languages(abbreviations=False)
 
+Returns a list of languages the user is learning. To get a list containing the
+abbreviations, set the keyword argument "abbreviations" to true.
+
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
 >>> print lingo.get_languages()
@@ -105,6 +113,9 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 ```
 
 #### get_friends()
+
+Returns a list of users' friends, their total points earned, and the languages
+they are learning. The current user is included in this list.
 
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
@@ -126,6 +137,9 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 
 #### get_streak_info()
 
+Returns the current site-wide streak, including daily goal information, and
+whether the streak has been extended today.
+
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
 >>> print lingo.get_streak_info()
@@ -137,6 +151,9 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 ```
 
 #### get_certificates()
+
+Returns the list of certificates, including score, language, and a datetime
+string.
 
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
@@ -151,6 +168,9 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 ```
 
 #### get_language_details(language_name)
+
+Returns the language details for a given language, including the current streak,
+the level, and total number of points.
 
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
@@ -167,6 +187,8 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 ```
 
 #### get_language_progress(language_abbr)
+
+Returns the language progress for a given language.
 
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
@@ -188,9 +210,11 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 
 #### get_known_words(language_abbr)
 
+Returns a set containing known words.
+
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
->>> print lingo.get_known_words()
+>>> print lingo.get_known_words('fr')
 [
     u'absolument',
     u'accept\xe9',
@@ -210,6 +234,12 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 ```
 
 #### get_known_topics(language_abbr)
+
+Returns a list containing the names of the known topics. Differs from
+```get_learned_skills``` in that it only returns names, instead of the entire
+skill data.
+
+Order is not guaranteed.
 
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
@@ -233,27 +263,72 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 
 #### get_learned_skills(language_abbr)
 
+Returns an ordered list containing the names of the known topics by date
+learned. Differs from ```get_known_topics``` in that it returns the entire
+skill data of each skill learned, rather than only the name.
+
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
 >>> print lingo.get_learned_skills('fr')
 [
-    u'Basics',
-    u'Basics 2',
-    u'Colors',
-    u'Animals',
-    u'Possessives',
-    u'Verbs: \xcatre / Avoir',
-    u'Verbs: Present 1',
-    u'Clothing',
-    u'Food',
-    u'Questions',
-    u'Plurals',
-    u'Common Phrases',
-    u'Adjectives 1'
+    {
+        u'language_string': u'French',
+        u'dependency_order': 0,
+        u'dependencies_name': [],
+        u'practice_recommended': False,
+        u'learning_threshold': 0,
+        u'disabled': False,
+        u'more_lessons': 0,
+        u'test_count': 3,
+        u'missing_lessons': 0,
+        u'lesson': False,
+        u'progress_percent': 100.0,
+        u'id': u'aad5e3a9fc5bb6a9b55a4d20d40c3f27',
+        u'description': u'',
+        u'category': u'',
+        u'num_lessons': 4,
+        u'language': u'fr',
+        u'strength': 0.25,
+        u'beginner': True,
+        u'title': u'Basics 1',
+        u'coords_y': 1,
+        u'coords_x': 2,
+        u'url_title': u'Basics-1',
+        u'test': True,
+        u'lesson_number': 1,
+        u'learned': True,
+        u'num_translation_nodes': 0,
+        u'learning_threshold_percentage': 0,
+        u'icon_color': u'blue',
+        u'index': u'0',
+        u'bonus': False,
+        u'explanation': (string containing HTML of explanation),
+        u'num_lexemes': 30,
+        u'num_missing': 0,
+        u'left_lessons': 0,
+        u'dependencies': [],
+        u'known_lexemes': [...],
+        u'words': [list of words contained in the lesson],
+        u'path': [],
+        u'achievements': [],
+        u'short': u'Basics 1',
+        u'locked': False,
+        u'name': u'BASICS',
+        u'comment_data': {},
+        u'new_index': 1,
+        u'changed': False,
+        u'has_explanation': True,
+        u'mastered': True
+    },
+    ...
 ]
 ```
 
 #### get_language_from_abbr(language_abbr)
+
+When the ```language_abbr``` of a language is known, but the full language name
+is not, Duolingo.get_language_from_abbr() can be used to get the
+full name. This only works for languages that the user is learning.
 
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
@@ -262,6 +337,10 @@ u'French'
 ```
 
 #### get_abbreviation_of(language_abbr)
+
+When the ```language_string``` of a language is known, but the language
+abbreviation is not, Duolingo.get_abbreviation_of() can be used to get the
+abbreviation. This only works for languages that the user is learning.
 
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
@@ -291,6 +370,7 @@ value from the current stream.
     u'js_version': u'//url_to_javascript',
     u'before': u'2015-07-06 05:42:24'
 }
+
 >>> print lingo.get_activity_stream(before='2015-07-06 05:42:24')
 {
     u'more_events': True,
