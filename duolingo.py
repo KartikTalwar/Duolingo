@@ -1,7 +1,9 @@
 import re
 import json
+import random
 import requests
 from werkzeug.datastructures import MultiDict
+
 
 class Struct:
 
@@ -240,22 +242,63 @@ class Duolingo(object):
         return overview
 
     _cloudfront_server_url = None
+    _homepage_text = None
 
+    @property
+    def _homepage(self):
+        if self._homepage_text:
+            return self._homepage_text
+        homepage_url = "https://www.duolingo.com"
+        request = self.session.get(homepage_url)
+        self._homepage_text = request.text
+        return self._homepage
+
+    @property
     def _cloudfront_server(self):
         if self._cloudfront_server_url:
             return self._cloudfront_server_url
 
-        homepage_url = "https://www.duolingo.com"
-        request = self.session.get(homepage_url)
-        server_list = re.search('//.+\.cloudfront\.net', request.text)
+        server_list = re.search('//.+\.cloudfront\.net', self._homepage)
         self._cloudfront_server_url = "https:{}".format(server_list.group(0))
 
         return self._cloudfront_server_url
 
-    def get_audio_url(self, word, language_abbr=None):
+    _tts_voices = None
+
+    def _process_tts_voices(self):
+        voices_js = re.search('duo\.tts_multi_voices = {.+};', self._homepage).group(0)
+
+        voices = voices_js[voices_js.find("{"):voices_js.find("}")+1]
+        self._tts_voices = json.loads(voices)
+
+    def _get_voice(self, language_abbr, rand=False, voice=None):
+        if not self._tts_voices:
+            self._process_tts_voices()
+        if voice and voice != 'default':
+            return '{}/{}'.format(language_abbr, voice)
+        if rand:
+            return random.choice(self._tts_voices[language_abbr])
+        else:
+            return self._tts_voices[language_abbr][0]
+
+    def get_language_voices(self, language_abbr=None):
         if not language_abbr:
             language_abbr = self.user_data.language_data.keys()[0]
-        return "{}/tts/{}/token/{}".format(self._cloudfront_server(), language_abbr, word)
+        voices = []
+        if not self._tts_voices:
+            self._process_tts_voices()
+        for voice in self._tts_voices[language_abbr]:
+            if voice == language_abbr:
+                voices.append('default')
+            else:
+                voices.append(voice.replace('{}/'.format(language_abbr), ''))
+        return voices
+
+    def get_audio_url(self, word, language_abbr=None, random=True, voice=None):
+        if not language_abbr:
+            language_abbr = self.user_data.language_data.keys()[0]
+        tts_voice = self._get_voice(language_abbr, rand=random, voice=voice)
+        return "{}/tts/{}/token/{}".format(self._cloudfront_server, tts_voice, word)
 
     def get_related_words(self, word, language_abbr=None):
         if language_abbr and not self._is_current_language(language_abbr):

@@ -53,7 +53,8 @@ $ pip install duolingo-api
 - lingo **.get_activity_stream(before=None)**
 - lingo **.get_translations(words, source=None, target=None)**
 - lingo **.get_vocabulary(language_abbr=None)**
-- lingo **.get_audio_url(word, language_abbr=None)** (experimental)
+- lingo **.get_audio_voices(language_abbr)**
+- lingo **.get_audio_url(word, language_abbr=None, random=True, voice=None)**
 - lingo **.get_related_words(word, language_abbr=None)**
 
 
@@ -491,17 +492,35 @@ user's current language is used.
 }
 ```
 
-#### get_audio_url(word, language_abbr=None)
+#### get_audio_voices(language_abbr)
 
-**EXPERIMENTAL**
+Returns a list of voices available in a given language.
+
+The list will always contain at least one voice, but that voice might not always
+be named 'default'. For instance, the only voice available for Turkish is named
+'filiz'.
+
+```py
+>>> lingo  = duolingo.Duolingo('kartik')
+>>> print lingo.get_audio_voices('fr')
+['default', u'mathieu']
+
+>>> print lingo.get_audio_voices('tr')
+[u'filiz']
+
+>>> print lingo.get_audio_voices('de')
+['default']
+```
+
+#### get_audio_url(word, language_abbr=None, random=True, voice=None)
 
 Returns the path to an audio file containing the pronunciation of the word
 given. The language defaults to the user's current learning language.
 
-This method is considered experimental because it relies heavily on
-implementation-specific information on Duolingo and will not function for
-certain languages. It has been tested and works with French, German, and
-Spanish, but does not work for Turkish and Irish.
+The voice used by default is randomly selected from Duolingo's available voices.
+To get a specific voice, pass the voice parameter with the name of the voice.
+To get the default voice (which is mostly an implementation detail), set random
+to False without passing a voice.
 
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
@@ -510,6 +529,9 @@ Spanish, but does not work for Turkish and Irish.
 
 >>> print lingo.get_audio_url('hallo', language_abbr='de')
 'https://d7mj4aqfscim2.cloudfront.net/tts/de/token/hallo'
+
+>>> print lingo.get_audio_url('bonjour', voice='mathieu')
+'https://d7mj4aqfscim2.cloudfront.net/tts/fr/mathieu/token/bonjour'
 ```
 
 #### get_related_words(word, language_abbr=None)
