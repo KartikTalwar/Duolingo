@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = "duolingo-api",
-    version = "0.1",
+    version = "0.3",
     author = "Kartik Talwar",
     author_email = "hi@kartikt.com",
     description = ("Unofficial API for duolingo.com"),
