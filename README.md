@@ -341,7 +341,7 @@ full name. This only works for languages that the user is learning.
 u'French'
 ```
 
-#### get_abbreviation_of(language_abbr)
+#### get_abbreviation_of(language_name)
 
 When the ```language_string``` of a language is known, but the language
 abbreviation is not, Duolingo.get_abbreviation_of() can be used to get the
