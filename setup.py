@@ -1,8 +1,9 @@
 from setuptools import setup
 import duolingo
 
-with open('README.md') as fd:
-    long_description = fd.read()
+def read_file(name):
+    with open(name) as fd:
+        return fd.read()
 
 setup(
     name="duolingo-api",
@@ -14,7 +15,7 @@ setup(
     keywords="duolingo, duolingo api, language",
     license='MIT',
     py_modules=['duolingo'],
-    install_requires=("Werkzeug", "requests"),
+    install_requires=read_file('requirements.txt').splitlines(),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
@@ -27,5 +28,5 @@ setup(
         'Topic :: Software Development :: Libraries',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    long_description=long_description
+    long_description=read_file('README.md')
 )

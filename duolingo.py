@@ -2,8 +2,6 @@
 import re
 import json
 import random
-import requests
-from werkzeug.datastructures import MultiDict
 
 __version__ = "0.3"
 __author__ = "Kartik Talwar"
@@ -20,6 +18,7 @@ class Struct:
 class Duolingo(object):
 
     def __init__(self, username, password=None):
+        import requests
         self.username = username
         self.password = password
         self.user_url = "http://duolingo.com/users/%s" % self.username
@@ -83,6 +82,7 @@ class Duolingo(object):
             based on the skill's dependencies. Multiple skills will have the same
             position if they have the same dependencies.
         """
+        from werkzeug.datastructures import MultiDict
         # Key skills by first dependency. Dependency sets can be uniquely
         # identified by one dependency in the set.
         dependency_to_skill = MultiDict([(skill['dependencies_name'][0]
