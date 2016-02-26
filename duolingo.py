@@ -185,7 +185,7 @@ class Duolingo(object):
         return self._make_dict(fields, self.user_data.language_data[lang])
 
     def get_friends(self):
-        for k, v in self.user_data.language_data.iteritems():
+        for k, v in self.user_data.language_data.items():
             data = []
             for friend in v['points_ranking_data']:
                 temp = {'username': friend['username'], 'points': friend['points_data']['total']}
@@ -225,7 +225,7 @@ class Duolingo(object):
         if not source:
             source = self.user_data.ui_language
         if not target:
-            target = self.user_data.language_data.keys()[0]
+            target = list(self.user_data.language_data.keys())[0]
 
         word_parameter = json.dumps(words, separators=(',', ':'))
         url = "https://d2.duolingo.com/api/1/dictionary/hints/{}/{}?tokens={}".format(
@@ -302,7 +302,7 @@ class Duolingo(object):
 
     def get_audio_url(self, word, language_abbr=None, random=True, voice=None):
         if not language_abbr:
-            language_abbr = self.user_data.language_data.keys()[0]
+            language_abbr = list(self.user_data.language_data.keys())[0]
         tts_voice = self._get_voice(language_abbr, rand=random, voice=voice)
         return "{}/tts/{}/token/{}".format(self._cloudfront_server, tts_voice, word)
 
