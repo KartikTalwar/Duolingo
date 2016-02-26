@@ -1,6 +1,8 @@
 # Duolingo
 
 [![Build Status](https://travis-ci.org/KartikTalwar/Duolingo.svg?branch=master)](https://travis-ci.org/KartikTalwar/Duolingo)
+[![Coverage Status](https://coveralls.io/repos/github/KartikTalwar/Duolingo/badge.svg?branch=master)](https://coveralls.io/github/KartikTalwar/Duolingo?branch=master)
+
 
 Unofficial Duolingo API Written in Python. This is mostly a collection of functions that give you common data
 directly from the api resource dictionary. More methods to come.
