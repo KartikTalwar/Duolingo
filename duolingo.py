@@ -1,8 +1,14 @@
+"""Unofficial API for duolingo.com"""
 import re
 import json
 import random
 import requests
 from werkzeug.datastructures import MultiDict
+
+__version__ = "0.3"
+__author__ = "Kartik Talwar"
+__email__ = "hi@kartikt.com"
+__url__ = "http://github.com/KartikTalwar/duolingo"
 
 
 class Struct:
