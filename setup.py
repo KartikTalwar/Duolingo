@@ -1,6 +1,7 @@
 from setuptools import setup
 import duolingo
 
+
 def read_file(name):
     with open(name) as fd:
         return fd.read()
@@ -24,6 +25,9 @@ setup(
         "Programming Language :: Python",
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Topic :: Software Development',
         'Topic :: Software Development :: Libraries',
         'Topic :: Software Development :: Libraries :: Python Modules',

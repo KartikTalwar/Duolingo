@@ -2,7 +2,6 @@ language: python
 
 python:
   - "2.7"
-  - "3.2"
   - "3.3"
   - "3.4"
   - "3.5"
@@ -11,14 +10,15 @@ python:
 
 install:
   - TOX_ENV=py${TRAVIS_PYTHON_VERSION}
-  - pip install 'virtualenv<14.0.0' tox coveralls
+  - pip install 'virtualenv<14.0.0' tox
+  - tox -e $TOX_ENV -- pip install coveralls
   - tox -e $TOX_ENV --notest
 
 script:
   - tox -e $TOX_ENV
 
 after_success:
-  - tox -e $TOX_ENV -- coveralls $COVERALLS_OPTION
+  - tox -e $TOX_ENV -- coveralls
 
 matrix:
   fast_finish: true
