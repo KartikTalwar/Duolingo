@@ -1,2 +1,4 @@
 *.pyc
 duolingo_api.egg-info
+.tox/
+.coverage
