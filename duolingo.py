@@ -50,6 +50,15 @@ class Duolingo(object):
         except:
             raise Exception('Could not get activity stream')
 
+    def buy_streak_freeze(self, abbr):
+        url = 'https://www.duolingo.com/store/purchase_item'
+        data = {'item_name': 'streak_freeze', 'learning_language': abbr}
+        request = self.session.post(url, data)
+
+        if not request.ok:
+            raise Exception('Not possible to buy streak freeze. '
+                            'May already be equipped.')
+
     def _switch_language(self, lang):
         data = {"learning_language": lang}
         url = "https://www.duolingo.com/switch_language"

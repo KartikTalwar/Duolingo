@@ -3,3 +3,5 @@
 duolingo_api.egg-info
 .tox/
 .coverage
+dev
+dev/*
