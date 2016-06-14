@@ -262,9 +262,9 @@ class Duolingo(object):
     def get_known_words(self, lang):
         """Get a list of all words learned by user in a language."""
         words = []
-        for word in self.user_data.language_data[lang]['skills']:
-            if word['learned']:
-                words += word['words']
+        for topic in self.user_data.language_data[lang]['skills']:
+            if topic['learned']:
+                words += topic['words']
         return set(words)
 
     def get_learned_skills(self, lang):
