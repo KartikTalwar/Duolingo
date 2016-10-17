@@ -11,7 +11,6 @@ directly from the api resource dictionary. More methods to come.
 #### TODO
 
 - Integrate authenticated data
-- Exception when user tries to get data that requires login
 
 
 ## Installation
@@ -56,7 +55,7 @@ $ pip install duolingo-api
 - lingo **.get_activity_stream(before=None)**
 - lingo **.get_translations(words, source=None, target=None)**
 - lingo **.get_vocabulary(language_abbr=None)**
-- lingo **.get_audio_voices(language_abbr)**
+- lingo **.get_language_voices(language_abbr)**
 - lingo **.get_audio_url(word, language_abbr=None, random=True, voice=None)**
 - lingo **.get_related_words(word, language_abbr=None)**
 
@@ -495,7 +494,7 @@ user's current language is used.
 }
 ```
 
-#### get_audio_voices(language_abbr)
+#### get_language_voices(language_abbr)
 
 Returns a list of voices available in a given language.
 
@@ -505,13 +504,13 @@ be named 'default'. For instance, the only voice available for Turkish is named
 
 ```py
 >>> lingo  = duolingo.Duolingo('kartik')
->>> print lingo.get_audio_voices('fr')
+>>> print lingo.get_language_voices('fr')
 ['default', u'mathieu']
 
->>> print lingo.get_audio_voices('tr')
+>>> print lingo.get_language_voices('tr')
 [u'filiz']
 
->>> print lingo.get_audio_voices('de')
+>>> print lingo.get_language_voices('de')
 ['default']
 ```
 

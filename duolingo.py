@@ -31,13 +31,22 @@ class Duolingo(object):
 
         self.user_data = Struct(**self._get_data())
 
+    def _make_req(self, url, data=None):
+        if data:
+            req = requests.Request('POST', url, data=data, cookies=self.session.cookies)
+        else:
+            req = requests.Request('GET', url, cookies=self.session.cookies)
+        prepped = req.prepare()
+        return self.session.send(prepped)
+
+
     def _login(self):
         """
         Authenticate through ``https://www.duolingo.com/login``.
         """
         login_url = "https://www.duolingo.com/login"
         data = {"login": self.username, "password": self.password}
-        attempt = self.session.post(login_url, data).json()
+        attempt = self._make_req(login_url, data).json()
 
         if attempt.get('response') == 'OK':
             return True
@@ -61,16 +70,16 @@ class Duolingo(object):
         else:
             url = "https://www.duolingo.com/activity/{}"
             url = url.format(self.user_data.id)
-        request = self.session.get(url)
+        request = self._make_req(url)
         try:
             return request.json()
         except:
             raise Exception('Could not get activity stream')
 
-    def buy_streak_freeze(self, abbr):
+    def buy_item(self, item_name, abbr):
         url = 'https://www.duolingo.com/store/purchase_item'
-        data = {'item_name': 'streak_freeze', 'learning_language': abbr}
-        request = self.session.post(url, data)
+        data = {'item_name': item_name, 'learning_language': abbr}
+        request = self._make_req(url, data)
 
         if not request.ok:
             raise Exception('Not possible to buy streak freeze. '
@@ -86,7 +95,7 @@ class Duolingo(object):
         """
         data = {"learning_language": lang}
         url = "https://www.duolingo.com/switch_language"
-        request = self.session.post(url, data)
+        request = self._make_req(url, data)
 
         try:
             parse = request.json()['tracking_properties']
@@ -99,7 +108,7 @@ class Duolingo(object):
         """
         Get user's data from ``https://www.duolingo.com/users/<username>``.
         """
-        get = self.session.get(self.user_url).json()
+        get = self._make_req(self.user_url).json()
         return get
 
     def _make_dict(self, keys, array):
@@ -248,7 +257,7 @@ class Duolingo(object):
 
     def get_friends(self):
         """Get user's friends."""
-        for k, v in self.user_data.language_data.iteritems():
+        for k, v in iter(self.user_data.language_data.items()):
             data = []
             for friend in v['points_ranking_data']:
                 temp = {'username': friend['username'],
@@ -320,11 +329,13 @@ class Duolingo(object):
 
     def get_vocabulary(self, language_abbr=None):
         """Get overview of user's vocabulary in a language."""
+        if not self.password:
+            raise Exception("You must provide a password for this function")
         if language_abbr and not self._is_current_language(language_abbr):
             self._switch_language(language_abbr)
 
         overview_url = "https://www.duolingo.com/vocabulary/overview"
-        overview_request = self.session.get(overview_url)
+        overview_request = self._make_req(overview_url)
         overview = overview_request.json()
 
         return overview
@@ -337,7 +348,7 @@ class Duolingo(object):
         if self._homepage_text:
             return self._homepage_text
         homepage_url = "https://www.duolingo.com"
-        request = self.session.get(homepage_url)
+        request = self._make_req(homepage_url)
         self._homepage_text = request.text
         return self._homepage
 
@@ -391,11 +402,13 @@ class Duolingo(object):
                                            word)
 
     def get_related_words(self, word, language_abbr=None):
+        if not self.password:
+            raise Exception("You must provide a password for this function")
         if language_abbr and not self._is_current_language(language_abbr):
             self._switch_language(language_abbr)
 
         overview_url = "https://www.duolingo.com/vocabulary/overview"
-        overview_request = self.session.get(overview_url)
+        overview_request = self._make_req(overview_url)
         overview = overview_request.json()
 
         for word_data in overview['vocab_overview']:
@@ -421,7 +434,7 @@ if __name__ == '__main__':
 
     from pprint import pprint
 
-    duolingo = Duolingo('kartik')
-    knowntopic = duolingo.get_known_topics('fr')
+    duolingo = Duolingo('ferguslongley')
+    knowntopic = duolingo.get_known_topics('it')
 
     pprint(knowntopic)
