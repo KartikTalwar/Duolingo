@@ -76,10 +76,10 @@ class Duolingo(object):
         except:
             raise Exception('Could not get activity stream')
 
-    def buy_streak_freeze(self, abbr):
+    def buy_item(self, item_name, abbr):
         url = 'https://www.duolingo.com/store/purchase_item'
-        data = {'item_name': 'streak_freeze', 'learning_language': abbr}
-        request = self.session.post(url, data)
+        data = {'item_name': item_name, 'learning_language': abbr}
+        request = self._make_req(url, data)
 
         if not request.ok:
             raise Exception('Not possible to buy streak freeze. '
@@ -95,7 +95,7 @@ class Duolingo(object):
         """
         data = {"learning_language": lang}
         url = "https://www.duolingo.com/switch_language"
-        request = self.session.post(url, data)
+        request = self._make_req(url, data)
 
         try:
             parse = request.json()['tracking_properties']
@@ -329,6 +329,8 @@ class Duolingo(object):
 
     def get_vocabulary(self, language_abbr=None):
         """Get overview of user's vocabulary in a language."""
+        if not self.password:
+            raise Exception("You must provide a password for this function")
         if language_abbr and not self._is_current_language(language_abbr):
             self._switch_language(language_abbr)
 
@@ -400,6 +402,8 @@ class Duolingo(object):
                                            word)
 
     def get_related_words(self, word, language_abbr=None):
+        if not self.password:
+            raise Exception("You must provide a password for this function")
         if language_abbr and not self._is_current_language(language_abbr):
             self._switch_language(language_abbr)
 
@@ -430,7 +434,7 @@ if __name__ == '__main__':
 
     from pprint import pprint
 
-    duolingo = Duolingo('kartik')
-    knowntopic = duolingo.get_known_topics('fr')
+    duolingo = Duolingo('ferguslongley')
+    knowntopic = duolingo.get_known_topics('it')
 
     pprint(knowntopic)
