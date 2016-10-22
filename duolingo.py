@@ -39,7 +39,6 @@ class Duolingo(object):
         prepped = req.prepare()
         return self.session.send(prepped)
 
-
     def _login(self):
         """
         Authenticate through ``https://www.duolingo.com/login``.
