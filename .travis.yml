@@ -8,13 +8,9 @@ python:
   - "pypy3"
 
 install:
-  - TOX_ENV=py${TRAVIS_PYTHON_VERSION}
-  - pip install 'virtualenv<14.0.0' tox
-  - tox -e $TOX_ENV -- pip install coveralls
-  - tox -e $TOX_ENV --notest
-
+  pip install tox-travis
 script:
-  - tox -e $TOX_ENV
+  tox
 
 after_success:
   - tox -e $TOX_ENV -- coveralls
