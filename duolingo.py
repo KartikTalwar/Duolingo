@@ -383,7 +383,7 @@ class Duolingo(object):
 
     def get_language_voices(self, language_abbr=None):
         if not language_abbr:
-            language_abbr = self.user_data.language_data.keys()[0]
+            language_abbr = list(self.user_data.language_data.keys())[0]
         voices = []
         if not self._tts_voices:
             self._process_tts_voices()
