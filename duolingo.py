@@ -9,7 +9,7 @@ from werkzeug.datastructures import MultiDict
 __version__ = "0.3"
 __author__ = "Kartik Talwar"
 __email__ = "hi@kartikt.com"
-__url__ = "http://github.com/KartikTalwar/duolingo"
+__url__ = "https://github.com/KartikTalwar/duolingo"
 
 
 class Struct:
@@ -23,7 +23,7 @@ class Duolingo(object):
     def __init__(self, username, password=None):
         self.username = username
         self.password = password
-        self.user_url = "http://duolingo.com/users/%s" % self.username
+        self.user_url = "https://duolingo.com/users/%s" % self.username
         self.session = requests.Session()
 
         if password:
