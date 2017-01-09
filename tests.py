@@ -2,7 +2,7 @@ import os
 import unittest
 import duolingo
 
-USERNAME = os.environ.get('DUOLINGO_USER')
+USERNAME = os.environ.get('DUOLINGO_USER', 'ferguslongley')
 PASSWORD = os.environ.get('DUOLINGO_PASSWORD')
 
 
