@@ -110,7 +110,8 @@ class Duolingo(object):
         get = self._make_req(self.user_url).json()
         return get
 
-    def _make_dict(self, keys, array):
+    @staticmethod
+    def _make_dict(keys, array):
         data = {}
 
         for key in keys:
@@ -121,7 +122,8 @@ class Duolingo(object):
 
         return data
 
-    def _compute_dependency_order(self, skills):
+    @staticmethod
+    def _compute_dependency_order(skills):
         """
         Add a field to each skill indicating the order it was learned
         based on the skill's dependencies. Multiple skills will have the same
@@ -260,9 +262,9 @@ class Duolingo(object):
             data = []
             for friend in v['points_ranking_data']:
                 temp = {'username': friend['username'],
-                        'points': friend['points_data']['total']}
-                temp['languages'] = [i['language_string'] for i in
-                                     friend['points_data']['languages']]
+                        'points': friend['points_data']['total'],
+                        'languages': [i['language_string'] for i in
+                                      friend['points_data']['languages']]}
                 data.append(temp)
 
             return data
