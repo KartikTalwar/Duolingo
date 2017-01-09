@@ -1,28 +1,16 @@
 language: python
 
 python:
-  - "2.7"
   - "3.3"
   - "3.4"
   - "3.5"
-  - "pypy"
-  - "pypy3"
-
+cache: pip
 install:
-  - TOX_ENV=py${TRAVIS_PYTHON_VERSION}
-  - pip install 'virtualenv<14.0.0' tox
-  - tox -e $TOX_ENV -- pip install coveralls
-  - tox -e $TOX_ENV --notest
-
+  - pip install -r requirements.txt
+  - pip install -U pytest
+  - pip install pytest-cov
+  - pip install coveralls
 script:
-  - tox -e $TOX_ENV
-
+  - pytest tests.py
 after_success:
-  - tox -e $TOX_ENV -- coveralls
-
-matrix:
-  fast_finish: true
-  include:
-    - python: "3.4"
-      script: tox -e lint
-      env: TOX_ENV=lint
+  - coveralls
