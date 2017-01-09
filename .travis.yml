@@ -11,6 +11,6 @@ install:
   - pip install pytest-cov
   - pip install coveralls
 script:
-  - pytest
+  - pytest tests.py
 after_success:
   - coveralls
