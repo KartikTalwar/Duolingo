@@ -66,6 +66,12 @@ class DuolingoTest(unittest.TestCase):
         response = self.lingo.get_translations(['e', 'a'])
 
     @unittest.skipIf(not PASSWORD, "You must have valid username/password")
+    def test_get_leaderboard(self):
+        response = self.lingo.get_leaderboard('week')
+        response = self.lingo.get_leaderboard('month')
+        response = self.lingo.get_leaderboard('year')
+
+    @unittest.skipIf(not PASSWORD, "You must have valid username/password")
     def test_get_vocabulary(self):
         response = self.lingo.get_vocabulary()
         response = self.lingo.get_vocabulary(self.lang)
