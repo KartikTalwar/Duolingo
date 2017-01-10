@@ -77,22 +77,22 @@ class Duolingo(object):
         except:
             raise Exception('Could not get activity stream')
 
-    def get_leaderboard(self, unit='week', before=time.time()):
+    def get_leaderboard(self, unit=None, before=time.time()):
         """
-        Get user's rank in the week, stream from
-        ``https://www.duolingo.com/friendships/leaderboard_activity?unit=week&_=time (bring week as default)
+        Get user's rank in the week in descending order, stream from
+        ``https://www.duolingo.com/friendships/leaderboard_activity?unit=week&_=time
 
         :type before: Float (epoch format)
         :type unit: str
         :param before: set the date that you want to consult the result (default is time.time())
         :param unit: maybe week or month
-        :rtype: dict
+        :rtype: List
         """
         if unit:
             url = 'https://www.duolingo.com/friendships/leaderboard_activity?unit={}&_={}'
             url = url.format(unit, before)
         else:
-            raise Exception('Needs unit (week or month) as argument')
+            raise Exception('Needs unit as argument (week or month)')
 
         self.leader_data = self._make_req(url).json()
 
@@ -100,12 +100,13 @@ class Duolingo(object):
         for result in iter(self.get_friends()):
             for value in iter(self.leader_data['ranking']):
                 if result['id'] == int(value):
-                    temp = {unit: self.leader_data['ranking'][value],
+                    temp = {'points': int(self.leader_data['ranking'][value]),
+                            'unit': unit,
                             'id': result['id'],
                             'username': result['username']}
                     data.append(temp)
 
-        return data
+        return sorted(data, key=lambda user: user['points'], reverse=True)
 
     def buy_item(self, item_name, abbr):
         url = 'https://www.duolingo.com/store/purchase_item'
