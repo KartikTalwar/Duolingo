@@ -589,3 +589,19 @@ get_vocabulary.
     ...
 ]
 ```
+
+#### get_leaderboard(unit=None, before=time.time())
+
+Returns an ordered list containing logged user leaderboard. 
+You need to bring week or month as a unit to get the desired result.
+The before argument come with time.time() function, but if you need to know what's 
+your leaderboard in another date, you can pass the date in a epoch format 
+(str works fine too!) 
+
+```py
+>>> lingo = duolingo.Duolingo('kartik')
+>>> print lingo.get_leaderboard('week')
+'https://www.duolingo.com/friendships/leaderboard_activity?unit=week&_=1484054970'
+
+>>> print lingo.get_leaderboard('month')
+'https://www.duolingo.com/friendships/leaderboard_activity?unit=month&_=1484054970'
