@@ -1,9 +1,12 @@
 """Unofficial API for duolingo.com"""
+import pdb
+
 import re
 import json
 import random
 
 import requests
+import time
 from werkzeug.datastructures import MultiDict
 
 __version__ = "0.3"
@@ -13,18 +16,17 @@ __url__ = "https://github.com/KartikTalwar/duolingo"
 
 
 class Struct:
-
     def __init__(self, **entries):
         self.__dict__.update(entries)
 
 
 class Duolingo(object):
-
     def __init__(self, username, password=None):
         self.username = username
         self.password = password
         self.user_url = "https://duolingo.com/users/%s" % self.username
         self.session = requests.Session()
+        self.leader_data = None
 
         if password:
             self._login()
@@ -74,6 +76,36 @@ class Duolingo(object):
             return request.json()
         except:
             raise Exception('Could not get activity stream')
+
+    def get_leaderboard(self, unit='week', before=time.time()):
+        """
+        Get user's rank in the week, stream from
+        ``https://www.duolingo.com/friendships/leaderboard_activity?unit=week&_=time (bring week as default)
+
+        :type before: Float (epoch format)
+        :type unit: str
+        :param before: set the date that you want to consult the result (default is time.time())
+        :param unit: maybe week or month
+        :rtype: dict
+        """
+        if unit:
+            url = 'https://www.duolingo.com/friendships/leaderboard_activity?unit={}&_={}'
+            url = url.format(unit, before)
+        else:
+            raise Exception('Needs unit (week or month) as argument')
+
+        self.leader_data = self._make_req(url).json()
+
+        data = []
+        for result in iter(self.get_friends()):
+            for value in iter(self.leader_data['ranking']):
+                if result['id'] == int(value):
+                    temp = {unit: self.leader_data['ranking'][value],
+                            'id': result['id'],
+                            'username': result['username']}
+                    data.append(temp)
+
+        return data
 
     def buy_item(self, item_name, abbr):
         url = 'https://www.duolingo.com/store/purchase_item'
@@ -262,6 +294,21 @@ class Duolingo(object):
             data = []
             for friend in v['points_ranking_data']:
                 temp = {'username': friend['username'],
+                        'id': friend['id'],
+                        'points': friend['points_data']['total'],
+                        'languages': [i['language_string'] for i in
+                                      friend['points_data']['languages']]}
+                data.append(temp)
+
+            return data
+
+    def get_friends(self):
+        """Get user's friends."""
+        for k, v in iter(self.user_data.language_data.items()):
+            data = []
+            for friend in v['points_ranking_data']:
+                temp = {'username': friend['username'],
+                        'id': friend['id'],
                         'points': friend['points_data']['total'],
                         'languages': [i['language_string'] for i in
                                       friend['points_data']['languages']]}
@@ -319,7 +366,7 @@ class Duolingo(object):
             target = list(self.user_data.language_data.keys())[0]
 
         word_parameter = json.dumps(words, separators=(',', ':'))
-        url = "https://d2.duolingo.com/api/1/dictionary/hints/{}/{}?tokens={}"\
+        url = "https://d2.duolingo.com/api/1/dictionary/hints/{}/{}?tokens={}" \
             .format(target, source, word_parameter)
 
         request = self.session.get(url)
@@ -369,7 +416,7 @@ class Duolingo(object):
         voices_js = re.search('duo\.tts_multi_voices = {.+};',
                               self._homepage).group(0)
 
-        voices = voices_js[voices_js.find("{"):voices_js.find("}")+1]
+        voices = voices_js[voices_js.find("{"):voices_js.find("}") + 1]
         self._tts_voices = json.loads(voices)
 
     def _get_voice(self, language_abbr, rand=False, voice=None):
@@ -430,9 +477,7 @@ for attr in attrs:
     prop = property(getter)
     setattr(Duolingo, attr, prop)
 
-
 if __name__ == '__main__':
-
     from pprint import pprint
 
     duolingo = Duolingo('ferguslongley')
