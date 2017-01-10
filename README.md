@@ -58,6 +58,8 @@ $ pip install duolingo-api
 - lingo **.get_language_voices(language_abbr)**
 - lingo **.get_audio_url(word, language_abbr=None, random=True, voice=None)**
 - lingo **.get_related_words(word, language_abbr=None)**
+- lingo **.buy_item(item_name, language_abbr)**
+- lingo **.buy_streak_freeze()**
 
 
 #### get_user_info()
@@ -588,4 +590,32 @@ get_vocabulary.
     },
     ...
 ]
+```
+
+#### buy_item(item_name, language_abbr)
+
+Buy a specific item in the shop
+
+```py
+>>> lingo  = duolingo.Duolingo('kartik')
+>>> print lingo.buy_item('streak_freeze', 'en')
+{
+    'streak_freeze': '2017-01-10 02:39:59.594327'
+}
+```
+
+This will return a [HTTP Status Code](https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html) = 400
+if the item can't be bought.
+
+#### buy_streak_freeze()
+
+Buy a Streak on Ice extension, if the account has enough Lingots and is not yet equipped with the extension.
+
+Returns 'True' if the extension was bought, 'False' otherwise.
+
+
+```py
+>>> lingo  = duolingo.Duolingo('kartik')
+>>> print lingo.buy_streak_freeze()
+True
 ```
