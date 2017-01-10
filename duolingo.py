@@ -1,6 +1,4 @@
 """Unofficial API for duolingo.com"""
-import pdb
-
 import re
 import json
 import random

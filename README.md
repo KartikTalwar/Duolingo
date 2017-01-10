@@ -595,8 +595,7 @@ get_vocabulary.
 Returns an ordered list containing logged user leaderboard. 
 You need to bring week or month as a unit to get the desired result.
 The before argument come with time.time() function, but if you need to know what's 
-your leaderboard in another date, you can pass the date in a epoch format 
-(str works fine too!) 
+your leaderboard in another date, you can pass the date in a epoch format
 
 ```py
 >>> lingo = duolingo.Duolingo('kartik')
