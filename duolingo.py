@@ -114,9 +114,41 @@ class Duolingo(object):
         data = {'item_name': item_name, 'learning_language': abbr}
         request = self._make_req(url, data)
 
+        """
+        status code '200' indicates that the item was shopped
+        returns a text like: {"streak_freeze":"2017-01-10 02:39:59.594327"}
+        """
+
+        if request.status_code == 400 and item_name == 'streak_freeze':
+            """
+            Duolingo returns a "400" error if one tries to buy a "Streak on Ice" and
+            the profile is already equipped with the streak
+            There is a slight chance that another problem raised the 400 error,
+            but most likely the existing extension is the problem
+            """
+            raise Exception('Already equipped with streak freeze.')
         if not request.ok:
-            raise Exception('Not possible to buy streak freeze. '
-                            'May already be equipped.')
+            # any other error:
+            raise Exception('Not possible to buy item.')
+
+    def buy_streak_freeze(self):
+        """
+        figure out the users current learning language
+        use this one as parameter for the shop
+        """
+        lang = self.get_abbreviation_of(self.get_user_info()['learning_language_string'])
+        if lang is None:
+            raise Exception('No learning language found')
+        try:
+            result = self.buy_item('streak_freeze', lang)
+            return True
+        except Exception as e:
+            if e.args[0] == 'Already equipped with streak freeze.':
+                # we are good
+                return False
+            else:
+                # unknown exception, raise it again
+                raise Exception(e.args)
 
     def _switch_language(self, lang):
         """
