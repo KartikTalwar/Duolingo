@@ -58,8 +58,6 @@ $ pip install duolingo-api
 - lingo **.get_language_voices(language_abbr)**
 - lingo **.get_audio_url(word, language_abbr=None, random=True, voice=None)**
 - lingo **.get_related_words(word, language_abbr=None)**
-- lingo **.buy_item(item_name, language_abbr)**
-- lingo **.buy_streak_freeze()**
 
 
 #### get_user_info()
@@ -592,30 +590,46 @@ get_vocabulary.
 ]
 ```
 
-#### buy_item(item_name, language_abbr)
+#### get_leaderboard(unit=None, before=time.time())
 
-Buy a specific item in the shop
-
-```py
->>> lingo  = duolingo.Duolingo('kartik')
->>> print lingo.buy_item('streak_freeze', 'en')
-{
-    'streak_freeze': '2017-01-10 02:39:59.594327'
-}
-```
-
-This will return a [HTTP Status Code](https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html) = 400
-if the item can't be bought.
-
-#### buy_streak_freeze()
-
-Buy a Streak on Ice extension, if the account has enough Lingots and is not yet equipped with the extension.
-
-Returns 'True' if the extension was bought, 'False' otherwise.
-
+Returns an ordered list containing logged user leaderboard. 
+You need to bring week or month as a unit to get the desired result.
+The before argument come with time.time() function, but if you need to know what's 
+your leaderboard in another date, you can pass the date in a epoch format
 
 ```py
->>> lingo  = duolingo.Duolingo('kartik')
->>> print lingo.buy_streak_freeze()
-True
+>>> lingo = duolingo.Duolingo('yurireis5')
+>>> print lingo.get_leaderboard('week')
+[
+    {
+        'unit': 'week', 
+        'id': 945238, 
+        'points': 280, 
+        'username': 'leticiabohrer'
+    }, 
+    {
+        'unit': 'week', 
+        'id': 125621306, 
+        'points': 63, 
+        'username': 'Candice460698'
+    }, 
+    ...
+]
+
+>>> print lingo.get_leaderboard('month')
+[
+    {
+        'unit': 'month', 
+        'id': 945238, 
+        'points': 2290, 
+        'username': 'leticiabohrer'
+    }, 
+    {
+        'unit': 'month', 
+        'id': 125621306, 
+        'points': 162, 
+        'username': 'Candice460698'
+    },
+    ...   
+]
 ```
