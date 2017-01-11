@@ -85,7 +85,7 @@ class Duolingo(object):
         returns a text like: {"streak_freeze":"2017-01-10 02:39:59.594327"}
         """
 
-        if (request.status_code == 400 and item_name == 'streak_freeze'):
+        if request.status_code == 400 and item_name == 'streak_freeze':
             """
             Duolingo returns a "400" error if one tries to buy a "Streak on Ice" and
             the profile is already equipped with the streak
@@ -103,13 +103,13 @@ class Duolingo(object):
         use this one as parameter for the shop
         """
         lang = self.get_abbreviation_of(self.get_user_info()['learning_language_string'])
-        if (lang is None):
+        if lang is None:
             raise Exception('No learning language found')
         try:
             result = self.buy_item('streak_freeze', lang)
             return True
         except Exception as e:
-            if (e.args[0] == 'Already equipped with streak freeze.'):
+            if e.args[0] == 'Already equipped with streak freeze.':
                 # we are good
                 return False
             else:
