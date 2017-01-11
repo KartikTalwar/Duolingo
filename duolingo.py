@@ -75,25 +75,28 @@ class Duolingo(object):
         except:
             raise Exception('Could not get activity stream')
 
-    def get_leaderboard(self, unit=None, before=time.time()):
+    def get_leaderboard(self, unit=None, before=None):
         """
         Get user's rank in the week in descending order, stream from
         ``https://www.duolingo.com/friendships/leaderboard_activity?unit=week&_=time
 
-        :type before: Float (epoch format)
-        :type unit: str
-        :param before: set the date that you want to consult the result (default is time.time())
+        :param before: Datetime in format '2015-07-06 05:42:24'
         :param unit: maybe week or month
+        :type before: str
+        :type unit: str
         :rtype: List
         """
         if unit:
             url = 'https://www.duolingo.com/friendships/leaderboard_activity?unit={}&_={}'
-            url = url.format(unit, before)
         else:
             raise Exception('Needs unit as argument (week or month)')
 
-        self.leader_data = self._make_req(url).json()
+        if before:
+            url = url.format(unit, before)
+        else:
+            raise Exception('Needs str in Datetime format "%Y.%m.%d %H:%M:%S"')
 
+        self.leader_data = self._make_req(url).json()
         data = []
         for result in iter(self.get_friends()):
             for value in iter(self.leader_data['ranking']):
@@ -463,7 +466,6 @@ class Duolingo(object):
                 related_lexemes = word_data['related_lexemes']
                 return [w for w in overview['vocab_overview']
                         if w['lexeme_id'] in related_lexemes]
-
 
 attrs = [
     'settings', 'languages', 'user_info', 'certificates', 'streak_info',

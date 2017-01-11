@@ -598,9 +598,38 @@ The before argument come with time.time() function, but if you need to know what
 your leaderboard in another date, you can pass the date in a epoch format
 
 ```py
->>> lingo = duolingo.Duolingo('kartik')
+>>> lingo = duolingo.Duolingo('yurireis5')
 >>> print lingo.get_leaderboard('week')
-'https://www.duolingo.com/friendships/leaderboard_activity?unit=week&_=1484054970'
+[
+    {
+        'unit': 'week', 
+        'id': 945238, 
+        'points': 280, 
+        'username': 'leticiabohrer'
+    }, 
+    {
+        'unit': 'week', 
+        'id': 125621306, 
+        'points': 63, 
+        'username': 'Candice460698'
+    }, 
+    ...
+]
 
 >>> print lingo.get_leaderboard('month')
-'https://www.duolingo.com/friendships/leaderboard_activity?unit=month&_=1484054970'
+[
+    {
+        'unit': 'month', 
+        'id': 945238, 
+        'points': 2290, 
+        'username': 'leticiabohrer'
+    }, 
+    {
+        'unit': 'month', 
+        'id': 125621306, 
+        'points': 162, 
+        'username': 'Candice460698'
+    },
+    ...   
+]
+```
