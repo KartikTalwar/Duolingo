@@ -60,6 +60,7 @@ $ pip install duolingo-api
 - lingo **.get_related_words(word, language_abbr=None)**
 - lingo **.buy_item(item_name, language_abbr)**
 - lingo **.buy_streak_freeze()**
+- linko **.get_leaderboard(unit=None, before=time.time())**
 
 
 #### get_user_info()
