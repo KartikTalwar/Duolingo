@@ -5,3 +5,4 @@ duolingo_api.egg-info
 .coverage
 dev
 dev/*
+dist/

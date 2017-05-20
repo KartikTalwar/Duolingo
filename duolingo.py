@@ -4,7 +4,6 @@ import json
 import random
 
 import requests
-import time
 from werkzeug.datastructures import MultiDict
 
 __version__ = "0.3"
@@ -140,7 +139,7 @@ class Duolingo(object):
         if lang is None:
             raise Exception('No learning language found')
         try:
-            result = self.buy_item('streak_freeze', lang)
+            self.buy_item('streak_freeze', lang)
             return True
         except Exception as e:
             if e.args[0] == 'Already equipped with streak freeze.':
@@ -336,20 +335,6 @@ class Duolingo(object):
 
             return data
 
-    def get_friends(self):
-        """Get user's friends."""
-        for k, v in iter(self.user_data.language_data.items()):
-            data = []
-            for friend in v['points_ranking_data']:
-                temp = {'username': friend['username'],
-                        'id': friend['id'],
-                        'points': friend['points_data']['total'],
-                        'languages': [i['language_string'] for i in
-                                      friend['points_data']['languages']]}
-                data.append(temp)
-
-            return data
-
     def get_known_words(self, lang):
         """Get a list of all words learned by user in a language."""
         words = []
@@ -374,12 +359,27 @@ class Duolingo(object):
 
     def get_known_topics(self, lang):
         """Return the topics learned by a user in a language."""
-        topics = []
-        for topic in self.user_data.language_data[lang]['skills']:
-            if topic['learned']:
-                topics.append(topic['title'])
+        return [topic['title']
+                for topic in self.user_data.language_data[lang]['skills']
+                if topic['learned']]
 
-        return topics
+    def get_unknown_topics(self, lang):
+        """Return the topics remaining to learn by a user in a language."""
+        return [topic['title']
+                for topic in self.user_data.language_data[lang]['skills']
+                if not topic['learned']]
+
+    def get_golden_topics(self, lang):
+        """Return the topics mastered ("golden") by a user in a language."""
+        return [topic['title']
+                for topic in self.user_data.language_data[lang]['skills']
+                if topic['learned'] and topic['strength'] == 1.0]
+
+    def get_reviewable_topics(self, lang):
+        """Return the topics learned but not golden by a user in a language."""
+        return [topic['title']
+                for topic in self.user_data.language_data[lang]['skills']
+                if topic['learned'] and topic['strength'] < 1.0]
 
     def get_translations(self, words, source=None, target=None):
         """
@@ -498,6 +498,7 @@ class Duolingo(object):
                 related_lexemes = word_data['related_lexemes']
                 return [w for w in overview['vocab_overview']
                         if w['lexeme_id'] in related_lexemes]
+
 
 attrs = [
     'settings', 'languages', 'user_info', 'certificates', 'streak_info',

@@ -44,6 +44,15 @@ class DuolingoTest(unittest.TestCase):
     def test_get_known_topics(self):
         response = self.lingo.get_known_topics(self.lang)
 
+    def test_get_unknown_topics(self):
+        response = self.lingo.get_unknown_topics(self.lang)
+
+    def test_get_golden_topics(self):
+        response = self.lingo.get_golden_topics(self.lang)
+
+    def test_get_reviewable_topics(self):
+        response = self.lingo.get_reviewable_topics(self.lang)
+
     def test_get_known_words(self):
         response = self.lingo.get_known_words(self.lang)
 
