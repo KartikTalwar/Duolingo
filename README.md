@@ -48,6 +48,9 @@ $ pip install duolingo-api
 - lingo **.get_language_details(language_name)**
 - lingo **.get_language_progress(language_abbr)**
 - lingo **.get_known_topics(language_abbr)**
+- lingo **.get_unknown_topics(language_abbr)**
+- lingo **.get_golden_topics(language_abbr)**
+- lingo **.get_reviewable_topics(language_abbr)**
 - lingo **.get_known_words(language_abbr)**
 - lingo **.get_learned_skills(lang)**
 - lingo **.get_language_from_abbr(language_abbr)**
@@ -268,6 +271,61 @@ Order is not guaranteed.
     u'Plurals',
     u'Common Phrases',
     u'Adjectives 1'
+]
+```
+
+#### get_unknown_topics(language_abbr)
+
+Returns a list containing the names of the unlearned topics.
+
+Order is not guaranteed.
+
+```py
+>>> lingo  = duolingo.Duolingo('kartik')
+>>> print lingo.get_unknown_topics()
+[
+    u'The',
+    u'Accusative Case',
+    u'Nature 1'
+]
+```
+
+#### get_golden_topics(language_abbr)
+
+Returns a list containing the names of fully reviewed or "golden" topics.
+
+Order is not guaranteed.
+
+```py
+>>> lingo  = duolingo.Duolingo('kartik')
+>>> print lingo.get_golden_topics()
+[
+    u'Colors',
+    u'Basics 2',
+    u'Animals',
+    u'Possessives',
+    u'Verbs: \xcatre / Avoir',
+    u'Clothing',
+    u'Verbs: Present 1',
+    u'Plurals',
+    u'Common Phrases',
+    u'Adjectives 1'
+]
+```
+
+#### get_reviewable_topics(language_abbr)
+
+Returns a list containing the names of learned but not fully golden topics.
+
+Order is not guaranteed.
+
+```py
+>>> lingo  = duolingo.Duolingo('kartik')
+>>> print lingo.get_golden_topics()
+[
+    u'Food',
+    u'Questions',
+    u'Basics'
 ]
 ```
 
@@ -595,9 +653,9 @@ get_vocabulary.
 
 #### get_leaderboard(unit=None, before=time.time())
 
-Returns an ordered list containing logged user leaderboard. 
+Returns an ordered list containing logged user leaderboard.
 You need to bring week or month as a unit to get the desired result.
-The before argument come with time.time() function, but if you need to know what's 
+The before argument come with time.time() function, but if you need to know what's
 your leaderboard in another date, you can pass the date in a epoch format
 
 ```py
@@ -605,35 +663,35 @@ your leaderboard in another date, you can pass the date in a epoch format
 >>> print lingo.get_leaderboard('week')
 [
     {
-        'unit': 'week', 
-        'id': 945238, 
-        'points': 280, 
+        'unit': 'week',
+        'id': 945238,
+        'points': 280,
         'username': 'leticiabohrer'
-    }, 
+    },
     {
-        'unit': 'week', 
-        'id': 125621306, 
-        'points': 63, 
+        'unit': 'week',
+        'id': 125621306,
+        'points': 63,
         'username': 'Candice460698'
-    }, 
+    },
     ...
 ]
 
 >>> print lingo.get_leaderboard('month')
 [
     {
-        'unit': 'month', 
-        'id': 945238, 
-        'points': 2290, 
+        'unit': 'month',
+        'id': 945238,
+        'points': 2290,
         'username': 'leticiabohrer'
-    }, 
+    },
     {
-        'unit': 'month', 
-        'id': 125621306, 
-        'points': 162, 
+        'unit': 'month',
+        'id': 125621306,
+        'points': 162,
         'username': 'Candice460698'
     },
-    ...   
+    ...
 ]
 ```
 
