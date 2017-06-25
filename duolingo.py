@@ -429,7 +429,7 @@ class Duolingo(object):
     def _homepage(self):
         if self._homepage_text:
             return self._homepage_text
-        homepage_url = "https://www.duolingo.com"
+        homepage_url = "https://www.duolingo.com/words"
         request = self._make_req(homepage_url)
         self._homepage_text = request.text
         return self._homepage
@@ -439,7 +439,7 @@ class Duolingo(object):
         if self._cloudfront_server_url:
             return self._cloudfront_server_url
 
-        server_list = re.search('//.+\.cloudfront\.net', self._homepage)
+        server_list = re.search('//\S+cloudfront.net', self._homepage)
         self._cloudfront_server_url = "https:{}".format(server_list.group(0))
 
         return self._cloudfront_server_url
