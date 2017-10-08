@@ -483,7 +483,7 @@ list, with a list of translations as its value.
             u'that', u'the one who', u'this', u'to', u'which', u'who']
 }
 
->>> lingo.get_translation(['de', 'du'], source='de', target='fr')
+>>> lingo.get_translations(['de', 'du'], source='de', target='fr')
 {
     u'de': [u'zu', u'von', u'des', u'an', u'auf', u'aus', u'mit', u'um',
             u'vor', u'\xfcber'],
