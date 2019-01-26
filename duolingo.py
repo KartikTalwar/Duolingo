@@ -17,6 +17,10 @@ class Struct:
         self.__dict__.update(entries)
 
 
+class AlreadyHaveStoreItemException(Exception):
+    pass
+
+
 class Duolingo(object):
     def __init__(self, username, password=None):
         self.username = username
@@ -123,18 +127,12 @@ class Duolingo(object):
         request = self._make_req(url, data)
 
         """
-        status code '200' indicates that the item was shopped
+        status code '200' indicates that the item was purchased
         returns a text like: {"streak_freeze":"2017-01-10 02:39:59.594327"}
         """
 
-        if request.status_code == 400 and item_name == 'streak_freeze':
-            """
-            Duolingo returns a "400" error if one tries to buy a "Streak on Ice" and
-            the profile is already equipped with the streak
-            There is a slight chance that another problem raised the 400 error,
-            but most likely the existing extension is the problem
-            """
-            raise Exception('Already equipped with streak freeze.')
+        if request.status_code == 400 and request.json()['error'] == 'ALREADY_HAVE_STORE_ITEM':
+            raise AlreadyHaveStoreItemException('Already equipped with ' + item_name + '.')
         if not request.ok:
             # any other error:
             raise Exception('Not possible to buy item.')
@@ -150,13 +148,8 @@ class Duolingo(object):
         try:
             self.buy_item('streak_freeze', lang)
             return True
-        except Exception as e:
-            if e.args[0] == 'Already equipped with streak freeze.':
-                # we are good
-                return False
-            else:
-                # unknown exception, raise it again
-                raise Exception(e.args)
+        except AlreadyHaveStoreItemException:
+            return False
 
     def _switch_language(self, lang):
         """
