@@ -24,6 +24,7 @@ class Duolingo(object):
         self.user_url = "https://duolingo.com/users/%s" % self.username
         self.session = requests.Session()
         self.leader_data = None
+        self.jwt = None
 
         if password:
             self._login()
@@ -31,10 +32,14 @@ class Duolingo(object):
         self.user_data = Struct(**self._get_data())
 
     def _make_req(self, url, data=None):
-        if data:
-            req = requests.Request('POST', url, data=data, cookies=self.session.cookies)
-        else:
-            req = requests.Request('GET', url, cookies=self.session.cookies)
+        headers = {}
+        if self.jwt is not None:
+            headers['Authorization'] = 'Bearer ' + self.jwt
+        req = requests.Request('POST' if data else 'GET',
+                               url,
+                               json=data,
+                               headers=headers,
+                               cookies=self.session.cookies)
         prepped = req.prepare()
         return self.session.send(prepped)
 
@@ -44,9 +49,11 @@ class Duolingo(object):
         """
         login_url = "https://www.duolingo.com/login"
         data = {"login": self.username, "password": self.password}
-        attempt = self._make_req(login_url, data).json()
+        request = self._make_req(login_url, data)
+        attempt = request.json()
 
         if attempt.get('response') == 'OK':
+            self.jwt = request.headers['jwt']
             return True
 
         raise Exception("Login failed")
@@ -109,8 +116,10 @@ class Duolingo(object):
         return sorted(data, key=lambda user: user['points'], reverse=True)
 
     def buy_item(self, item_name, abbr):
-        url = 'https://www.duolingo.com/store/purchase_item'
-        data = {'item_name': item_name, 'learning_language': abbr}
+        url = 'https://www.duolingo.com/2017-06-30/users/{}/purchase-store-item'
+        url = url.format(self.user_data.id)
+
+        data = {'name': item_name, 'learningLanguage': abbr}
         request = self._make_req(url, data)
 
         """
