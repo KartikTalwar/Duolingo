@@ -17,6 +17,10 @@ class Struct:
         self.__dict__.update(entries)
 
 
+class AlreadyHaveStoreItemException(Exception):
+    pass
+
+
 class Duolingo(object):
     def __init__(self, username, password=None):
         self.username = username
@@ -24,6 +28,7 @@ class Duolingo(object):
         self.user_url = "https://duolingo.com/users/%s" % self.username
         self.session = requests.Session()
         self.leader_data = None
+        self.jwt = None
 
         if password:
             self._login()
@@ -31,10 +36,14 @@ class Duolingo(object):
         self.user_data = Struct(**self._get_data())
 
     def _make_req(self, url, data=None):
-        if data:
-            req = requests.Request('POST', url, data=data, cookies=self.session.cookies)
-        else:
-            req = requests.Request('GET', url, cookies=self.session.cookies)
+        headers = {}
+        if self.jwt is not None:
+            headers['Authorization'] = 'Bearer ' + self.jwt
+        req = requests.Request('POST' if data else 'GET',
+                               url,
+                               json=data,
+                               headers=headers,
+                               cookies=self.session.cookies)
         prepped = req.prepare()
         return self.session.send(prepped)
 
@@ -44,9 +53,11 @@ class Duolingo(object):
         """
         login_url = "https://www.duolingo.com/login"
         data = {"login": self.username, "password": self.password}
-        attempt = self._make_req(login_url, data).json()
+        request = self._make_req(login_url, data)
+        attempt = request.json()
 
         if attempt.get('response') == 'OK':
+            self.jwt = request.headers['jwt']
             return True
 
         raise Exception("Login failed")
@@ -109,23 +120,19 @@ class Duolingo(object):
         return sorted(data, key=lambda user: user['points'], reverse=True)
 
     def buy_item(self, item_name, abbr):
-        url = 'https://www.duolingo.com/store/purchase_item'
-        data = {'item_name': item_name, 'learning_language': abbr}
+        url = 'https://www.duolingo.com/2017-06-30/users/{}/purchase-store-item'
+        url = url.format(self.user_data.id)
+
+        data = {'name': item_name, 'learningLanguage': abbr}
         request = self._make_req(url, data)
 
         """
-        status code '200' indicates that the item was shopped
+        status code '200' indicates that the item was purchased
         returns a text like: {"streak_freeze":"2017-01-10 02:39:59.594327"}
         """
 
-        if request.status_code == 400 and item_name == 'streak_freeze':
-            """
-            Duolingo returns a "400" error if one tries to buy a "Streak on Ice" and
-            the profile is already equipped with the streak
-            There is a slight chance that another problem raised the 400 error,
-            but most likely the existing extension is the problem
-            """
-            raise Exception('Already equipped with streak freeze.')
+        if request.status_code == 400 and request.json()['error'] == 'ALREADY_HAVE_STORE_ITEM':
+            raise AlreadyHaveStoreItemException('Already equipped with ' + item_name + '.')
         if not request.ok:
             # any other error:
             raise Exception('Not possible to buy item.')
@@ -141,13 +148,8 @@ class Duolingo(object):
         try:
             self.buy_item('streak_freeze', lang)
             return True
-        except Exception as e:
-            if e.args[0] == 'Already equipped with streak freeze.':
-                # we are good
-                return False
-            else:
-                # unknown exception, raise it again
-                raise Exception(e.args)
+        except AlreadyHaveStoreItemException:
+            return False
 
     def _switch_language(self, lang):
         """
