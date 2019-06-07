@@ -27,33 +27,33 @@ Note: You must be logged in to get information on your learning progress.
 
 ### Documentation
 ###### Account
-[Get User Information](#get-user-information)
-[Get Settings](#get-settings)
-[Get Languages](#get-languages)
-[Get Friends](#get-friends)
-[Get Calendar](#get-calendar)
-[Get Streak Information](#get-streak-information)
-[Get Certificates](#get-certificates)
-[Get Activity Stream](#get-activity-stream)
-[Get Leaderboard](#get-leaderboard)
-[Buy Item](#buy-item)
-[Buy Streak Freeze](#buy-streak-freeze)
+- [Get User Information](#get-user-information)
+- [Get Settings](#get-settings)
+- [Get Languages](#get-languages)
+- [Get Friends](#get-friends)
+- [Get Calendar](#get-calendar)
+- [Get Streak Information](#get-streak-information)
+- [Get Certificates](#get-certificates)
+- [Get Activity Stream](#get-activity-stream)
+- [Get Leaderboard](#get-leaderboard)
+- [Buy Item](#buy-item)
+- [Buy Streak Freeze](#buy-streak-freeze)
 ###### Language
-[Get Language Details](#get-language-details)
-[Get Language Progress](#get-language-progress)
-[Get Known Topics](#get-known-topics)
-[Get Unknown Topics](#get-unknown-topics)
-[Get Golden Topics](#get-golden-topics)
-[Get Reviewable Topics](#get-reviewable-topics)
-[Get Known Words](#get-known-words)
-[Get Related Words](#get-related-words)
-[Get Learned Skills](#get-learned-skills)
-[Get Language from Abbreviation](#get-language-from-abbreviation)
-[Get Abbreviation Of](#get-abbreviation-of)
-[Get Translations](#get-translations)
-[Get Vocabulary](#get-vocabulary)
-[Get Language Voices](#get-language-voices)
-[Get Audio URL](#get-audio-url)
+- [Get Language Details](#get-language-details)
+- [Get Language Progress](#get-language-progress)
+- [Get Known Topics](#get-known-topics)
+- [Get Unknown Topics](#get-unknown-topics)
+- [Get Golden Topics](#get-golden-topics)
+- [Get Reviewable Topics](#get-reviewable-topics)
+- [Get Known Words](#get-known-words)
+- [Get Related Words](#get-related-words)
+- [Get Learned Skills](#get-learned-skills)
+- [Get Language from Abbreviation](#get-language-from-abbreviation)
+- [Get Abbreviation Of](#get-abbreviation-of)
+- [Get Translations](#get-translations)
+- [Get Vocabulary](#get-vocabulary)
+- [Get Language Voices](#get-language-voices)
+- [Get Audio URL](#get-audio-url)
 #### Get User Information
 `lingo.get_user_info()`
 
@@ -104,7 +104,7 @@ print lingo.get_user_settings()
     'notify_comment': True
 }
 ```
-#### Get Language
+#### Get Languages
 `lingo.get_languages(abbreviations)`
 
 Returns a list of languages the user is learning.
