@@ -26,7 +26,7 @@ lingo  = duolingo.Duolingo('kartik', password='my optional password')
 Note: You must be logged in to get information on your learning progress.
 
 ### Documentation
-###### Account
+###### Account Information
 - [Get User Information](#get-user-information)
 - [Get Settings](#get-settings)
 - [Get Languages](#get-languages)
@@ -38,7 +38,7 @@ Note: You must be logged in to get information on your learning progress.
 - [Get Leaderboard](#get-leaderboard)
 - [Buy Item](#buy-item)
 - [Buy Streak Freeze](#buy-streak-freeze)
-###### Language
+###### Language Information
 - [Get Language Details](#get-language-details)
 - [Get Language Progress](#get-language-progress)
 - [Get Known Topics](#get-known-topics)
@@ -58,13 +58,12 @@ Note: You must be logged in to get information on your learning progress.
 `lingo.get_user_info()`
 
 Returns a dictionary containing various information on the user, including their
-avatar, their user ID, their location, their current language, etc.
+avatar, user ID, location, current language, and more.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.get_user_info()
-```
-```py
+
 # Sample Response
 {
     'admin': False,
@@ -94,8 +93,7 @@ Returns the user's settings.
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.get_user_settings()
-```
-```py
+
 # Sample Response
 {
     'deactivated': False,
@@ -114,8 +112,8 @@ lingo  = duolingo.Duolingo('kartik')
 print lingo.get_languages(abbreviations=True)
 ```
 ##### Parameters
-`abbreviations` (boolean) *optional*
--- Returns the list of languages as abbreviations. Default=`False`.
+`abbreviations` (boolean) *optional*  
+--Returns the list of languages as abbreviations. Default=`False`.
 ```py
 # Sample Response
 [u'fr', u'de', u'es']
@@ -129,8 +127,7 @@ they are learning. The current user is included in this list.
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.get_friends()
-```
-```py
+
 # Sample Response
 [{'languages': [u'French', u'Spanish', u'German', u'Italian'],
   'points': 4791,
@@ -151,8 +148,8 @@ print lingo.get_friends()
 
 Returns the user's last action.
 ##### Parameters
-`language_abbr` (string) *optional*
--- Abbreviation of a given language. Default=`None`.
+`language_abbr` (string) *optional*  
+--Abbreviation of a given language. Default=`None`.
 #### Get Streak Information
 `lingo.get_streak_info()`
 
@@ -162,8 +159,7 @@ whether the streak has been extended today.
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.get_streak_info()
-```
-```py
+
 # Sample Response
 {
     'site_streak': 141,
@@ -174,14 +170,13 @@ print lingo.get_streak_info()
 #### Get Certificates
 `lingo.get_certificates()`
 
-Returns the list of certificates, including score, language, and a datetime
+Returns the list of certificates, including score, language, and datetime information.
 string.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.get_certificates()
-```
-```py
+
 # Sample Response
 [{
     u'language_string': u'German',
@@ -194,16 +189,14 @@ print lingo.get_certificates()
 #### Get Activity Stream
 `lingo.get_activity_stream(before)`
 
-The Duolingo API returns a `before` value with each request to the activity
-stream. To get the previous set of data in the stream, feed it the `before`
-value from the current stream.
+The Duolingo API returns a `before` value with each request to the activity stream. To get the previous set of data in the stream, feed it the `before` value from the current stream.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.get_activity_stream(before='2015-07-06 05:42:24')
 ```
 ##### Parameters
-`before` (string) *optional*
+`before` (string) *optional*  
 --Returns the activity stream data up to the date and time given. Default=`None`.
 ```py
 # Sample Response
@@ -231,10 +224,10 @@ lingo = duolingo.Duolingo('yurireis5')
 print lingo.get_leaderboard('week')
 ```
 ##### Parameters
-`unit` (string) *optional*
--- Receive leaderboard data in specified units. The units `week` and `month` are recommended to receive desired results. Default=`None`.
-`before` (string) *optional*
--- Receive leaderboard data up to a specified date. Default=`time.time()`.
+`unit` (string) *optional*  
+--Receive leaderboard data in specified units. The units `week` and `month` are recommended to receive desired results. Default=`None`.  
+`before` (string) *optional*  
+--Receive leaderboard data up to a specified date. Default=`time.time()`.
 ```py
 # Sample Response
 [
@@ -256,52 +249,48 @@ print lingo.get_leaderboard('week')
 #### Buy Item
 `lingo.buy_item(item_name, language_abbr)`
 
-Buy a specific item in the shop.
+Buy a specific item in the shop. Returns the name of the item and the date and time of purchase.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.buy_item('streak_freeze', 'en')
 ```
 ##### Parameters
-`item_name` (string) **required**
--- The name of the item to buy.
-`language_abbr` (string) **required**
--- Abbreviation of a given language.
+`item_name` (string) **required**  
+--The name of the item to buy.  
+`language_abbr` (string) **required**  
+--Abbreviation of a given language.
 ```py
 # Sample Response
 {
     'streak_freeze': '2017-01-10 02:39:59.594327'
 }
 ```
-- This will return [HTTP Status Code](https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html) 400 if the item can't be bought.
+Note: This will return [HTTP Status Code](https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html) 400 if the item can't be bought.
 
 #### Buy Streak Freeze
 `lingo.buy_streak_freeze()`
 
-Buy a Streak on Ice extension, if the account has enough Lingots and is not yet equipped with the extension.
-
-Returns `True` if the extension was bought, `False` otherwise
+Buy a Streak on Ice extension, if the account has enough Lingots and is not yet equipped with the extension. Returns `True` if the extension was bought, `False` otherwise.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.buy_streak_freeze()
-```
-```py
+
 # Sample Response
 True
 ```
 #### Get Language Details
 `lingo.get_language_details(language_name)`
 
-Returns the language details for a given language, including the current streak,
-the level, and total number of points.
+Returns the language details for a given language, including the current streak, the level, and total number of points.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.get_language_details('French')
 ```
 ##### Parameters
-`language_name` (string) **required**
+`language_name` (string) **required**  
 --The name of a given language.
 ```py
 # Sample Response
@@ -325,8 +314,8 @@ lingo  = duolingo.Duolingo('kartik')
 print lingo.get_language_progress('fr')
 ```
 ##### Parameters
-`language_abbr` (string) **required**
-    -- Abbrieviation of a given language.
+`language_abbr` (string) **required**  
+--Abbrieviation of a given language.
 ```py
 # Sample Response
 {
@@ -346,18 +335,17 @@ print lingo.get_language_progress('fr')
 #### Get Known Topics
 `lingo.get_known_topics(language_abbr)`
 
-Returns a list containing the names of the known topics. See
-[`get_learned_skills`](#get-learned-skills) to return entire skill data.
+Returns a list containing the names of the known topics. See [`get_learned_skills`](#get-learned-skills) to return entire skill data.
 
-Order is not guaranteed.
+Note: Order is not guaranteed.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.get_known_topics('fr')
 ```
 ##### Parameters
-`language_abbr` (string) **required**
-    -- Abbrieviation of a given language.
+`language_abbr` (string) **required**  
+--Abbrieviation of a given language.
 ```py
 # Sample Response
 [
@@ -381,15 +369,15 @@ print lingo.get_known_topics('fr')
 
 Returns a list containing the names of the unlearned topics.
 
-Order is not guaranteed.
+Note: Order is not guaranteed.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.get_unknown_topics()
 ```
 ##### Parameters
-`language_abbr` (string) **required**
-    -- Abbrieviation of a given language.
+`language_abbr` (string) **required**  
+--Abbrieviation of a given language.
 ```py
 # Sample Response
 [
@@ -403,15 +391,15 @@ print lingo.get_unknown_topics()
 
 Returns a list containing the names of fully reviewed, or "golden", topics.
 
-Order is not guaranteed.
+Note: Order is not guaranteed.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.get_golden_topics('fr')
 ```
 ##### Parameters
-`language_abbr` (string) **required**
-    -- Abbrieviation of a given language.
+`language_abbr` (string) **required**  
+--Abbrieviation of a given language.
 ```py
 # Sample Response
 [
@@ -432,15 +420,15 @@ print lingo.get_golden_topics('fr')
 
 Returns a list containing the names of learned, but not fully "golden", topics.
 
-Order is not guaranteed.
+Note: Order is not guaranteed.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.get_golden_topics('fr')
 ```
 ##### Parameters
-`language_abbr` (string) **required**
-    -- Abbrieviation of a given language.
+`language_abbr` (string) **required**  
+--Abbrieviation of a given language.
 ```py
 # Sample Response
 [
@@ -459,8 +447,8 @@ lingo  = duolingo.Duolingo('kartik')
 print lingo.get_known_words('fr')
 ```
 ##### Parameters
-`language_abbr` (string) **required**
-    -- Abbrieviation of a given language.
+`language_abbr` (string) **required**  
+--Abbrieviation of a given language.
 ```py
 # Sample Response
 [
@@ -483,11 +471,9 @@ print lingo.get_known_words('fr')
 #### Get Related Words
 `lingo.get_related_words(word, language_abbr)`
 
-Returns a list of "related words" from the user's vocabulary list. For instance,
-for the German verb "gehen", ```get_related_words``` will return a list of
-miscellaneous conjugations like "gehe" and "gingen".
+Returns a list of "related words" from the user's vocabulary list. For example, for the German verb "gehen", ```get_related_words``` will return a list of miscellaneous conjugations like "gehe" and "gingen".
 
-The dictionaries it returns are identical in format to those returned by [`get_vocabulary`](#get-vocabulary).
+Note: The dictionaries it returns are identical in format to those returned by [`get_vocabulary`](#get-vocabulary).
 
 ```py
 # Sample Request
@@ -495,10 +481,10 @@ lingo  = duolingo.Duolingo('kartik')
  print lingo.get_related_words('aller')
  ```
  ##### Parameters
- `word` (string) **required**
- -- The word you want to retrieve related words for.
- `language_abbr` (string) *optional*
- -- Abbreviation of a given language. Default=`None`.
+ `word` (string) **required**  
+ --The word you want to retrieve related words for.  
+ `language_abbr` (string) *optional*  
+ --Abbreviation of a given language. Default=`None`.
  ```py
  # Sample Response
 [
@@ -521,28 +507,6 @@ lingo  = duolingo.Duolingo('kartik')
     ...
 ]
 ```
-```py
-print lingo.get_audio_url('hallo', language_abbr='de')
-[
-    {
-        u'last_practiced': u'2015-07-09T06:07:37Z',
-        u'strength': 0.999987,
-        u'strength_bars': 4,
-        u'infinitive': u'gehen',
-        u'lexeme_id': u'e29e6fb5291a3c4167f67d9d31dc86aa',
-        u'normalized_string': u'ging',
-        u'pos': u'Verb',
-        u'id': u'e29e6fb5291a3c4167f67d9d31dc86aa',
-        u'last_practiced_ms': 1436422057000.0,
-        u'gender': None,
-        u'skill': u'Verbs: Preterite',
-        u'word_string': u'ging',
-        u'related_lexemes': [...],
-        u'skill_url_title': u'Verbs:-Preterite'
-    },
-    ...
-]
-```
 
 #### Get Learned Skills
 `lingo.get_learned_skills(language_abbr)`
@@ -554,10 +518,10 @@ lingo  = duolingo.Duolingo('kartik')
 print lingo.get_learned_skills('fr')
 ```
 ##### Parameters
-`language_abbr` (string) **required**
-    -- Abbrieviation of a given language.
+`language_abbr` (string) **required**  
+--Abbrieviation of a given language.
 ```py
-# Sampe Response
+# Sample Response
 [
     {
         u'language_string': u'French',
@@ -614,16 +578,15 @@ print lingo.get_learned_skills('fr')
 #### Get Language from Abbreviation
 `lingo.get_language_from_abbr(language_abbr)`
 
-When the ```language_abbr``` of a language is known, but the full language name
-is not, you can use this method to return the language name. This only works for languages that the user is learning.
+When the ```language_abbr``` of a language is known, but the full language name is not, you can use this method to return the language name. This only works for languages that the user is learning.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.get_language_from_abbr('fr')
 ```
 ##### Parameters
-`language_abbr` (string) **required**
--- Abbrieviation of a given language.
+`language_abbr` (string) **required**  
+--Abbrieviation of a given language.
 ```py
 # Sample Response
 u'French'
@@ -631,15 +594,16 @@ u'French'
 #### Get Abbreviation Of
 `lingo.get_abbreviation_of(language_name)`
 
-When the `language_name` of a language is known, but the language
-abbreviation is not, you can use this method to get the abbreviation. This only works for languages that the user is learning.
+When the `language_name` of a language is known, but the language abbreviation is not, you can use this method to get the abbreviation. 
+
+Note: This only works for languages that the user is learning.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.get_abbreviation_of('French')
 ```
 ##### Parameters
-`language_name` (string) **required**
+`language_name` (string) **required**  
 --The name of a given language.
 ```py
 # Sample Response
@@ -655,12 +619,12 @@ lingo  = duolingo.Duolingo('kartik')
 lingo.get_translations(['de', 'du'], source='de', target='fr')
 ```
 ##### Parameters
-`words` (list) **required**
--- The list of words you want to translate.
-`source` (string) *optional*
--- Specifies a source language to translate the words from. Default=`None`.
-`target` (string) *optional*
--- Specifies a target language to translate the words into. Default=`None`.
+`words` (list) **required**  
+--The list of words you want to translate.  
+`source` (string) *optional*  
+--Specifies a source language to translate the words from. Default=`None`.  
+`target` (string) *optional*  
+--Specifies a target language to translate the words into. Default=`None`.
 ```py
 # Sample Response
 {
@@ -672,16 +636,15 @@ lingo.get_translations(['de', 'du'], source='de', target='fr')
 #### Get Vocabulary
 `lingo.get_vocabulary()`
 
-Gets the user's vocabulary for a given language. If `language_abbr` is none, the
-user's current language is used.
+Gets the user's vocabulary for a given language. If `language_abbr` is none, the user's current language is used.
 ```py
 #Sample Request
 lingo  = duolingo.Duolingo('kartik')
 print lingo.get_vocabulary(language_abbr='de')
 ```
 ##### Parameters
-`language_abbr` (string) *optional*
--- Abbrieviation of a given language.
+`language_abbr` (string) *optional*  
+--Abbrieviation of a given language.
 ```py
 # Sample Response
 {
@@ -722,8 +685,8 @@ lingo  = duolingo.Duolingo('kartik')
 print lingo.get_language_voices('fr')
 ```
 ##### Parameters
-`language_abbr` (string) **required**
--- Abbrieviation of a given language.
+`language_abbr` (string) **required**  
+--Abbrieviation of a given language.
 ```py
 ['default', u'mathieu']
 ```
@@ -738,14 +701,14 @@ lingo  = duolingo.Duolingo('kartik')
 print lingo.get_audio_url('bonjour')
 ```
 ##### Parameters
-`word` (string) **required**
--- The word you want an audio file for.
-`language_abbr` (string) *optional*
--- Abbrieviation of a given language. Default=`None`.
-`random` (boolean) *optional*
--- Whether to return a randomly selected language voice. Default=`True`
-`voice` (string) *optional*
--- The name of a specific language voice. Default=`None`.
+`word` (string) **required**  
+--The word you want an audio file for.  
+`language_abbr` (string) *optional*  
+--Abbrieviation of a given language. Default=`None`.  
+`random` (boolean) *optional*  
+--Whether to return a randomly selected language voice. Default=`True`.  
+`voice` (string) *optional*  
+--The name of a specific language voice. Default=`None`.
 ```py
 # Sample Response
 'https://d7mj4aqfscim2.cloudfront.net/tts/fr/token/bonjour'
