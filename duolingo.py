@@ -21,6 +21,10 @@ class AlreadyHaveStoreItemException(Exception):
     pass
 
 
+class DuolingoException(Exception):
+    pass
+
+
 class Duolingo(object):
     def __init__(self, username, password):
         self.username = username
@@ -60,7 +64,7 @@ class Duolingo(object):
             self.jwt = request.headers['jwt']
             return True
 
-        raise Exception("Login failed")
+        raise DuolingoException("Login failed")
 
     def get_activity_stream(self, before=None):
         """
@@ -83,7 +87,7 @@ class Duolingo(object):
         try:
             return request.json()
         except:
-            raise Exception('Could not get activity stream')
+            raise DuolingoException('Could not get activity stream')
 
     def get_leaderboard(self, unit=None, before=None):
         """
@@ -135,7 +139,7 @@ class Duolingo(object):
             raise AlreadyHaveStoreItemException('Already equipped with ' + item_name + '.')
         if not request.ok:
             # any other error:
-            raise Exception('Not possible to buy item.')
+            raise DuolingoException('Not possible to buy item.')
 
     def buy_streak_freeze(self):
         """
@@ -144,7 +148,7 @@ class Duolingo(object):
         """
         lang = self.get_abbreviation_of(self.get_user_info()['learning_language_string'])
         if lang is None:
-            raise Exception('No learning language found')
+            raise DuolingoException('No learning language found')
         try:
             self.buy_item('streak_freeze', lang)
             return True
@@ -168,7 +172,7 @@ class Duolingo(object):
             if parse['learning_language'] == lang:
                 self.user_data = Struct(**self._get_data())
         except:
-            raise Exception('Failed to switch language')
+            raise DuolingoException('Failed to switch language')
 
     def _get_data(self):
         """
@@ -402,7 +406,7 @@ class Duolingo(object):
         try:
             return request.json()
         except:
-            raise Exception('Could not get translations')
+            raise DuolingoException('Could not get translations')
 
     def get_vocabulary(self, language_abbr=None):
         """Get overview of user's vocabulary in a language."""
