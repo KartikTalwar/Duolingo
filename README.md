@@ -19,11 +19,9 @@ $ pip install duolingo-api
 
 ```py
 import duolingo
-lingo  = duolingo.Duolingo('kartik')
-# or
-lingo  = duolingo.Duolingo('kartik', password='my optional password')
+lingo  = duolingo.Duolingo('kartik', 'my password')
 ```
-Note: You must be logged in to get information on your learning progress.
+Note: You are now required to provide a password to get any data from the Duolingo API
 
 ### Documentation
 ###### Account Information
@@ -33,8 +31,6 @@ Note: You must be logged in to get information on your learning progress.
 - [Get Friends](#get-friends)
 - [Get Calendar](#get-calendar)
 - [Get Streak Information](#get-streak-information)
-- [Get Certificates](#get-certificates)
-- [Get Activity Stream](#get-activity-stream)
 - [Get Leaderboard](#get-leaderboard)
 - [Buy Item](#buy-item)
 - [Buy Streak Freeze](#buy-streak-freeze)
@@ -165,53 +161,6 @@ print lingo.get_streak_info()
     'site_streak': 141,
     'daily_goal': 30,
     'streak_extended_today': True
-}
-```
-#### Get Certificates
-`lingo.get_certificates()`
-
-Returns the list of certificates, including score, language, and datetime information.
-string.
-```py
-# Sample Request
-lingo  = duolingo.Duolingo('kartik')
-print lingo.get_certificates()
-
-# Sample Response
-[{
-    u'language_string': u'German',
-    u'score': 2.09,
-    u'id': u'SgXFt9',
-    u'language': u'de',
-    u'datetime': u'1 month ago'
-}]
-```
-#### Get Activity Stream
-`lingo.get_activity_stream(before)`
-
-The Duolingo API returns a `before` value with each request to the activity stream. To get the previous set of data in the stream, feed it the `before` value from the current stream.
-```py
-# Sample Request
-lingo  = duolingo.Duolingo('kartik')
-print lingo.get_activity_stream(before='2015-07-06 05:42:24')
-```
-##### Parameters
-`before` (string) *optional*  
---Returns the activity stream data up to the date and time given. Default=`None`.
-```py
-# Sample Response
-{
-    u'more_events': True,
-    u'events': [
-        {
-            u'type': "unlock",
-            u'skills': [...],
-            ...
-        },
-        ...
-    ],
-    u'js_version': u'js_version': u'//url_to_javascript',
-    u'before': u'2015-07-05 07:44:56'
 }
 ```
 #### Get Leaderboard
