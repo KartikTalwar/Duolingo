@@ -212,6 +212,66 @@ class Duolingo(object):
 
         return skills
 
+    @staticmethod
+    def _compute_dependency_order_1(skills):
+        # Create dictionary:
+        skills_dict = {}
+        for skill in skills:
+            skills_dict[skill['name']] = skill
+        # Initial run through nodes
+        updated = 0
+        for skill in skills:
+            if not skill["dependencies_name"]:
+                skill["dependency_order"] = 1
+                updated += 1
+        if updated == 0:
+            raise DuolingoException("No skills at the bottom of the dependencies tree")
+        # Further runs
+        while True:
+            remaining_nodes = [skill for skill in skills if "dependency_order" not in skill]
+            if len(remaining_nodes) == 0:
+                return
+            updated = 0
+            for node in remaining_nodes:
+                if all(["dependency_order" in skills_dict[x] for x in node['dependencies_name']]):
+                    node['dependency_order'] = 1 + max([skills_dict[x]["dependency_order"] for x in node['dependencies_name']])
+                    updated += 1
+            if updated == 0:
+                raise DuolingoException("A loop must have been encountered.")
+
+    @staticmethod
+    def _compute_dependency_order_func(skills):
+        # Create dictionary:
+        skills_dict = {}
+        for skill in skills:
+            skills_dict[skill['name']] = skill
+        # Get ordinal for all dependencies
+        for skill in skills:
+            skill['dependency_order'] = Duolingo._get_skill_ordinal(skills_dict, skill, [])
+
+    @staticmethod
+    def _get_skill_ordinal(skills_dict, skill, breadcrumbs):
+        if skill['name'] in breadcrumbs:
+            raise DuolingoException("Loop encountered: {}".format(breadcrumbs + [skill['name']]))
+        if "dependency_order" in skill:
+            return skill["dependency_order"]
+        if not skill['dependencies_name']:
+            skill['dependency_order'] = 1
+            return 1
+        new_breadcrumbs = breadcrumbs + [skill['name']]
+        order = 1 + max(
+            [
+                Duolingo._get_skill_ordinal(
+                    skills_dict,
+                    skills_dict[name],
+                    new_breadcrumbs
+                )
+                for name in skill['dependencies_name']
+            ]
+        )
+        skill["dependency_order"] = order
+        return order
+
     def get_settings(self):
         """Get user settings."""
         keys = ['notify_comment', 'deactivated', 'is_follower_by',
@@ -332,7 +392,10 @@ class Duolingo(object):
             skill for skill in self.user_data.language_data[lang]['skills']
         ]
 
-        self._compute_dependency_order(skills)
+        # TODO: pick one
+        # self._compute_dependency_order(skills)
+        # self._compute_dependency_order_1(skills)
+        self._compute_dependency_order_func(skills)
 
         return [skill for skill in
                 sorted(skills, key=lambda skill: skill['dependency_order'])
