@@ -2,6 +2,7 @@
 import re
 import json
 import random
+from datetime import datetime
 
 import requests
 from werkzeug.datastructures import MultiDict
@@ -89,26 +90,28 @@ class Duolingo(object):
         except:
             raise DuolingoException('Could not get activity stream')
 
-    def get_leaderboard(self, unit=None, before=None):
+    def get_leaderboard(self, unit, before):
         """
         Get user's rank in the week in descending order, stream from
         ``https://www.duolingo.com/friendships/leaderboard_activity?unit=week&_=time
 
-        :param before: Datetime in format '2015-07-06 05:42:24'
         :param unit: maybe week or month
-        :type before: str
         :type unit: str
+        :param before: Datetime in format '2015-07-06 05:42:24'
+        :type before: Union[datetime, str]
         :rtype: List
         """
-        if unit:
-            url = 'https://www.duolingo.com/friendships/leaderboard_activity?unit={}&_={}'
-        else:
-            raise Exception('Needs unit as argument (week or month)')
+        if not unit:
+            raise ValueError('Needs unit as argument (week or month)')
 
-        if before:
-            url = url.format(unit, before)
-        else:
-            raise Exception('Needs str in Datetime format "%Y.%m.%d %H:%M:%S"')
+        if not before:
+            raise ValueError('Needs str in Datetime format "%Y.%m.%d %H:%M:%S"')
+
+        if isinstance(before, datetime):
+            before = before.strftime("%Y.%m.%d %H:%M:%S")
+
+        url = 'https://www.duolingo.com/friendships/leaderboard_activity?unit={}&_={}'
+        url = url.format(unit, before)
 
         self.leader_data = self._make_req(url).json()
         data = []
