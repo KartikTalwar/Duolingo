@@ -251,13 +251,17 @@ class Duolingo(object):
 
     @staticmethod
     def _get_skill_ordinal(skills_dict, skill, breadcrumbs):
+        # If name is already in breadcrumbs, we've found a loop
         if skill['name'] in breadcrumbs:
             raise DuolingoException("Loop encountered: {}".format(breadcrumbs + [skill['name']]))
+        # If order already set for this skill, return it
         if "dependency_order" in skill:
             return skill["dependency_order"]
+        # If no dependencies, set order on this skill to 1
         if not skill['dependencies_name']:
             skill['dependency_order'] = 1
             return 1
+        # Calculate order based on order of dependencies
         new_breadcrumbs = breadcrumbs + [skill['name']]
         order = 1 + max(
             [
