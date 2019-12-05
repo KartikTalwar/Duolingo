@@ -499,7 +499,7 @@ class Duolingo(object):
 
 
 attrs = [
-    'settings', 'languages', 'user_info', 'certificates', 'streak_info',
+    'settings', 'languages', 'user_info', 'streak_info',
     'calendar', 'language_progress', 'friends', 'known_words',
     'learned_skills', 'known_topics', 'activity_stream', 'vocabulary'
 ]
