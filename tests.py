@@ -1,5 +1,7 @@
 import os
 import unittest
+from datetime import datetime
+
 import duolingo
 
 USERNAME = os.environ.get('DUOLINGO_USER', 'ferguslongley')
@@ -72,8 +74,8 @@ class DuolingoTest(unittest.TestCase):
         response = self.lingo.get_translations(['e', 'a'])
 
     def test_get_leaderboard(self):
-        response = self.lingo.get_leaderboard('week')
-        response = self.lingo.get_leaderboard('month')
+        response = self.lingo.get_leaderboard('week', datetime.now())
+        response = self.lingo.get_leaderboard('month', datetime.now())
 
     def test_get_vocabulary(self):
         response = self.lingo.get_vocabulary()
