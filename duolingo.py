@@ -5,7 +5,6 @@ import random
 from datetime import datetime
 
 import requests
-from werkzeug.datastructures import MultiDict
 
 __version__ = "0.3"
 __author__ = "Kartik Talwar"
@@ -174,72 +173,6 @@ class Duolingo(object):
         return data
 
     @staticmethod
-    def _compute_dependency_order(skills):
-        """
-        Add a field to each skill indicating the order it was learned
-        based on the skill's dependencies. Multiple skills will have the same
-        position if they have the same dependencies.
-        """
-        # Key skills by first dependency. Dependency sets can be uniquely
-        # identified by one dependency in the set.
-        dependency_to_skill = MultiDict([(skill['dependencies_name'][0]
-                                          if skill['dependencies_name']
-                                          else '',
-                                          skill)
-                                         for skill in skills])
-
-        # Start with the first skill and trace the dependency graph through
-        # skill, setting the order it was learned in.
-        # TODO: detect cycles, and such
-        index = 0
-        previous_skill = ''
-        while True:
-            for skill in dependency_to_skill.getlist(previous_skill):
-                skill['dependency_order'] = index
-            index += 1
-
-            # Figure out the canonical dependency for the next set of skills.
-            skill_names = set([skill['name']
-                               for skill in
-                               dependency_to_skill.getlist(previous_skill)])
-            canonical_dependency = skill_names.intersection(
-                set(dependency_to_skill.keys()))
-            if canonical_dependency:
-                previous_skill = canonical_dependency.pop()
-            else:
-                # Nothing depends on these skills, so we're done.
-                break
-
-        return skills
-
-    @staticmethod
-    def _compute_dependency_order_1(skills):
-        # Create dictionary:
-        skills_dict = {}
-        for skill in skills:
-            skills_dict[skill['name']] = skill
-        # Initial run through nodes
-        updated = 0
-        for skill in skills:
-            if not skill["dependencies_name"]:
-                skill["dependency_order"] = 1
-                updated += 1
-        if updated == 0:
-            raise DuolingoException("No skills at the bottom of the dependencies tree")
-        # Further runs
-        while True:
-            remaining_nodes = [skill for skill in skills if "dependency_order" not in skill]
-            if len(remaining_nodes) == 0:
-                return
-            updated = 0
-            for node in remaining_nodes:
-                if all(["dependency_order" in skills_dict[x] for x in node['dependencies_name']]):
-                    node['dependency_order'] = 1 + max([skills_dict[x]["dependency_order"] for x in node['dependencies_name']])
-                    updated += 1
-            if updated == 0:
-                raise DuolingoException("A loop must have been encountered.")
-
-    @staticmethod
     def _compute_dependency_order_func(skills):
         # Create dictionary:
         skills_dict = {}
@@ -396,9 +329,6 @@ class Duolingo(object):
             skill for skill in self.user_data.language_data[lang]['skills']
         ]
 
-        # TODO: pick one
-        # self._compute_dependency_order(skills)
-        # self._compute_dependency_order_1(skills)
         self._compute_dependency_order_func(skills)
 
         return [skill for skill in
