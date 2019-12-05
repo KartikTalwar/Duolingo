@@ -67,29 +67,6 @@ class Duolingo(object):
 
         raise DuolingoException("Login failed")
 
-    def get_activity_stream(self, before=None):
-        """
-        Get user's activity stream from
-        ``https://www.duolingo.com/stream/<user_id>?before=<date> if before
-        date is given or else
-        ``https://www.duolingo.com/activity/<user_id>``
-
-        :param before: Datetime in format '2015-07-06 05:42:24'
-        :type before: str
-        :rtype: dict
-        """
-        if before:
-            url = "https://www.duolingo.com/stream/{}?before={}"
-            url = url.format(self.user_data.id, before)
-        else:
-            url = "https://www.duolingo.com/activity/{}"
-            url = url.format(self.user_data.id)
-        request = self._make_req(url)
-        try:
-            return request.json()
-        except:
-            raise DuolingoException('Could not get activity stream')
-
     def get_leaderboard(self, unit, before):
         """
         Get user's rank in the week in descending order, stream from
@@ -501,7 +478,7 @@ class Duolingo(object):
 attrs = [
     'settings', 'languages', 'user_info', 'streak_info',
     'calendar', 'language_progress', 'friends', 'known_words',
-    'learned_skills', 'known_topics', 'activity_stream', 'vocabulary'
+    'learned_skills', 'known_topics', 'vocabulary'
 ]
 
 for attr in attrs:

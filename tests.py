@@ -64,9 +64,6 @@ class DuolingoTest(unittest.TestCase):
     def test_get_abbreviation_of(self):
         response = self.lingo.get_abbreviation_of('portuguese')
 
-    def test_get_activity_stream(self):
-        response = self.lingo.get_activity_stream()
-
     def test_get_translations(self):
         response = self.lingo.get_translations('e')
         response = self.lingo.get_translations('e', self.lang)
