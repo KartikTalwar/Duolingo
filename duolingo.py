@@ -112,8 +112,8 @@ class Duolingo(object):
 
         self.leader_data = self._make_req(url).json()
         data = []
-        for result in iter(self.get_friends()):
-            for value in iter(self.leader_data['ranking']):
+        for result in self.get_friends():
+            for value in self.leader_data['ranking']:
                 if result['id'] == int(value):
                     temp = {'points': int(self.leader_data['ranking'][value]),
                             'unit': unit,
@@ -322,7 +322,7 @@ class Duolingo(object):
 
     def get_friends(self):
         """Get user's friends."""
-        for k, v in iter(self.user_data.language_data.items()):
+        for k, v in self.user_data.language_data.items():
             data = []
             for friend in v['points_ranking_data']:
                 temp = {'username': friend['username'],
