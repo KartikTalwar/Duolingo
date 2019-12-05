@@ -22,7 +22,7 @@ class AlreadyHaveStoreItemException(Exception):
 
 
 class Duolingo(object):
-    def __init__(self, username, password=None):
+    def __init__(self, username, password):
         self.username = username
         self.password = password
         self.user_url = "https://duolingo.com/users/%s" % self.username
@@ -406,8 +406,6 @@ class Duolingo(object):
 
     def get_vocabulary(self, language_abbr=None):
         """Get overview of user's vocabulary in a language."""
-        if not self.password:
-            raise Exception("You must provide a password for this function")
         if language_abbr and not self._is_current_language(language_abbr):
             self._switch_language(language_abbr)
 
@@ -479,8 +477,6 @@ class Duolingo(object):
                                            word)
 
     def get_related_words(self, word, language_abbr=None):
-        if not self.password:
-            raise Exception("You must provide a password for this function")
         if language_abbr and not self._is_current_language(language_abbr):
             self._switch_language(language_abbr)
 
@@ -506,10 +502,3 @@ for attr in attrs:
     prop = property(getter)
     setattr(Duolingo, attr, prop)
 
-if __name__ == '__main__':
-    from pprint import pprint
-
-    duolingo = Duolingo('ferguslongley')
-    knowntopic = duolingo.get_known_topics('it')
-
-    pprint(knowntopic)
