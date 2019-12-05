@@ -85,5 +85,6 @@ class DuolingoTest(unittest.TestCase):
     def test_get_related_words(self):
         response = self.lingo.get_related_words('o')
 
+
 if __name__ == '__main__':
     unittest.main()

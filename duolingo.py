@@ -190,6 +190,7 @@ class Duolingo(object):
 
         # Start with the first skill and trace the dependency graph through
         # skill, setting the order it was learned in.
+        # TODO: detect cycles, and such
         index = 0
         previous_skill = ''
         while True:
@@ -327,8 +328,9 @@ class Duolingo(object):
         Return the learned skill objects sorted by the order they were learned
         in.
         """
-        skills = [skill for skill in
-                  self.user_data.language_data[lang]['skills']]
+        skills = [
+            skill for skill in self.user_data.language_data[lang]['skills']
+        ]
 
         self._compute_dependency_order(skills)
 
