@@ -32,9 +32,6 @@ class DuolingoTest(unittest.TestCase):
     def test_get_streak_info(self):
         response = self.lingo.get_streak_info()
 
-    def test_get_certificates(self):
-        response = self.lingo.get_certificates()
-
     def test_get_language_details(self):
         response = self.lingo.get_language_details(self.lang)
 

@@ -286,13 +286,6 @@ class Duolingo(object):
 
         return self._make_dict(fields, self.user_data)
 
-    def get_certificates(self):
-        """Get user's certificates."""
-        for certificate in self.user_data.certificates:
-            certificate['datetime'] = certificate['datetime'].strip()
-
-        return self.user_data.certificates
-
     def get_streak_info(self):
         """Get user's streak informations."""
         fields = ['daily_goal', 'site_streak', 'streak_extended_today']
