@@ -26,6 +26,8 @@ class DuolingoException(Exception):
 
 
 class Duolingo(object):
+    USER_AGENT = "Python Duolingo API/{}".format(__version__)
+
     def __init__(self, username, password):
         self.username = username
         self.password = password
@@ -44,6 +46,7 @@ class Duolingo(object):
         headers = {}
         if self.jwt is not None:
             headers['Authorization'] = 'Bearer ' + self.jwt
+        headers['User-Agent'] = self.USER_AGENT
         req = requests.Request('POST' if data else 'GET',
                                url,
                                json=data,
