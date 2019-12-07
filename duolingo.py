@@ -154,7 +154,7 @@ class Duolingo(object):
             parse = request.json()['tracking_properties']
             if parse['learning_language'] == lang:
                 self.user_data = Struct(**self._get_data())
-        except:
+        except ValueError:
             raise DuolingoException('Failed to switch language')
 
     def _get_data(self):
@@ -387,7 +387,7 @@ class Duolingo(object):
         request = self.session.get(url)
         try:
             return request.json()
-        except:
+        except ValueError:
             raise DuolingoException('Could not get translations')
 
     def get_vocabulary(self, language_abbr=None):
@@ -418,7 +418,7 @@ class Duolingo(object):
         if self._cloudfront_server_url:
             return self._cloudfront_server_url
 
-        server_list = re.search('//.+\.cloudfront\.net', self._homepage)
+        server_list = re.search(r'//.+\.cloudfront\.net', self._homepage)
         self._cloudfront_server_url = "https:{}".format(server_list.group(0))
 
         return self._cloudfront_server_url
@@ -426,7 +426,7 @@ class Duolingo(object):
     _tts_voices = None
 
     def _process_tts_voices(self):
-        voices_js = re.search('duo\.tts_multi_voices = {.+};',
+        voices_js = re.search(r'duo\.tts_multi_voices = {.+};',
                               self._homepage).group(0)
 
         voices = voices_js[voices_js.find("{"):voices_js.find("}") + 1]
@@ -537,4 +537,3 @@ for attr in attrs:
     getter = getattr(Duolingo, "get_" + attr)
     prop = property(getter)
     setattr(Duolingo, attr, prop)
-
