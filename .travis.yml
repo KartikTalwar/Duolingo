@@ -1,12 +1,17 @@
 language: python
 
 python:
-  - "3.3"
   - "3.4"
   - "3.5"
   - "3.6"
   - "3.7"
   - "3.8"
+matrix:
+  include:
+    - python: 3.2
+      dist: trusty
+    - python: 3.3
+      dist: trusty
 cache: pip
 install:
   - pip install -r requirements.txt
