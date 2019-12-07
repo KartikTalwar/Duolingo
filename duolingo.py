@@ -249,7 +249,7 @@ class Duolingo(object):
     def get_abbreviation_of(self, name):
         """Get abbreviation of a language."""
         for language in self.user_data.languages:
-            if language['language_string'] == name:
+            if language['language_string'].lower() == name.lower():
                 return language['language']
         return None
 
@@ -321,7 +321,7 @@ class Duolingo(object):
         for topic in self.user_data.language_data[lang]['skills']:
             if topic['learned']:
                 words += topic['words']
-        return set(words)
+        return list(set(words))
 
     def get_learned_skills(self, lang):
         """
@@ -513,15 +513,10 @@ class Duolingo(object):
         self.voice_url_dict[lang_abbr][word].add(url)
 
     def get_related_words(self, word, language_abbr=None):
-        if language_abbr and not self._is_current_language(language_abbr):
-            self._switch_language(language_abbr)
-
-        overview_url = "https://www.duolingo.com/vocabulary/overview"
-        overview_request = self._make_req(overview_url)
-        overview = overview_request.json()
+        overview = self.get_vocabulary(language_abbr)
 
         for word_data in overview['vocab_overview']:
-            if word_data['normalized_string'] == word:
+            if word_data['normalized_string'] == word.lower():
                 related_lexemes = word_data['related_lexemes']
                 return [w for w in overview['vocab_overview']
                         if w['lexeme_id'] in related_lexemes]
