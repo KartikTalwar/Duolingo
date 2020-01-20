@@ -10,8 +10,11 @@ def read_file(name):
 
 def find_metadata(metadata_name, file_name):
     file_data = read_file(file_name)
+    regex_pattern = r"^__{}__ = (['\"])([^'\"]*)\1".format(metadata_name)
+    if metadata_name is "doc":
+        regex_pattern = r"(\"\"\")([\s\S]*?)\1"
     file_match = re.search(
-        r"^__{}__ = (['\"])([^'\"]*)\1".format(metadata_name),
+        regex_pattern,
         file_data,
         re.M
     )
