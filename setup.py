@@ -1,18 +1,32 @@
+import re
+
 from setuptools import setup
-import duolingo
 
 
 def read_file(name):
     with open(name) as fd:
         return fd.read()
 
+
+def find_metadata(metadata_name, file_name):
+    file_data = read_file(file_name)
+    file_match = re.search(
+        r"^__{}__ = (['\"])([^'\"]*)\1".format(metadata_name),
+        file_data,
+        re.M
+    )
+    if file_match:
+        return file_match.group(2)
+    raise RuntimeError("Unable to find metadata string for {}.".format(metadata_name))
+
+
 setup(
     name="duolingo-api",
-    version=duolingo.__version__,
-    author=duolingo.__author__,
-    author_email=duolingo.__email__,
-    description=duolingo.__doc__,
-    url=duolingo.__url__,
+    version=find_metadata("version", "./duolingo.py"),
+    author=find_metadata("author", "./duolingo.py"),
+    author_email=find_metadata("email", "./duolingo.py"),
+    description=find_metadata("doc", "./duolingo.py"),
+    url=find_metadata("url", "./duolingo.py"),
     keywords="duolingo, duolingo api, language",
     license='MIT',
     py_modules=['duolingo'],
