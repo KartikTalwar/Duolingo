@@ -521,6 +521,25 @@ class Duolingo(object):
                 return [w for w in overview['vocab_overview']
                         if w['lexeme_id'] in related_lexemes]
 
+    def get_daily_xp_progress(self):
+        daily_progress_url = \
+            "https://www.duolingo.com/2017-06-30/users/" \
+            "{}?fields=xpGoal,xpGains,streakData".format(self.user_data.id)
+        daily_progress_request = self._make_req(daily_progress_url)
+        daily_progress = daily_progress_request.json()
+
+        # xpGains lists the lessons completed on the last day where lessons were done.
+        # We use the streakData.updatedTimestamp to get the last "midnight", and get lessons after that.
+        last_midnight = daily_progress['streakData']['updatedTimestamp']
+
+        lessons = [lesson for lesson in daily_progress['xpGains'] if lesson['time'] > last_midnight]
+
+        return {
+            "xp_goal": daily_progress['xpGoal'],
+            "lessons_today": lessons,
+            "xp_today": sum(x['xp'] for x in lessons)
+        }
+
 
 attrs = [
     'settings', 'languages', 'user_info', 'streak_info',
