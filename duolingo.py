@@ -25,14 +25,14 @@ class Duolingo(object):
     def __init__(self, username, password=None):
         self.username = username
         self.password = password
-        self.user_url = "https://duolingo.com/users/%s" % self.username
+        self.user_url = "https://duolingo.com/2017-06-30/users?username={}" % self.username
         self.session = requests.Session()
         self.leader_data = None
         self.jwt = None
 
         if password:
             self._login()
-
+        
         self.user_data = Struct(**self._get_data())
 
     def _make_req(self, url, data=None):
@@ -174,8 +174,7 @@ class Duolingo(object):
         """
         Get user's data from ``https://www.duolingo.com/users/<username>``.
         """
-        get = self._make_req(self.user_url).json()
-        return get
+        return self._make_req(self.user_url).json()
 
     @staticmethod
     def _make_dict(keys, array):
