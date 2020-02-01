@@ -25,7 +25,7 @@ class Duolingo(object):
     def __init__(self, username, password=None):
         self.username = username
         self.password = password
-        self.user_url = "https://duolingo.com/2017-06-30/users?username={}" % self.username
+        self.user_url = "https://duolingo.com/2017-06-30/users?username=%s" % self.username
         self.session = requests.Session()
         self.leader_data = None
         self.jwt = None
