@@ -206,6 +206,13 @@ class DuolingoTest(unittest.TestCase):
         response = self.lingo.get_audio_url("zz")
         assert response is None
 
+    def test_get_word_definition_by_id(self):
+        response = self.lingo.get_word_definition_by_id("52383869a8feb3e5cf83dbf7fab9a018")
+        assert isinstance(response, dict)
+        keys = ["alternative_forms", "translations", "learning_language_name", "from_language_name", "word"]
+        for key in keys:
+            assert key in response
+
     def test_get_daily_xp_progress(self):
         response = self.lingo.get_daily_xp_progress()
         assert isinstance(response['xp_goal'], int)
