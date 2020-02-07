@@ -96,7 +96,7 @@ class Duolingo(object):
         self.password = password
 
         url = self.base_url + self._url_login
-        data = {"login": self.username, "password": self.password}
+        data = {"identifier": self.username, "password": self.password}
         request = self._make_req(url, data)
         attempt = request.json()
         if attempt.get('response') == 'OK':
