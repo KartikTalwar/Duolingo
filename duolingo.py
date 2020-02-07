@@ -521,6 +521,25 @@ class Duolingo(object):
                 return [w for w in overview['vocab_overview']
                         if w['lexeme_id'] in related_lexemes]
 
+
+    def get_word_definition_by_id(self, lexeme_id):
+        """
+        Get the dictionary entry from
+        ``https://www.duolingo.com/api/1/dictionary_page?lexeme_id=``<lexeme_id>``
+
+        :param lexeme_id: Identifier of the word
+        :type: str
+        :return: The dictionary entry for the given word
+        """
+        url = "https://www.duolingo.com/api/1/dictionary_page?lexeme_id=%s" % lexeme_id
+
+        request = self.session.get(url)
+
+        try:
+            return request.json()
+        except:
+            raise Exception('Could not get word definition')
+
     def get_daily_xp_progress(self):
         daily_progress_url = \
             "https://www.duolingo.com/2017-06-30/users/" \
