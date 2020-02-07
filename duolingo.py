@@ -91,8 +91,7 @@ class Duolingo(object):
         
         Returns:
             bool -- Login success if True
-        """        
-        str
+        """       
         self.username = username
         self.password = password
 
