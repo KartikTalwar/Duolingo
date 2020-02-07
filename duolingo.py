@@ -33,11 +33,6 @@ class Duolingo(object):
     _url_login = "/login?fields="
 
     def __init__(self, username="", password="", host="www.duolingo.com", base_path="/2017-06-30"):
-        if username and password:
-            self.username = username
-            self.password = password
-            self.user_url = "https://duolingo.com/users/%s" % self.username
-
         self.host = host
         self.base_path = base_path
         self.base_url = self._url_base.format(host=self.host, base_path=self.base_path)
@@ -46,9 +41,12 @@ class Duolingo(object):
         self.leader_data = None
         self.jwt = None        
 
-        if password:
-            self._login()
-            self.user_data = Struct(**self._get_data())
+        if username:
+            self.username = username
+            if password:
+                self.password = password
+                self._login()
+            self._get_user_data(username)
         self.voice_url_dict = None
 
     def _get_user_data(self, username):
