@@ -206,6 +206,12 @@ class DuolingoTest(unittest.TestCase):
         response = self.lingo.get_audio_url("zz")
         assert response is None
 
+    def test_get_daily_xp_progress(self):
+        response = self.lingo.get_daily_xp_progress()
+        assert isinstance(response['xp_goal'], int)
+        assert isinstance(response['xp_today'], int)
+        assert isinstance(response['lessons_today'], list)
+
 
 if __name__ == '__main__':
     unittest.main()
