@@ -19,11 +19,9 @@ $ pip install duolingo-api
 
 ```py
 import duolingo
-lingo  = duolingo.Duolingo('kartik')
-# or
-lingo  = duolingo.Duolingo('kartik', password='my optional password')
+lingo  = duolingo.Duolingo('kartik', 'my password')
 ```
-Note: You must be logged in to get information on your learning progress.
+Note: You are now required to provide a password to get any data from the Duolingo API
 
 ### Documentation
 ###### Account Information
@@ -33,8 +31,6 @@ Note: You must be logged in to get information on your learning progress.
 - [Get Friends](#get-friends)
 - [Get Calendar](#get-calendar)
 - [Get Streak Information](#get-streak-information)
-- [Get Certificates](#get-certificates)
-- [Get Activity Stream](#get-activity-stream)
 - [Get Leaderboard](#get-leaderboard)
 - [Buy Item](#buy-item)
 - [Buy Streak Freeze](#buy-streak-freeze)
@@ -62,27 +58,27 @@ avatar, user ID, location, current language, and more.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_user_info()
+print(lingo.get_user_info())
 
 # Sample Response
 {
     'admin': False,
-    'avatar': u'https://s3.amazonaws.com/duolingo-images/avatars/22524/PALdVtqnHa',
-    'bio': u'',
+    'avatar': 'https://s3.amazonaws.com/duolingo-images/avatars/22524/PALdVtqnHa',
+    'bio': '',
     'cohort': 17,
     'contribution_points': 0,
-    'created': u'1 year ago',
-    'fullname': u'Kartik',
+    'created': '1 year ago',
+    'fullname': 'Kartik',
     'gplus_id': None,
     'id': 22524,
     'invites_left': 3,
-    'learning_language_string': u'French',
-    'location': u'Toronto',
+    'learning_language_string': 'French',
+    'location': 'Toronto',
     'num_followers': 3,
     'num_following': 4,
     'twitter_id': None,
-    'username': u'kartik',
-    'ui_language': u'en'
+    'username': 'kartik',
+    'ui_language': 'en'
 }
 ```
 #### Get Settings
@@ -92,7 +88,7 @@ Returns the user's settings.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_user_settings()
+print(lingo.get_user_settings())
 
 # Sample Response
 {
@@ -109,14 +105,14 @@ Returns a list of languages the user is learning.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_languages(abbreviations=True)
+print(lingo.get_languages(abbreviations=True))
 ```
 ##### Parameters
 `abbreviations` (boolean) *optional*  
 --Returns the list of languages as abbreviations. Default=`False`.
 ```py
 # Sample Response
-[u'fr', u'de', u'es']
+['fr', 'de', 'es']
 ```
 #### Get Friends
 `lingo.get_friends()`
@@ -126,22 +122,22 @@ they are learning. The current user is included in this list.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_friends()
+print(lingo.get_friends())
 
 # Sample Response
-[{'languages': [u'French', u'Spanish', u'German', u'Italian'],
+[{'languages': ['French', 'Spanish', 'German', 'Italian'],
   'points': 4791,
-  'username': u'apmechev'},
- {'languages': [u'French', u'Spanish'],
+  'username': 'apmechev'},
+ {'languages': ['French', 'Spanish'],
   'points': 1810,
-  'username': u'jlfwong'},
- {'languages': [u'French', u'German', u'Spanish'],
+  'username': 'jlfwong'},
+ {'languages': ['French', 'German', 'Spanish'],
   'points': 754,
-  'username': u'kartik'},
- {'languages': [u'Spanish', u'French'], 'points': 718, 'username': u'vhisko'},
- {'languages': [u'French', u'German'],
+  'username': 'kartik'},
+ {'languages': ['Spanish', 'French'], 'points': 718, 'username': 'vhisko'},
+ {'languages': ['French', 'German'],
   'points': 579,
-  'username': u'warrench04'}]
+  'username': 'warrench04'}]
 ```
 #### Get Calendar
 `lingo.get_calendar(language_abbr)`
@@ -158,60 +154,13 @@ whether the streak has been extended today.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_streak_info()
+print(lingo.get_streak_info())
 
 # Sample Response
 {
     'site_streak': 141,
     'daily_goal': 30,
     'streak_extended_today': True
-}
-```
-#### Get Certificates
-`lingo.get_certificates()`
-
-Returns the list of certificates, including score, language, and datetime information.
-string.
-```py
-# Sample Request
-lingo  = duolingo.Duolingo('kartik')
-print lingo.get_certificates()
-
-# Sample Response
-[{
-    u'language_string': u'German',
-    u'score': 2.09,
-    u'id': u'SgXFt9',
-    u'language': u'de',
-    u'datetime': u'1 month ago'
-}]
-```
-#### Get Activity Stream
-`lingo.get_activity_stream(before)`
-
-The Duolingo API returns a `before` value with each request to the activity stream. To get the previous set of data in the stream, feed it the `before` value from the current stream.
-```py
-# Sample Request
-lingo  = duolingo.Duolingo('kartik')
-print lingo.get_activity_stream(before='2015-07-06 05:42:24')
-```
-##### Parameters
-`before` (string) *optional*  
---Returns the activity stream data up to the date and time given. Default=`None`.
-```py
-# Sample Response
-{
-    u'more_events': True,
-    u'events': [
-        {
-            u'type': "unlock",
-            u'skills': [...],
-            ...
-        },
-        ...
-    ],
-    u'js_version': u'js_version': u'//url_to_javascript',
-    u'before': u'2015-07-05 07:44:56'
 }
 ```
 #### Get Leaderboard
@@ -221,7 +170,7 @@ Returns an ordered list containing the logged user leaderboard. You need to indi
 ```py
 # Sample Request
 lingo = duolingo.Duolingo('yurireis5')
-print lingo.get_leaderboard('week')
+print(lingo.get_leaderboard('week'))
 ```
 ##### Parameters
 `unit` (string) *optional*  
@@ -253,7 +202,7 @@ Buy a specific item in the shop. Returns the name of the item and the date and t
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.buy_item('streak_freeze', 'en')
+print(lingo.buy_item('streak_freeze', 'en'))
 ```
 ##### Parameters
 `item_name` (string) **required**  
@@ -275,7 +224,7 @@ Buy a Streak on Ice extension, if the account has enough Lingots and is not yet 
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.buy_streak_freeze()
+print(lingo.buy_streak_freeze())
 
 # Sample Response
 True
@@ -287,7 +236,7 @@ Returns the language details for a given language, including the current streak,
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_language_details('French')
+print(lingo.get_language_details('French'))
 ```
 ##### Parameters
 `language_name` (string) **required**  
@@ -295,13 +244,13 @@ print lingo.get_language_details('French')
 ```py
 # Sample Response
 {
-    u'current_learning': True,
-    u'language': u'fr',
-    u'language_string': u'French',
-    u'learning': True,
-    u'level': 6,
-    u'points': 604,
-    u'streak': 0
+    'current_learning': True,
+    'language': 'fr',
+    'language_string': 'French',
+    'learning': True,
+    'level': 6,
+    'points': 604,
+    'streak': 0
 }
 ```
 #### Get Language Progress
@@ -311,7 +260,7 @@ Returns the language progress for a given language.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_language_progress('fr')
+print(lingo.get_language_progress('fr'))
 ```
 ##### Parameters
 `language_abbr` (string) **required**  
@@ -319,8 +268,8 @@ print lingo.get_language_progress('fr')
 ```py
 # Sample Response
 {
-    'language': u'fr',
-    'language_string': u'French',
+    'language': 'fr',
+    'language_string': 'French',
     'level_left': 146,
     'level_percent': 51,
     'level_points': 300,
@@ -341,7 +290,7 @@ Note: Order is not guaranteed.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_known_topics('fr')
+print(lingo.get_known_topics('fr'))
 ```
 ##### Parameters
 `language_abbr` (string) **required**  
@@ -349,19 +298,19 @@ print lingo.get_known_topics('fr')
 ```py
 # Sample Response
 [
-    u'Colors',
-    u'Basics 2',
-    u'Animals',
-    u'Possessives',
-    u'Verbs: \xcatre / Avoir',
-    u'Clothing',
-    u'Food',
-    u'Questions',
-    u'Basics',
-    u'Verbs: Present 1',
-    u'Plurals',
-    u'Common Phrases',
-    u'Adjectives 1'
+    'Colors',
+    'Basics 2',
+    'Animals',
+    'Possessives',
+    'Verbs: \xcatre / Avoir',
+    'Clothing',
+    'Food',
+    'Questions',
+    'Basics',
+    'Verbs: Present 1',
+    'Plurals',
+    'Common Phrases',
+    'Adjectives 1'
 ]
 ```
 #### Get Unknown Topics
@@ -373,7 +322,7 @@ Note: Order is not guaranteed.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_unknown_topics()
+print(lingo.get_unknown_topics())
 ```
 ##### Parameters
 `language_abbr` (string) **required**  
@@ -381,9 +330,9 @@ print lingo.get_unknown_topics()
 ```py
 # Sample Response
 [
-    u'The',
-    u'Accusative Case',
-    u'Nature 1'
+    'The',
+    'Accusative Case',
+    'Nature 1'
 ]
 ```
 #### Get Golden Topics
@@ -395,7 +344,7 @@ Note: Order is not guaranteed.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_golden_topics('fr')
+print(lingo.get_golden_topics('fr'))
 ```
 ##### Parameters
 `language_abbr` (string) **required**  
@@ -403,16 +352,16 @@ print lingo.get_golden_topics('fr')
 ```py
 # Sample Response
 [
-    u'Colors',
-    u'Basics 2',
-    u'Animals',
-    u'Possessives',
-    u'Verbs: \xcatre / Avoir',
-    u'Clothing',
-    u'Verbs: Present 1',
-    u'Plurals',
-    u'Common Phrases',
-    u'Adjectives 1'
+    'Colors',
+    'Basics 2',
+    'Animals',
+    'Possessives',
+    'Verbs: \xcatre / Avoir',
+    'Clothing',
+    'Verbs: Present 1',
+    'Plurals',
+    'Common Phrases',
+    'Adjectives 1'
 ]
 ```
 #### Get Reviewable Topics
@@ -424,7 +373,7 @@ Note: Order is not guaranteed.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_golden_topics('fr')
+print(lingo.get_golden_topics('fr'))
 ```
 ##### Parameters
 `language_abbr` (string) **required**  
@@ -432,9 +381,9 @@ print lingo.get_golden_topics('fr')
 ```py
 # Sample Response
 [
-    u'Food',
-    u'Questions',
-    u'Basics'
+    'Food',
+    'Questions',
+    'Basics'
 ]
 ```
 #### Get Known Words
@@ -444,7 +393,7 @@ Returns a set containing known words of a given language.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_known_words('fr')
+print(lingo.get_known_words('fr'))
 ```
 ##### Parameters
 `language_abbr` (string) **required**  
@@ -452,20 +401,20 @@ print lingo.get_known_words('fr')
 ```py
 # Sample Response
 [
-    u'absolument',
-    u'accept\xe9',
-    u'acier',
-    u'actuellement',
-    u'adopt\xe9',
-    u'affirme',
-    u'agissant',
-    u'agit',
-    u'agr\xe9able',
-    u'ai',
-    u'aient',
-    u'ailes',
-    u'aime',
-    u'aimerais'
+    'absolument',
+    'accept\xe9',
+    'acier',
+    'actuellement',
+    'adopt\xe9',
+    'affirme',
+    'agissant',
+    'agit',
+    'agr\xe9able',
+    'ai',
+    'aient',
+    'ailes',
+    'aime',
+    'aimerais'
 ]
 ```
 #### Get Related Words
@@ -478,7 +427,7 @@ Note: The dictionaries it returns are identical in format to those returned by [
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
- print lingo.get_related_words('aller')
+ print(lingo.get_related_words('aller'))
  ```
  ##### Parameters
  `word` (string) **required**  
@@ -489,20 +438,20 @@ lingo  = duolingo.Duolingo('kartik')
  # Sample Response
 [
     {
-        u'last_practiced': u'2015-05-27T06:01:18Z',
-        u'strength': 0.991741,
-        u'strength_bars': 4,
-        u'infinitive': u'aller',
-        u'lexeme_id': u'51a2297870df84c13c7ce0b5f987ae70',
-        u'normalized_string': u'allait',
-        u'pos': u'Verb',
-        u'id': u'51a2297870df84c13c7ce0b5f987ae70',
-        u'last_practiced_ms': 1432706478000.0,
-        u'gender': None,
-        u'skill': u'Verbs: Past Imperfect',
-        u'word_string': u'allait',
-        u'related_lexemes': [...],
-        u'skill_url_title': u'Verbs:-Past-Imperfect'
+        'last_practiced': '2015-05-27T06:01:18Z',
+        'strength': 0.991741,
+        'strength_bars': 4,
+        'infinitive': 'aller',
+        'lexeme_id': '51a2297870df84c13c7ce0b5f987ae70',
+        'normalized_string': 'allait',
+        'pos': 'Verb',
+        'id': '51a2297870df84c13c7ce0b5f987ae70',
+        'last_practiced_ms': 1432706478000.0,
+        'gender': None,
+        'skill': 'Verbs: Past Imperfect',
+        'word_string': 'allait',
+        'related_lexemes': [...],
+        'skill_url_title': 'Verbs:-Past-Imperfect'
     },
     ...
 ]
@@ -515,7 +464,7 @@ Returns an ordered list containing the names of the known topics by date learned
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_learned_skills('fr')
+print(lingo.get_learned_skills('fr'))
 ```
 ##### Parameters
 `language_abbr` (string) **required**  
@@ -524,53 +473,53 @@ print lingo.get_learned_skills('fr')
 # Sample Response
 [
     {
-        u'language_string': u'French',
-        u'dependency_order': 0,
-        u'dependencies_name': [],
-        u'practice_recommended': False,
-        u'learning_threshold': 0,
-        u'disabled': False,
-        u'more_lessons': 0,
-        u'test_count': 3,
-        u'missing_lessons': 0,
-        u'lesson': False,
-        u'progress_percent': 100.0,
-        u'id': u'aad5e3a9fc5bb6a9b55a4d20d40c3f27',
-        u'description': u'',
-        u'category': u'',
-        u'num_lessons': 4,
-        u'language': u'fr',
-        u'strength': 0.25,
-        u'beginner': True,
-        u'title': u'Basics 1',
-        u'coords_y': 1,
-        u'coords_x': 2,
-        u'url_title': u'Basics-1',
-        u'test': True,
-        u'lesson_number': 1,
-        u'learned': True,
-        u'num_translation_nodes': 0,
-        u'learning_threshold_percentage': 0,
-        u'icon_color': u'blue',
-        u'index': u'0',
-        u'bonus': False,
-        u'explanation': (string containing HTML of explanation),
-        u'num_lexemes': 30,
-        u'num_missing': 0,
-        u'left_lessons': 0,
-        u'dependencies': [],
-        u'known_lexemes': [...],
-        u'words': [list of words contained in the lesson],
-        u'path': [],
-        u'achievements': [],
-        u'short': u'Basics 1',
-        u'locked': False,
-        u'name': u'BASICS',
-        u'comment_data': {},
-        u'new_index': 1,
-        u'changed': False,
-        u'has_explanation': True,
-        u'mastered': True
+        'language_string': 'French',
+        'dependency_order': 0,
+        'dependencies_name': [],
+        'practice_recommended': False,
+        'learning_threshold': 0,
+        'disabled': False,
+        'more_lessons': 0,
+        'test_count': 3,
+        'missing_lessons': 0,
+        'lesson': False,
+        'progress_percent': 100.0,
+        'id': 'aad5e3a9fc5bb6a9b55a4d20d40c3f27',
+        'description': '',
+        'category': '',
+        'num_lessons': 4,
+        'language': 'fr',
+        'strength': 0.25,
+        'beginner': True,
+        'title': 'Basics 1',
+        'coords_y': 1,
+        'coords_x': 2,
+        'url_title': 'Basics-1',
+        'test': True,
+        'lesson_number': 1,
+        'learned': True,
+        'num_translation_nodes': 0,
+        'learning_threshold_percentage': 0,
+        'icon_color': 'blue',
+        'index': '0',
+        'bonus': False,
+        'explanation': (string containing HTML of explanation),
+        'num_lexemes': 30,
+        'num_missing': 0,
+        'left_lessons': 0,
+        'dependencies': [],
+        'known_lexemes': [...],
+        'words': [list of words contained in the lesson],
+        'path': [],
+        'achievements': [],
+        'short': 'Basics 1',
+        'locked': False,
+        'name': 'BASICS',
+        'comment_data': {},
+        'new_index': 1,
+        'changed': False,
+        'has_explanation': True,
+        'mastered': True
     },
     ...
 ]
@@ -582,14 +531,14 @@ When the ```language_abbr``` of a language is known, but the full language name 
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_language_from_abbr('fr')
+print(lingo.get_language_from_abbr('fr'))
 ```
 ##### Parameters
 `language_abbr` (string) **required**  
 --Abbrieviation of a given language.
 ```py
 # Sample Response
-u'French'
+'French'
 ```
 #### Get Abbreviation Of
 `lingo.get_abbreviation_of(language_name)`
@@ -600,14 +549,14 @@ Note: This only works for languages that the user is learning.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_abbreviation_of('French')
+print(lingo.get_abbreviation_of('French'))
 ```
 ##### Parameters
 `language_name` (string) **required**  
 --The name of a given language.
 ```py
 # Sample Response
-u'fr'
+'fr'
 ```
 #### Get Translations
 `lingo.get_translations(words)`
@@ -628,9 +577,9 @@ lingo.get_translations(['de', 'du'], source='de', target='fr')
 ```py
 # Sample Response
 {
-    u'de': [u'zu', u'von', u'des', u'an', u'auf', u'aus', u'mit', u'um',
-            u'vor', u'\xfcber'],
-    u'du': [u'der', u'nach', u'zur', u'\u2205']
+    'de': ['zu', 'von', 'des', 'an', 'auf', 'aus', 'mit', 'um',
+            'vor', '\xfcber'],
+    'du': ['der', 'nach', 'zur', '\u2205']
 }
 ```
 #### Get Vocabulary
@@ -640,7 +589,7 @@ Gets the user's vocabulary for a given language. If `language_abbr` is none, the
 ```py
 #Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_vocabulary(language_abbr='de')
+print(lingo.get_vocabulary(language_abbr='de'))
 ```
 ##### Parameters
 `language_abbr` (string) *optional*  
@@ -682,13 +631,13 @@ Returns a list of voices available in a given language. The list will always con
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_language_voices('fr')
+print(lingo.get_language_voices('fr'))
 ```
 ##### Parameters
 `language_abbr` (string) **required**  
 --Abbrieviation of a given language.
 ```py
-['default', u'mathieu']
+['default', 'mathieu']
 ```
 
 #### Get Audio URL
@@ -698,7 +647,7 @@ Returns the path to an audio file containing the pronunciation of the word given
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik')
-print lingo.get_audio_url('bonjour')
+print(lingo.get_audio_url('bonjour'))
 ```
 ##### Parameters
 `word` (string) **required**  
