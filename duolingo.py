@@ -51,6 +51,63 @@ class Duolingo(object):
             self.user_data = Struct(**self._get_data())
         self.voice_url_dict = None
 
+    def _get_user_data(self, username):
+        """Gets user data with _get_data if logged in
+            and _get_user_data_no_auth otherwise
+        
+        Arguments:
+            username {str} -- username on Duolingo
+        """        
+        self.username = username
+        self.user_url = "https://duolingo.com/users/%s" % self.username # TODO: should be removed
+
+        data = self._get_data() if self.jwt else self._get_user_data_no_auth(username)
+        self.user_data = Struct(**data)
+
+    def _get_user_data_no_auth(self, username):
+        """Gets user data without authentication
+        
+        Arguments:
+            username {str} -- username on Duolingo
+        
+        Returns:
+            dict -- user data
+        """        
+        url = self.base_url + self._url_user_no_auth.format(username=username)
+        get = self._make_req(url).json()
+        if not "users" in get:
+            raise DuolingoException("users field not found in response")
+        if len(get["users"]) == 0:
+            raise DuolingoException("No users in response")
+        return get["users"][0]
+
+    def login(self, username, password):
+        """Authencicate
+        
+        Arguments:
+            username {str} -- username on Duolingo
+            password {str} -- user password
+        
+        Raises:
+            DuolingoException: Login failed
+        
+        Returns:
+            bool -- Login success if True
+        """        
+        str
+        self.username = username
+        self.password = password
+
+        url = self.base_url + self._url_login
+        data = {"login": self.username, "password": self.password}
+        request = self._make_req(url, data)
+        attempt = request.json()
+        if attempt.get('response') == 'OK':
+            self.jwt = request.headers['jwt']
+            return True
+
+        raise DuolingoException("Login failed")
+    
     def _make_req(self, url, data=None):
         headers = {}
         if self.jwt is not None:
