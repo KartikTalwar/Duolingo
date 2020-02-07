@@ -28,18 +28,27 @@ class DuolingoException(Exception):
 class Duolingo(object):
     USER_AGENT = "Python Duolingo API/{}".format(__version__)
 
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
-        self.user_url = "https://duolingo.com/users/%s" % self.username
+    _url_base = "https://{host}{base_path}"
+    _url_user_no_auth = "/users?username={username}"
+    _url_login = "/login?fields="
+
+    def __init__(self, username="", password="", host="www.duolingo.com", base_path="/2017-06-30"):
+        if username and password:
+            self.username = username
+            self.password = password
+            self.user_url = "https://duolingo.com/users/%s" % self.username
+
+        self.host = host
+        self.base_path = base_path
+        self.base_url = self._url_base.format(host=self.host, base_path=self.base_path)
+
         self.session = requests.Session()
         self.leader_data = None
-        self.jwt = None
+        self.jwt = None        
 
         if password:
             self._login()
-
-        self.user_data = Struct(**self._get_data())
+            self.user_data = Struct(**self._get_data())
         self.voice_url_dict = None
 
     def _make_req(self, url, data=None):
