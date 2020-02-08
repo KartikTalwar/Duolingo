@@ -49,5 +49,6 @@ setup(
         'Topic :: Software Development :: Libraries',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    long_description=read_file('README.md')
+    long_description=read_file('README.md'),
+    long_description_content_type="text/markdown"
 )
