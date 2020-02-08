@@ -32,7 +32,7 @@ class Duolingo(object):
     _url_user_no_auth = "/users?username={username}"
     _url_login = "/login?fields="
 
-    def __init__(self, username="", password="", host="www.duolingo.com", base_path="/2017-06-30"):
+    def __init__(self, username, password="", *, host="www.duolingo.com", base_path="/2017-06-30"):
         self.host = host
         self.base_path = base_path
         self.base_url = self._url_base.format(host=self.host, base_path=self.base_path)
@@ -46,23 +46,22 @@ class Duolingo(object):
             if password:
                 self.password = password
                 self._login()
-            self._get_user_data(username)
+            self._get_user_data()
         self.voice_url_dict = None
 
-    def _get_user_data(self, username):
+    def _get_user_data(self):
         """Gets user data with _get_data if logged in
             and _get_user_data_no_auth otherwise
         
         Arguments:
             username {str} -- username on Duolingo
         """        
-        self.username = username
         self.user_url = "https://duolingo.com/users/%s" % self.username # TODO: should be removed
 
-        data = self._get_data() if self.jwt else self._get_user_data_no_auth(username)
+        data = self._get_data() if self.jwt else self._get_user_data_no_auth()
         self.user_data = Struct(**data)
 
-    def _get_user_data_no_auth(self, username):
+    def _get_user_data_no_auth(self):
         """Gets user data without authentication
         
         Arguments:
@@ -71,7 +70,7 @@ class Duolingo(object):
         Returns:
             dict -- user data
         """        
-        url = self.base_url + self._url_user_no_auth.format(username=username)
+        url = self.base_url + self._url_user_no_auth.format(username=self.username)
         get = self._make_req(url).json()
         if not "users" in get:
             raise DuolingoException("users field not found in response")
