@@ -98,7 +98,7 @@ class Duolingo(object):
         data = {"identifier": self.username, "password": self.password}
         request = self._make_req(url, data)
         attempt = request.json()
-        if attempt.get('response') == 'OK':
+        if request.status_code == 200:
             self.jwt = request.headers['jwt']
             return True
         if "blockScript" in attempt:
