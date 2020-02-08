@@ -6,7 +6,7 @@ from datetime import datetime
 
 import requests
 
-__version__ = "0.3"
+__version__ = "0.4"
 __author__ = "Kartik Talwar"
 __email__ = "hi@kartikt.com"
 __url__ = "https://github.com/KartikTalwar/duolingo"
