@@ -101,7 +101,8 @@ class Duolingo(object):
         if attempt.get('response') == 'OK':
             self.jwt = request.headers['jwt']
             return True
-
+        if "blockScript" in attempt:
+            raise DuolingoException("Captcha was triggered")
         raise DuolingoException("Login failed")
     
     def _make_req(self, url, data=None):
