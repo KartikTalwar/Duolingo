@@ -29,13 +29,13 @@ class DuolingoException(Exception):
 class Duolingo(object):
     USER_AGENT = "Python Duolingo API/{}".format(__version__)
 
-    def __init__(self, username, password, *, jwt=None, session_file=None):
+    def __init__(self, username, password=None, *, jwt=None, session_file=None):
         """
         :param username: Username to use for duolingo
-        :param password: Password to authenticate as user. Required, in order to access detailed user data.
+        :param password: Password to authenticate as user.
         :param jwt: Duolingo login token. Will be checked and used if it is valid.
         :param session_file: File path to a file that the session token can be stored in, to save repeated login
-        requests. Username and password are still required when using session file, as token may expire.
+        requests.
         """
         self.username = username
         self.password = password
@@ -45,8 +45,10 @@ class Duolingo(object):
         self.leader_data = None
         self.jwt = jwt
 
-        if password:
+        if password or jwt or session_file:
             self._login()
+        else:
+            raise DuolingoException("Password, jwt, or session_file must be specified in order to authenticate.")
 
         self.user_data = Struct(**self._get_data())
         self.voice_url_dict = None
