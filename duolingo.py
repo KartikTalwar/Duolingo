@@ -3,6 +3,7 @@ import re
 import json
 import random
 from datetime import datetime
+from json import JSONDecodeError
 
 import requests
 
@@ -28,9 +29,16 @@ class DuolingoException(Exception):
 class Duolingo(object):
     USER_AGENT = "Python Duolingo API/{}".format(__version__)
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, *, session_file=None):
+        """
+        :param username: Username to use for duolingo
+        :param password: Password to authenticate as user. Required, in order to access detailed user data.
+        :param session_file: File path to a file that the session token can be stored in, to save repeated login
+        requests. Username and password are still required when using session file, as token may expire.
+        """
         self.username = username
         self.password = password
+        self.session_file = session_file
         self.user_url = "https://duolingo.com/users/%s" % self.username
         self.session = requests.Session()
         self.leader_data = None
@@ -59,6 +67,15 @@ class Duolingo(object):
         """
         Authenticate through ``https://www.duolingo.com/login``.
         """
+        jwt = self._load_session_from_file()
+        if jwt:
+            self.jwt = jwt
+            logged_in = self._check_login()
+            if logged_in:
+                return True
+            else:
+                self.jwt = None
+
         login_url = "https://www.duolingo.com/login"
         data = {"login": self.username, "password": self.password}
         request = self._make_req(login_url, data)
@@ -66,9 +83,26 @@ class Duolingo(object):
 
         if attempt.get('response') == 'OK':
             self.jwt = request.headers['jwt']
+            self._save_session_to_file()
             return True
 
         raise DuolingoException("Login failed")
+
+    def _load_session_from_file(self):
+        try:
+            with open(self.session_file, "r") as f:
+                return json.load(f).get("jwt_session")
+        except (OSError, TypeError, JSONDecodeError):
+            return None
+
+    def _save_session_to_file(self):
+        if self.session_file is not None:
+            with open(self.session_file, "w") as f:
+                json.dump({"jwt_session": self.jwt}, f)
+
+    def _check_login(self):
+        resp = self._make_req(self.user_url)
+        return resp.status_code == 200
 
     def get_leaderboard(self, unit, before):
         """
