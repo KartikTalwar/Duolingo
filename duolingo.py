@@ -29,10 +29,11 @@ class DuolingoException(Exception):
 class Duolingo(object):
     USER_AGENT = "Python Duolingo API/{}".format(__version__)
 
-    def __init__(self, username, password, *, session_file=None):
+    def __init__(self, username, password, *, jwt=None, session_file=None):
         """
         :param username: Username to use for duolingo
         :param password: Password to authenticate as user. Required, in order to access detailed user data.
+        :param jwt: Duolingo login token. Will be checked and used if it is valid.
         :param session_file: File path to a file that the session token can be stored in, to save repeated login
         requests. Username and password are still required when using session file, as token may expire.
         """
@@ -42,7 +43,7 @@ class Duolingo(object):
         self.user_url = "https://duolingo.com/users/%s" % self.username
         self.session = requests.Session()
         self.leader_data = None
-        self.jwt = None
+        self.jwt = jwt
 
         if password:
             self._login()
@@ -67,14 +68,12 @@ class Duolingo(object):
         """
         Authenticate through ``https://www.duolingo.com/login``.
         """
-        jwt = self._load_session_from_file()
-        if jwt:
-            self.jwt = jwt
-            logged_in = self._check_login()
-            if logged_in:
-                return True
-            else:
-                self.jwt = None
+        if self.jwt is None:
+            self.jwt = self._load_session_from_file()
+        logged_in = self._check_login()
+        if logged_in:
+            return True
+        self.jwt = None
 
         login_url = "https://www.duolingo.com/login"
         data = {"login": self.username, "password": self.password}
