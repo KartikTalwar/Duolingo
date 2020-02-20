@@ -71,9 +71,8 @@ class Duolingo(object):
         Authenticate through ``https://www.duolingo.com/login``.
         """
         if self.jwt is None:
-            self.jwt = self._load_session_from_file()
-        logged_in = self._check_login()
-        if logged_in:
+            self._load_session_from_file()
+        if self._check_login():
             return True
         self.jwt = None
 
@@ -90,11 +89,13 @@ class Duolingo(object):
         raise DuolingoException("Login failed")
 
     def _load_session_from_file(self):
+        if self.session_file is None:
+            return
         try:
             with open(self.session_file, "r") as f:
-                return json.load(f).get("jwt_session")
-        except (OSError, TypeError, JSONDecodeError):
-            return None
+                self.jwt = json.load(f).get("jwt_session")
+        except (OSError, JSONDecodeError):
+            return
 
     def _save_session_to_file(self):
         if self.session_file is not None:
