@@ -17,11 +17,15 @@ class Struct:
         self.__dict__.update(entries)
 
 
-class AlreadyHaveStoreItemException(Exception):
+class DuolingoException(Exception):
     pass
 
 
-class DuolingoException(Exception):
+class AlreadyHaveStoreItemException(DuolingoException):
+    pass
+
+
+class CaptchaException(DuolingoException):
     pass
 
 
@@ -47,13 +51,20 @@ class Duolingo(object):
         if self.jwt is not None:
             headers['Authorization'] = 'Bearer ' + self.jwt
         headers['User-Agent'] = self.USER_AGENT
+        print(headers)
         req = requests.Request('POST' if data else 'GET',
                                url,
                                json=data,
                                headers=headers,
                                cookies=self.session.cookies)
         prepped = req.prepare()
-        return self.session.send(prepped)
+        resp = self.session.send(prepped)
+        if resp.status_code == 403 and resp.json().get("blockScript") is not None:
+            raise CaptchaException(
+                "Request to URL: {}, using user agent {}, was blocked, and requested a captcha to be solved. "
+                "Try changing the user agent and logging in again.".format(url, self.USER_AGENT)
+            )
+        return resp
 
     def _login(self):
         """
@@ -122,6 +133,8 @@ class Duolingo(object):
             raise AlreadyHaveStoreItemException('Already equipped with ' + item_name + '.')
         if not request.ok:
             # any other error:
+            print(request)
+            print(request.json())
             raise DuolingoException('Not possible to buy item.')
 
     def buy_streak_freeze(self):
