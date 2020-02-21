@@ -133,13 +133,19 @@ class Duolingo(object):
         """
 
         if request.status_code == 400:
-            if request.json()["error"] == "ALREADY_HAVE_STORE_ITEM":
+            resp_json = request.json()
+            if resp_json.get("error") == "ALREADY_HAVE_STORE_ITEM":
                 raise AlreadyHaveStoreItemException("Already equipped with {}.".format(item_name))
-            if request.json()["error"] == "INSUFFICIENT_FUNDS":
+            if resp_json.get("error") == "INSUFFICIENT_FUNDS":
                 raise InsufficientFundsException("Insufficient funds to purchase {}.".format(item_name))
+            raise DuolingoException(
+                "Duolingo returned an unknown error while trying to purchase {}: {}".format(
+                    item_name, resp_json.get("error")
+                )
+            )
         if not request.ok:
             # any other error:
-            raise DuolingoException('Not possible to buy item.')
+            raise DuolingoException("Not possible to buy item.")
 
     def buy_streak_freeze(self):
         """
