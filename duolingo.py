@@ -25,6 +25,10 @@ class AlreadyHaveStoreItemException(DuolingoException):
     pass
 
 
+class InsufficientFundsException(DuolingoException):
+    pass
+
+
 class CaptchaException(DuolingoException):
     pass
 
@@ -128,8 +132,11 @@ class Duolingo(object):
         returns a text like: {"streak_freeze":"2017-01-10 02:39:59.594327"}
         """
 
-        if request.status_code == 400 and request.json()['error'] == 'ALREADY_HAVE_STORE_ITEM':
-            raise AlreadyHaveStoreItemException('Already equipped with ' + item_name + '.')
+        if request.status_code == 400:
+            if request.json()["error"] == "ALREADY_HAVE_STORE_ITEM":
+                raise AlreadyHaveStoreItemException("Already equipped with {}.".format(item_name))
+            if request.json()["error"] == "INSUFFICIENT_FUNDS":
+                raise InsufficientFundsException("Insufficient funds to purchase {}.".format(item_name))
         if not request.ok:
             # any other error:
             raise DuolingoException('Not possible to buy item.')
