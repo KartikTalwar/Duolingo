@@ -51,7 +51,6 @@ class Duolingo(object):
         if self.jwt is not None:
             headers['Authorization'] = 'Bearer ' + self.jwt
         headers['User-Agent'] = self.USER_AGENT
-        print(headers)
         req = requests.Request('POST' if data else 'GET',
                                url,
                                json=data,
@@ -133,8 +132,6 @@ class Duolingo(object):
             raise AlreadyHaveStoreItemException('Already equipped with ' + item_name + '.')
         if not request.ok:
             # any other error:
-            print(request)
-            print(request.json())
             raise DuolingoException('Not possible to buy item.')
 
     def buy_streak_freeze(self):
