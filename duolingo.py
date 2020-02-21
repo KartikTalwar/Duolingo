@@ -30,7 +30,7 @@ class CaptchaException(DuolingoException):
 
 
 class Duolingo(object):
-    USER_AGENT = "Python Duolingo API/{}".format(__version__)
+    USER_AGENT = "Duolingo API/{}".format(__version__)
 
     def __init__(self, username, password):
         self.username = username
