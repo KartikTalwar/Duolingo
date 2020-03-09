@@ -1,6 +1,7 @@
 import os
 import unittest
 from datetime import datetime
+from unittest.mock import patch
 
 import duolingo
 
@@ -13,6 +14,33 @@ class DuolingoTest(unittest.TestCase):
 
     def setUp(self):
         self.lang = self.lingo.user_data.learning_language
+
+    @patch("duolingo.Duolingo._get_data")
+    def test_password_jwt_or_file_needed(self, mock_data):
+        with self.assertRaises(duolingo.DuolingoException):
+            duolingo.Duolingo(USERNAME)
+        mock_data.assert_not_called()
+
+    @patch("duolingo.Duolingo._login")
+    @patch("duolingo.Duolingo._get_data")
+    def test_password_only_calls_login(self, mock_login, mock_data):
+        duolingo.Duolingo(USERNAME, PASSWORD)
+        mock_login.assert_called_once()
+        mock_data.assert_called_once()
+
+    @patch("duolingo.Duolingo._login")
+    @patch("duolingo.Duolingo._get_data")
+    def test_jwt_only_calls_login(self, mock_login, mock_data):
+        duolingo.Duolingo(USERNAME, jwt="jwt-example")
+        mock_login.assert_called_once()
+        mock_data.assert_called_once()
+
+    @patch("duolingo.Duolingo._login")
+    @patch("duolingo.Duolingo._get_data")
+    def test_file_only_calls_login(self, mock_login, mock_data):
+        duolingo.Duolingo(USERNAME, session_file="temp/filename.json")
+        mock_login.assert_called_once()
+        mock_data.assert_called_once()
 
     def test_get_user_info(self):
         response = self.lingo.get_user_info()

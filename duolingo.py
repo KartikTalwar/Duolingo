@@ -3,10 +3,11 @@ import re
 import json
 import random
 from datetime import datetime
+from json import JSONDecodeError
 
 import requests
 
-__version__ = "0.4"
+__version__ = "0.4.1"
 __author__ = "Kartik Talwar"
 __email__ = "hi@kartikt.com"
 __url__ = "https://github.com/KartikTalwar/duolingo"
@@ -36,16 +37,26 @@ class CaptchaException(DuolingoException):
 class Duolingo(object):
     USER_AGENT = "Duolingo API/{}".format(__version__)
 
-    def __init__(self, username, password):
+    def __init__(self, username, password=None, *, jwt=None, session_file=None):
+        """
+        :param username: Username to use for duolingo
+        :param password: Password to authenticate as user.
+        :param jwt: Duolingo login token. Will be checked and used if it is valid.
+        :param session_file: File path to a file that the session token can be stored in, to save repeated login
+        requests.
+        """
         self.username = username
         self.password = password
+        self.session_file = session_file
         self.user_url = "https://duolingo.com/users/%s" % self.username
         self.session = requests.Session()
         self.leader_data = None
-        self.jwt = None
+        self.jwt = jwt
 
-        if password:
+        if password or jwt or session_file:
             self._login()
+        else:
+            raise DuolingoException("Password, jwt, or session_file must be specified in order to authenticate.")
 
         self.user_data = Struct(**self._get_data())
         self.voice_url_dict = None
@@ -73,6 +84,12 @@ class Duolingo(object):
         """
         Authenticate through ``https://www.duolingo.com/login``.
         """
+        if self.jwt is None:
+            self._load_session_from_file()
+        if self._check_login():
+            return True
+        self.jwt = None
+
         login_url = "https://www.duolingo.com/login"
         data = {"login": self.username, "password": self.password}
         request = self._make_req(login_url, data)
@@ -80,9 +97,28 @@ class Duolingo(object):
 
         if attempt.get('response') == 'OK':
             self.jwt = request.headers['jwt']
+            self._save_session_to_file()
             return True
 
         raise DuolingoException("Login failed")
+
+    def _load_session_from_file(self):
+        if self.session_file is None:
+            return
+        try:
+            with open(self.session_file, "r") as f:
+                self.jwt = json.load(f).get("jwt_session")
+        except (OSError, JSONDecodeError):
+            return
+
+    def _save_session_to_file(self):
+        if self.session_file is not None:
+            with open(self.session_file, "w") as f:
+                json.dump({"jwt_session": self.jwt}, f)
+
+    def _check_login(self):
+        resp = self._make_req(self.user_url)
+        return resp.status_code == 200
 
     def get_leaderboard(self, unit, before):
         """
