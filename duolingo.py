@@ -7,7 +7,7 @@ from json import JSONDecodeError
 
 import requests
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 __author__ = "Kartik Talwar"
 __email__ = "hi@kartikt.com"
 __url__ = "https://github.com/KartikTalwar/duolingo"
@@ -18,16 +18,24 @@ class Struct:
         self.__dict__.update(entries)
 
 
-class AlreadyHaveStoreItemException(Exception):
-    pass
-
-
 class DuolingoException(Exception):
     pass
 
 
+class AlreadyHaveStoreItemException(DuolingoException):
+    pass
+
+
+class InsufficientFundsException(DuolingoException):
+    pass
+
+
+class CaptchaException(DuolingoException):
+    pass
+
+
 class Duolingo(object):
-    USER_AGENT = "Python Duolingo API/{}".format(__version__)
+    USER_AGENT = "Duolingo API/{}".format(__version__)
 
     def __init__(self, username, password=None, *, jwt=None, session_file=None):
         """
@@ -64,7 +72,13 @@ class Duolingo(object):
                                headers=headers,
                                cookies=self.session.cookies)
         prepped = req.prepare()
-        return self.session.send(prepped)
+        resp = self.session.send(prepped)
+        if resp.status_code == 403 and resp.json().get("blockScript") is not None:
+            raise CaptchaException(
+                "Request to URL: {}, using user agent {}, was blocked, and requested a captcha to be solved. "
+                "Try changing the user agent and logging in again.".format(url, self.USER_AGENT)
+            )
+        return resp
 
     def _login(self):
         """
@@ -154,11 +168,20 @@ class Duolingo(object):
         returns a text like: {"streak_freeze":"2017-01-10 02:39:59.594327"}
         """
 
-        if request.status_code == 400 and request.json()['error'] == 'ALREADY_HAVE_STORE_ITEM':
-            raise AlreadyHaveStoreItemException('Already equipped with ' + item_name + '.')
+        if request.status_code == 400:
+            resp_json = request.json()
+            if resp_json.get("error") == "ALREADY_HAVE_STORE_ITEM":
+                raise AlreadyHaveStoreItemException("Already equipped with {}.".format(item_name))
+            if resp_json.get("error") == "INSUFFICIENT_FUNDS":
+                raise InsufficientFundsException("Insufficient funds to purchase {}.".format(item_name))
+            raise DuolingoException(
+                "Duolingo returned an unknown error while trying to purchase {}: {}".format(
+                    item_name, resp_json.get("error")
+                )
+            )
         if not request.ok:
             # any other error:
-            raise DuolingoException('Not possible to buy item.')
+            raise DuolingoException("Not possible to buy item.")
 
     def buy_streak_freeze(self):
         """
