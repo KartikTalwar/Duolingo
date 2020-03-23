@@ -46,7 +46,6 @@ class Duolingo(object):
         requests.
         """
         self.username = username
-        self.originalUsername = username
         self.password = password
         self.session_file = session_file
         self.user_url = "https://duolingo.com/users/%s" % self.username
@@ -123,10 +122,6 @@ class Duolingo(object):
 
     def set_username(self, username):
         self.username = username
-        self.user_data=Struct(**self._get_data())
-
-    def set_original_username(self):
-        self.username = self.originalUsername
         self.user_data=Struct(**self._get_data())
 
     def get_leaderboard(self, unit, before):
