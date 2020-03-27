@@ -12,7 +12,6 @@ __author__ = "Kartik Talwar"
 __email__ = "hi@kartikt.com"
 __url__ = "https://github.com/KartikTalwar/duolingo"
 
-
 class Struct:
     def __init__(self, **entries):
         self.__dict__.update(entries)
@@ -48,7 +47,6 @@ class Duolingo(object):
         self.username = username
         self.password = password
         self.session_file = session_file
-        self.user_url = "https://duolingo.com/users/%s" % self.username
         self.session = requests.Session()
         self.leader_data = None
         self.jwt = jwt
@@ -117,12 +115,15 @@ class Duolingo(object):
                 json.dump({"jwt_session": self.jwt}, f)
 
     def _check_login(self):
-        resp = self._make_req(self.user_url)
+        resp = self._make_req(self.get_user_url())
         return resp.status_code == 200
+
+    def get_user_url(self):
+        return "https://duolingo.com/users/%s" % self.username
 
     def set_username(self, username):
         self.username = username
-        self.user_data=Struct(**self._get_data())
+        self.user_data = Struct(**self._get_data())
 
     def get_leaderboard(self, unit, before):
         """
@@ -224,7 +225,7 @@ class Duolingo(object):
         """
         Get user's data from ``https://www.duolingo.com/users/<username>``.
         """
-        get = self._make_req(self.user_url).json()
+        get = self._make_req(self.get_user_url()).json()
         return get
 
     @staticmethod
