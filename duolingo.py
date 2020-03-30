@@ -225,8 +225,11 @@ class Duolingo(object):
         """
         Get user's data from ``https://www.duolingo.com/users/<username>``.
         """
-        get = self._make_req(self.get_user_url()).json()
-        return get
+        get = self._make_req(self.get_user_url())
+        if get.status_code == 404:
+            raise Exception('User not found')
+        else:
+            return get.json()
 
     @staticmethod
     def _make_dict(keys, array):
