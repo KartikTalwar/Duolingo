@@ -614,6 +614,11 @@ class Duolingo(object):
         daily_progress_request = self._make_req(daily_progress_url)
         daily_progress = daily_progress_request.json()
 
+        if not daily_progress:
+            raise DuolingoException(
+                "Could not get daily XP progress for user \"{}\". Are you logged in as that user?".format(self.username)
+            )
+
         # xpGains lists the lessons completed on the last day where lessons were done.
         # We use the streakData.updatedTimestamp to get the last "midnight", and get lessons after that.
         last_midnight = daily_progress['streakData']['updatedTimestamp']

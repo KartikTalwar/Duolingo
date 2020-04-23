@@ -7,6 +7,7 @@ import duolingo
 
 USERNAME = os.environ.get('DUOLINGO_USER', 'ferguslongley')
 PASSWORD = os.environ.get('DUOLINGO_PASSWORD')
+USERNAME2 = os.environ.get("DUOLINGO_USER_2", "Spaniard48")
 
 
 class DuolingoTest(unittest.TestCase):
@@ -246,6 +247,22 @@ class DuolingoTest(unittest.TestCase):
         assert isinstance(response['xp_goal'], int)
         assert isinstance(response['xp_today'], int)
         assert isinstance(response['lessons_today'], list)
+
+
+class DuolingoOtherUsernameTest(DuolingoTest):
+
+    def setUp(self):
+        self.lingo = duolingo.Duolingo(USERNAME, PASSWORD)
+        self.lingo.set_username(USERNAME2)
+        self.lang = self.lingo.user_data.learning_language
+
+    def test_get_daily_xp_progress(self):
+        try:
+            self.lingo.get_daily_xp_progress()
+            assert False, "Should have failed to read daily XP progress."
+        except duolingo.DuolingoException as e:
+            assert USERNAME2 in str(e)
+            assert "Could not get daily XP progress for user" in str(e)
 
 
 if __name__ == '__main__':
