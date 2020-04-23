@@ -60,7 +60,7 @@ Returns a dictionary containing various information on the user, including their
 avatar, user ID, location, current language, and more.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_user_info())
 
 # Sample Response
@@ -90,7 +90,7 @@ print(lingo.get_user_info())
 Returns the user's settings.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_user_settings())
 
 # Sample Response
@@ -107,7 +107,7 @@ print(lingo.get_user_settings())
 Returns a list of languages the user is learning.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_languages(abbreviations=True))
 ```
 ##### Parameters
@@ -124,7 +124,7 @@ Returns a list of user's friends, their total points earned, and the languages
 they are learning. The current user is included in this list.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_friends())
 
 # Sample Response
@@ -156,7 +156,7 @@ Returns the current site-wide streak, including daily goal information, and
 whether the streak has been extended today.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_streak_info())
 
 # Sample Response
@@ -172,7 +172,7 @@ print(lingo.get_streak_info())
 Returns an ordered list containing the logged user leaderboard. You need to indicate unit as `week` or `month` to get the desired result. The `before` argument comes with the `time.time()` function, but if you need to know your leaderboard for a different date, you can pass the date in a epoch format.
 ```py
 # Sample Request
-lingo = duolingo.Duolingo('yurireis5')
+lingo = duolingo.Duolingo('yurireis5', '...')
 print(lingo.get_leaderboard('week'))
 ```
 ##### Parameters
@@ -226,7 +226,7 @@ print(lingo.get_daily_xp_progress())
 Buy a specific item in the shop. Returns the name of the item and the date and time of purchase.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.buy_item('streak_freeze', 'en'))
 ```
 ##### Parameters
@@ -248,7 +248,7 @@ Note: This will return [HTTP Status Code](https://www.w3.org/Protocols/rfc2616/r
 Buy a Streak on Ice extension, if the account has enough Lingots and is not yet equipped with the extension. Returns `True` if the extension was bought, `False` otherwise.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.buy_streak_freeze())
 
 # Sample Response
@@ -278,7 +278,7 @@ print(lingo.get_languages())
 Returns the language details for a given language, including the current streak, the level, and total number of points.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_language_details('French'))
 ```
 ##### Parameters
@@ -302,7 +302,7 @@ print(lingo.get_language_details('French'))
 Returns the language progress for a given language.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_language_progress('fr'))
 ```
 ##### Parameters
@@ -332,7 +332,7 @@ Returns a list containing the names of the known topics. See [`get_learned_skill
 Note: Order is not guaranteed.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_known_topics('fr'))
 ```
 ##### Parameters
@@ -364,7 +364,7 @@ Returns a list containing the names of the unlearned topics.
 Note: Order is not guaranteed.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_unknown_topics())
 ```
 ##### Parameters
@@ -386,7 +386,7 @@ Returns a list containing the names of fully reviewed, or "golden", topics.
 Note: Order is not guaranteed.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_golden_topics('fr'))
 ```
 ##### Parameters
@@ -415,7 +415,7 @@ Returns a list containing the names of learned, but not fully "golden", topics.
 Note: Order is not guaranteed.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_golden_topics('fr'))
 ```
 ##### Parameters
@@ -435,7 +435,7 @@ print(lingo.get_golden_topics('fr'))
 Returns a set containing known words of a given language.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_known_words('fr'))
 ```
 ##### Parameters
@@ -469,7 +469,7 @@ Note: The dictionaries it returns are identical in format to those returned by [
 
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
  print(lingo.get_related_words('aller'))
  ```
  ##### Parameters
@@ -506,7 +506,7 @@ lingo  = duolingo.Duolingo('kartik')
 Returns an ordered list containing the names of the known topics by date learned. Differs from [`get_known_topics`](#get-known-topics) in that it returns the entire skill data of each skill learned, rather than only the name.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_learned_skills('fr'))
 ```
 ##### Parameters
@@ -573,7 +573,7 @@ print(lingo.get_learned_skills('fr'))
 When the ```language_abbr``` of a language is known, but the full language name is not, you can use this method to return the language name. This only works for languages that the user is learning.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_language_from_abbr('fr'))
 ```
 ##### Parameters
@@ -591,7 +591,7 @@ When the `language_name` of a language is known, but the language abbreviation i
 Note: This only works for languages that the user is learning.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_abbreviation_of('French'))
 ```
 ##### Parameters
@@ -607,7 +607,7 @@ print(lingo.get_abbreviation_of('French'))
 Returns the translations of a list of words passed to it. By default, the `source` is assumed to be the language of the user's Duolingo UI, and the `target` is assumed to be the user's current language, as of login time. The returned object is a dictionary containing a key for each item in the words list, with a list of translations as its value.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 lingo.get_translations(['de', 'du'], source='de', target='fr')
 ```
 ##### Parameters
@@ -631,7 +631,7 @@ lingo.get_translations(['de', 'du'], source='de', target='fr')
 Gets the user's vocabulary for a given language. If `language_abbr` is none, the user's current language is used.
 ```py
 #Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_vocabulary(language_abbr='de'))
 ```
 ##### Parameters
@@ -673,7 +673,7 @@ print(lingo.get_vocabulary(language_abbr='de'))
 Returns a list of voices available in a given language. The list will always contain at least one voice, but that voice might not always be named 'default'. For instance, the only voice available for Turkish is named 'filiz'.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_language_voices('fr'))
 ```
 ##### Parameters
@@ -689,7 +689,7 @@ print(lingo.get_language_voices('fr'))
 Returns the path to an audio file containing the pronunciation of the word given. The language defaults to the user's current learning language. The voice used by default is randomly selected from Duolingo's available voices. To get a specific voice, pass the voice parameter with the name of the voice. To get the default voice (which is mostly an implementation detail), set random to False without passing a voice.
 ```py
 # Sample Request
-lingo  = duolingo.Duolingo('kartik')
+lingo  = duolingo.Duolingo('kartik', '...')
 print(lingo.get_audio_url('bonjour'))
 ```
 ##### Parameters
