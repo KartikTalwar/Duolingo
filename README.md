@@ -32,8 +32,11 @@ Note: You are now required to provide a password to get any data from the Duolin
 - [Get Calendar](#get-calendar)
 - [Get Streak Information](#get-streak-information)
 - [Get Leaderboard](#get-leaderboard)
+- [Get daily XP progress](#get-daily-xp-progress)
 - [Buy Item](#buy-item)
 - [Buy Streak Freeze](#buy-streak-freeze)
+###### Switch account being read
+- [Set username](#set-username)
 ###### Language Information
 - [Get Language Details](#get-language-details)
 - [Get Language Progress](#get-language-progress)
@@ -195,6 +198,28 @@ print(lingo.get_leaderboard('week'))
     ...
 ]
 ```
+#### Get Daily XP progress
+`lingo.get_daily_xp_progress()`
+
+Returns an ordered list containing the logged user leaderboard. You need to indicate unit as `week` or `month` to get the desired result. The `before` argument comes with the `time.time()` function, but if you need to know your leaderboard for a different date, you can pass the date in a epoch format.
+Returns a dict with 3 keys: 'xp_goal', 'lessons_today', and 'xp_today'.
+- xp_goal: Is your daily XP goal (int)
+- lessons_today: A list of the lesson names which have been completed today
+- xp_today: How much XP you have got today (int)
+
+This method does not work if the username has been [set to something else](#set-username) after login.
+```py
+# Sample Request
+lingo = duolingo.Duolingo('yurireis5', '...')
+print(lingo.get_daily_xp_progress())
+
+# Sample Response
+{
+    'xp_goal': 10, 
+    'lessons_today': [], 
+    'xp_today': 0
+}
+```
 #### Buy Item
 `lingo.buy_item(item_name, language_abbr)`
 
@@ -229,6 +254,24 @@ print(lingo.buy_streak_freeze())
 # Sample Response
 True
 ```
+
+#### Set username
+`lingo.set_username(username)`
+
+Sets the username, and reloads user data. This then allows you to read another user's information via the same API.
+This will not work with the [get_daily_xp_progress()](#get-daily-xp-progress) method, and obviously will not allow you to buy items for other users.
+```py
+# Sample Request
+lingo = Duolingo("kartik","...")
+print(lingo.get_languages())
+lingo.set_username("kartik2")
+print(lingo.get_languages())
+
+# Sample response
+['French', 'German', 'Russian', 'Chinese', 'Portuguese', 'Spanish']
+['French']
+```
+
 #### Get Language Details
 `lingo.get_language_details(language_name)`
 
