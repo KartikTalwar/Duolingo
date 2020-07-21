@@ -34,7 +34,7 @@ class CaptchaException(DuolingoException):
 
 
 class Duolingo(object):
-    USER_AGENT = "Duolingo API/{}".format(__version__)
+    USER_AGENT = "Mozilla/5.0"
 
     def __init__(self, username, password=None, *, jwt=None, session_file=None):
         """
