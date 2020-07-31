@@ -7,10 +7,11 @@ from json import JSONDecodeError
 
 import requests
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 __author__ = "Kartik Talwar"
 __email__ = "hi@kartikt.com"
 __url__ = "https://github.com/KartikTalwar/duolingo"
+
 
 class Struct:
     def __init__(self, **entries):
