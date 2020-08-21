@@ -121,10 +121,10 @@ class Duolingo(object):
         return resp.status_code == 200
 
     def get_user_url_by_id(self, fields=[]):
-        url = f'https://www.duolingo.com/2017-06-30/users/{self.user_data.id}'
+        url = 'https://www.duolingo.com/2017-06-30/users/{}'.format(self.user_data.id)
         fields_params = requests.utils.requote_uri(','.join(fields))
         if fields_params:
-            url += f'?fields={fields_params}'
+            url += '?fields={}'.format(fields_params)
         return url
 
     def get_user_url(self):
