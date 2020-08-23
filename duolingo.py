@@ -120,7 +120,9 @@ class Duolingo(object):
         resp = self._make_req(self.get_user_url())
         return resp.status_code == 200
 
-    def get_user_url_by_id(self, fields=[]):
+    def get_user_url_by_id(self, fields=None):
+    if fields is None:
+        fields = []
         url = 'https://www.duolingo.com/2017-06-30/users/{}'.format(self.user_data.id)
         fields_params = requests.utils.requote_uri(','.join(fields))
         if fields_params:
@@ -230,13 +232,15 @@ class Duolingo(object):
         except ValueError:
             raise DuolingoException('Failed to switch language')
 
-    def _get_data_by_user_id(self, fields=[]):
+    def _get_data_by_user_id(self, fields=None):
         """
         Get user's data from ``https://www.duolingo.com/2017-06-30/users/<user_id>``.
         """
+        if fields is None:
+            fields = []
         get = self._make_req(self.get_user_url_by_id(fields))
         if get.status_code == 404:
-            raise Exception('User not found')
+            raise DuolingoException('User not found')
         else:
             return get.json()
 
