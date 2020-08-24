@@ -121,8 +121,8 @@ class Duolingo(object):
         return resp.status_code == 200
 
     def get_user_url_by_id(self, fields=None):
-    if fields is None:
-        fields = []
+        if fields is None:
+            fields = []
         url = 'https://www.duolingo.com/2017-06-30/users/{}'.format(self.user_data.id)
         fields_params = requests.utils.requote_uri(','.join(fields))
         if fields_params:
