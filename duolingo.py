@@ -631,11 +631,7 @@ class Duolingo(object):
             raise Exception('Could not get word definition')
 
     def get_daily_xp_progress(self):
-        daily_progress_url = \
-            "https://www.duolingo.com/2017-06-30/users/" \
-            "{}?fields=xpGoal,xpGains,streakData".format(self.user_data.id)
-        daily_progress_request = self._make_req(daily_progress_url)
-        daily_progress = daily_progress_request.json()
+        daily_progress = self.get_data_by_user_id(["xpGoal", "xpGains", "streakData"])
 
         if not daily_progress:
             raise DuolingoException(
