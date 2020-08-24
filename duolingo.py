@@ -120,6 +120,15 @@ class Duolingo(object):
         resp = self._make_req(self.get_user_url())
         return resp.status_code == 200
 
+    def get_user_url_by_id(self, fields=None):
+        if fields is None:
+            fields = []
+        url = 'https://www.duolingo.com/2017-06-30/users/{}'.format(self.user_data.id)
+        fields_params = requests.utils.requote_uri(','.join(fields))
+        if fields_params:
+            url += '?fields={}'.format(fields_params)
+        return url
+
     def get_user_url(self):
         return "https://duolingo.com/users/%s" % self.username
 
@@ -222,6 +231,18 @@ class Duolingo(object):
                 self.user_data = Struct(**self._get_data())
         except ValueError:
             raise DuolingoException('Failed to switch language')
+
+    def get_data_by_user_id(self, fields=None):
+        """
+        Get user's data from ``https://www.duolingo.com/2017-06-30/users/<user_id>``.
+        """
+        if fields is None:
+            fields = []
+        get = self._make_req(self.get_user_url_by_id(fields))
+        if get.status_code == 404:
+            raise DuolingoException('User not found')
+        else:
+            return get.json()
 
     def _get_data(self):
         """
@@ -610,11 +631,7 @@ class Duolingo(object):
             raise Exception('Could not get word definition')
 
     def get_daily_xp_progress(self):
-        daily_progress_url = \
-            "https://www.duolingo.com/2017-06-30/users/" \
-            "{}?fields=xpGoal,xpGains,streakData".format(self.user_data.id)
-        daily_progress_request = self._make_req(daily_progress_url)
-        daily_progress = daily_progress_request.json()
+        daily_progress = self.get_data_by_user_id(["xpGoal", "xpGains", "streakData"])
 
         if not daily_progress:
             raise DuolingoException(
