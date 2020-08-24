@@ -232,7 +232,7 @@ class Duolingo(object):
         except ValueError:
             raise DuolingoException('Failed to switch language')
 
-    def _get_data_by_user_id(self, fields=None):
+    def get_data_by_user_id(self, fields=None):
         """
         Get user's data from ``https://www.duolingo.com/2017-06-30/users/<user_id>``.
         """
