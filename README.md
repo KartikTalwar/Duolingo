@@ -275,14 +275,15 @@ print(lingo.get_languages())
 ```
 
 #### Set course
-`lingo.set_course(new_from_language, new_learning_language, course_name=None)`
+`lingo.set_course(new_from_language, new_learning_language)`
 
 Sets the users current course, and reloads user data. This will allow you to read data about the new course.
+The function will allow you to swap to a course you are not currently taking, or one you are.
 This will require you to be signed in as the original user. Returns True if successful, false otherwise.
 ```py
 # Sample Request
 lingo = Duolingo("kartik","...")
-print(lingo..set_course("en","es"))
+print(lingo.set_course("en","es"))
 
 ```
 ##### Parameters
@@ -291,10 +292,6 @@ print(lingo..set_course("en","es"))
 
 `new_learning_language` (string) **required**  
 -- The language you are learning. Also needs to be the abbreviation.
-
-`course_name` (string) *optional*  
--- The course you are changing to, defaults to `DUOLINGO_<new_learning_language>_<new_from_language>`
- 
 
 #### Get Language Details
 `lingo.get_language_details(language_name)`

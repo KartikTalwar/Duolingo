@@ -136,18 +136,14 @@ class Duolingo(object):
         self.username = username
         self.user_data = Struct(**self._get_data())
 
-    def set_course(self, new_from_language, new_learning_language, course_name=None):
+    def set_course(self, new_from_language, new_learning_language):
         """
         Changes the current course a user is using
         :param new_from_language: The language you already know that you are learning from needs to be the abbreviation
         :param new_learning_language: The language you are learning needs to be the abbreviation
-        :param course_name: The course you are changing to, defaults to DUOLINGO_<new_learning_language>_<new_from_language>
         """
         user_id = self.get_user_id()
-        data = {"courseId":
-                    ("DUOLINGO_%s_%s" %
-                     (new_learning_language,
-                      new_from_language)).upper(),
+        data = {
                 "fromLanguage": new_from_language,
                 "learningLanguage": new_learning_language}
         language_url = "https://www.duolingo.com/2017-06-30/users/%d?fields=courses,currentCourse,fromLanguage,learningLanguage" % (
