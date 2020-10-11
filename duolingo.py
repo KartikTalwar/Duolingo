@@ -2,7 +2,7 @@
 import re
 import json
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 from json import JSONDecodeError
 
 import requests
@@ -640,9 +640,17 @@ class Duolingo(object):
 
         # xpGains lists the lessons completed on the last day where lessons were done.
         # We use the streakData.updatedTimestamp to get the last "midnight", and get lessons after that.
-        last_midnight = daily_progress['streakData']['updatedTimestamp']
+        reported_timestamp = daily_progress['streakData']['updatedTimestamp']
+        reported_midnight = datetime.fromtimestamp(reported_timestamp)
+        midnight = datetime.fromordinal(datetime.today().date().toordinal())
 
-        lessons = [lesson for lesson in daily_progress['xpGains'] if lesson['time'] > last_midnight]
+        # Sometimes the update is marked into the future. When this is the case
+        # we fall back on the system time for midnight.
+        time_discrepancy = min(midnight - reported_midnight, timedelta(0))
+        update_cutoff = round((reported_midnight + time_discrepancy).timestamp())
+
+        lessons = [lesson for lesson in daily_progress['xpGains'] if
+                lesson['time'] > update_cutoff]
 
         return {
             "xp_goal": daily_progress['xpGoal'],
