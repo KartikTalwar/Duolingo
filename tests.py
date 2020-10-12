@@ -11,10 +11,13 @@ USERNAME2 = os.environ.get("DUOLINGO_USER_2", "Spaniard")
 
 
 class DuolingoTest(unittest.TestCase):
-    lingo = duolingo.Duolingo(USERNAME, PASSWORD)
 
     def setUp(self):
+        self.lingo = duolingo.Duolingo(USERNAME, PASSWORD)
         self.lang = self.lingo.user_data.learning_language
+
+    def tearDown(self):
+        self.lingo.session.close()
 
     @patch("duolingo.Duolingo._get_data")
     def test_password_jwt_or_file_needed(self, mock_data):
