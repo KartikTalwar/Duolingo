@@ -41,13 +41,17 @@ class DuolingoTest(unittest.TestCase):
 
 
 class DuolingoLoginTest(unittest.TestCase):
+    lingo = None
 
-    def setUp(self):
-        self.lingo = duolingo.Duolingo(USERNAME, PASSWORD)
-        self.lang = self.lingo.user_data.learning_language
+    @classmethod
+    def setUpClass(cls):
+        cls.lingo = duolingo.Duolingo(USERNAME, PASSWORD)
+        cls.lang = cls.lingo.user_data.learning_language
 
-    def tearDown(self):
-        self.lingo.session.close()
+    @classmethod
+    def tearDownClass(cls):
+        if cls.lingo:
+            cls.lingo.session.close()
 
     def test_get_user_info(self):
         response = self.lingo.get_user_info()
@@ -257,10 +261,11 @@ class DuolingoLoginTest(unittest.TestCase):
 
 class DuolingoOtherUsernameTest(DuolingoLoginTest):
 
-    def setUp(self):
-        self.lingo = duolingo.Duolingo(USERNAME, PASSWORD)
-        self.lingo.set_username(USERNAME2)
-        self.lang = self.lingo.user_data.learning_language
+    @classmethod
+    def setUpClass(cls):
+        cls.lingo = duolingo.Duolingo(USERNAME, PASSWORD)
+        cls.lingo.set_username(USERNAME2)
+        cls.lang = cls.lingo.user_data.learning_language
 
     def test_get_daily_xp_progress(self):
         try:
