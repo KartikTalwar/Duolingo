@@ -34,6 +34,14 @@ class CaptchaException(DuolingoException):
     pass
 
 
+class OtherUserException(DuolingoException):
+    """
+    This exception is raised when set_username() has been called to get info on another user, but a method has then
+    been used which cannot give data on that new user.
+    """
+    pass
+
+
 class Duolingo(object):
     USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 " \
                  "Safari/537.36"
@@ -47,6 +55,7 @@ class Duolingo(object):
         requests.
         """
         self.username = username
+        self._original_username = username
         self.password = password
         self.session_file = session_file
         self.session = requests.Session()
@@ -482,6 +491,9 @@ class Duolingo(object):
 
     def get_vocabulary(self, language_abbr=None):
         """Get overview of user's vocabulary in a language."""
+        if self.username != self._original_username:
+            raise OtherUserException("Vocab cannot be listed when the user has been switched.")
+
         if language_abbr and not self._is_current_language(language_abbr):
             self._switch_language(language_abbr)
 
