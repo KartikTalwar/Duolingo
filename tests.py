@@ -198,7 +198,7 @@ class DuolingoLoginTest(unittest.TestCase):
         assert isinstance(response, str)
 
     def test_get_abbreviation_of(self):
-        response = self.lingo.get_abbreviation_of('portuguese')
+        response = self.lingo.get_abbreviation_of('french')
         assert isinstance(response, str)
 
     def test_get_translations(self):
