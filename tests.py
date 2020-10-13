@@ -228,6 +228,7 @@ class DuolingoLoginTest(unittest.TestCase):
             assert response['language_string']
             assert "language_string" in response
             assert "learning_language" in response
+            assert response["learning_language"] == self.lang
             assert "from_language" in response
             assert "language_information" in response
             assert "vocab_overview" in response
@@ -235,7 +236,8 @@ class DuolingoLoginTest(unittest.TestCase):
 
     def test_get_audio_url(self):
         # Setup
-        vocab = self.lingo.get_vocabulary()
+        vocab = self.lingo.get_vocabulary(self.lang)
+        assert vocab["learning_language"] == self.lang
         word = vocab['vocab_overview'][0]['normalized_string']
         # Test
         response = self.lingo.get_audio_url(word)
