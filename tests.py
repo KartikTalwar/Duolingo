@@ -10,6 +10,18 @@ PASSWORD = os.environ.get('DUOLINGO_PASSWORD')
 USERNAME2 = os.environ.get("DUOLINGO_USER_2", "Spaniard")
 
 
+def _example_word(lang):
+    """
+    Returns an example word for a given language
+    :param lang: str Language abbreviation
+    :return: A word. Should be one early in the vocab for that language
+    """
+    return {
+        "de": "mann",
+        "es": "hombre"
+    }.get(lang)
+
+
 class DuolingoTest(unittest.TestCase):
 
     @patch("duolingo.Duolingo._get_data")
@@ -178,8 +190,7 @@ class DuolingoLoginTest(unittest.TestCase):
 
     def test_get_related_words(self):
         # Setup
-        vocab = self.lingo.get_vocabulary()
-        word = vocab['vocab_overview'][0]['normalized_string']
+        word = _example_word(self.lang)
         # Get value
         response = self.lingo.get_related_words(word)
         # Check
@@ -236,9 +247,7 @@ class DuolingoLoginTest(unittest.TestCase):
 
     def test_get_audio_url(self):
         # Setup
-        vocab = self.lingo.get_vocabulary(self.lang)
-        assert vocab["learning_language"] == self.lang
-        word = vocab['vocab_overview'][0]['normalized_string']
+        word = _example_word(self.lang)
         # Test
         response = self.lingo.get_audio_url(word)
         assert isinstance(response, str)
@@ -276,6 +285,21 @@ class DuolingoOtherUsernameTest(DuolingoLoginTest):
         except duolingo.DuolingoException as e:
             assert USERNAME2 in str(e)
             assert "Could not get daily XP progress for user" in str(e)
+
+    def test_get_vocabulary(self):
+        try:
+            self.lingo.get_vocabulary()
+            assert False, "Should have failed to get vocabulary."
+        except duolingo.OtherUserException as e:
+            assert "Vocab cannot be listed when the user has been switched" in str(e)
+
+    def test_get_related_words(self):
+        try:
+            word = _example_word(self.lang)
+            self.lingo.get_related_words(word)
+            assert False, "Should have failed to get related words."
+        except duolingo.OtherUserException as e:
+            assert "Vocab cannot be listed when the user has been switched" in str(e)
 
 
 if __name__ == '__main__':
