@@ -12,13 +12,6 @@ USERNAME2 = os.environ.get("DUOLINGO_USER_2", "Spaniard")
 
 class DuolingoTest(unittest.TestCase):
 
-    def setUp(self):
-        self.lingo = duolingo.Duolingo(USERNAME, PASSWORD)
-        self.lang = self.lingo.user_data.learning_language
-
-    def tearDown(self):
-        self.lingo.session.close()
-
     @patch("duolingo.Duolingo._get_data")
     def test_password_jwt_or_file_needed(self, mock_data):
         with self.assertRaises(duolingo.DuolingoException):
@@ -45,6 +38,16 @@ class DuolingoTest(unittest.TestCase):
         duolingo.Duolingo(USERNAME, session_file="temp/filename.json")
         mock_login.assert_called_once()
         mock_data.assert_called_once()
+
+
+class DuolingoLoginTest(unittest.TestCase):
+
+    def setUp(self):
+        self.lingo = duolingo.Duolingo(USERNAME, PASSWORD)
+        self.lang = self.lingo.user_data.learning_language
+
+    def tearDown(self):
+        self.lingo.session.close()
 
     def test_get_user_info(self):
         response = self.lingo.get_user_info()
@@ -252,7 +255,7 @@ class DuolingoTest(unittest.TestCase):
         assert isinstance(response['lessons_today'], list)
 
 
-class DuolingoOtherUsernameTest(DuolingoTest):
+class DuolingoOtherUsernameTest(DuolingoLoginTest):
 
     def setUp(self):
         self.lingo = duolingo.Duolingo(USERNAME, PASSWORD)
