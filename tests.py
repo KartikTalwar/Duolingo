@@ -7,14 +7,22 @@ import duolingo
 
 USERNAME = os.environ.get('DUOLINGO_USER', 'ferguslongley')
 PASSWORD = os.environ.get('DUOLINGO_PASSWORD')
-USERNAME2 = os.environ.get("DUOLINGO_USER_2", "Spaniard48")
+USERNAME2 = os.environ.get("DUOLINGO_USER_2", "Spaniard")
+
+
+def _example_word(lang):
+    """
+    Returns an example word for a given language
+    :param lang: str Language abbreviation
+    :return: A word. Should be one early in the vocab for that language
+    """
+    return {
+        "de": "mann",
+        "es": "hombre"
+    }.get(lang)
 
 
 class DuolingoTest(unittest.TestCase):
-    lingo = duolingo.Duolingo(USERNAME, PASSWORD)
-
-    def setUp(self):
-        self.lang = self.lingo.user_data.learning_language
 
     @patch("duolingo.Duolingo._get_data")
     def test_password_jwt_or_file_needed(self, mock_data):
@@ -26,22 +34,36 @@ class DuolingoTest(unittest.TestCase):
     @patch("duolingo.Duolingo._get_data")
     def test_password_only_calls_login(self, mock_login, mock_data):
         duolingo.Duolingo(USERNAME, PASSWORD)
-        mock_login.assert_called_once()
-        mock_data.assert_called_once()
+        mock_login.assert_called_once_with()
+        mock_data.assert_called_once_with()
 
     @patch("duolingo.Duolingo._login")
     @patch("duolingo.Duolingo._get_data")
     def test_jwt_only_calls_login(self, mock_login, mock_data):
         duolingo.Duolingo(USERNAME, jwt="jwt-example")
-        mock_login.assert_called_once()
-        mock_data.assert_called_once()
+        mock_login.assert_called_once_with()
+        mock_data.assert_called_once_with()
 
     @patch("duolingo.Duolingo._login")
     @patch("duolingo.Duolingo._get_data")
     def test_file_only_calls_login(self, mock_login, mock_data):
         duolingo.Duolingo(USERNAME, session_file="temp/filename.json")
-        mock_login.assert_called_once()
-        mock_data.assert_called_once()
+        mock_login.assert_called_once_with()
+        mock_data.assert_called_once_with()
+
+
+class DuolingoLoginTest(unittest.TestCase):
+    lingo = None
+
+    @classmethod
+    def setUpClass(cls):
+        cls.lingo = duolingo.Duolingo(USERNAME, PASSWORD)
+        cls.lang = cls.lingo.user_data.learning_language
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls.lingo:
+            cls.lingo.session.close()
 
     def test_get_user_info(self):
         response = self.lingo.get_user_info()
@@ -168,8 +190,7 @@ class DuolingoTest(unittest.TestCase):
 
     def test_get_related_words(self):
         # Setup
-        vocab = self.lingo.get_vocabulary()
-        word = vocab['vocab_overview'][0]['normalized_string']
+        word = _example_word(self.lang)
         # Get value
         response = self.lingo.get_related_words(word)
         # Check
@@ -192,7 +213,7 @@ class DuolingoTest(unittest.TestCase):
         assert isinstance(response, str)
 
     def test_get_abbreviation_of(self):
-        response = self.lingo.get_abbreviation_of('portuguese')
+        response = self.lingo.get_abbreviation_of('french')
         assert isinstance(response, str)
 
     def test_get_translations(self):
@@ -218,6 +239,7 @@ class DuolingoTest(unittest.TestCase):
             assert response['language_string']
             assert "language_string" in response
             assert "learning_language" in response
+            assert response["learning_language"] == self.lang
             assert "from_language" in response
             assert "language_information" in response
             assert "vocab_overview" in response
@@ -225,8 +247,7 @@ class DuolingoTest(unittest.TestCase):
 
     def test_get_audio_url(self):
         # Setup
-        vocab = self.lingo.get_vocabulary()
-        word = vocab['vocab_overview'][0]['normalized_string']
+        word = _example_word(self.lang)
         # Test
         response = self.lingo.get_audio_url(word)
         assert isinstance(response, str)
@@ -249,12 +270,13 @@ class DuolingoTest(unittest.TestCase):
         assert isinstance(response['lessons_today'], list)
 
 
-class DuolingoOtherUsernameTest(DuolingoTest):
+class DuolingoOtherUsernameTest(DuolingoLoginTest):
 
-    def setUp(self):
-        self.lingo = duolingo.Duolingo(USERNAME, PASSWORD)
-        self.lingo.set_username(USERNAME2)
-        self.lang = self.lingo.user_data.learning_language
+    @classmethod
+    def setUpClass(cls):
+        cls.lingo = duolingo.Duolingo(USERNAME, PASSWORD)
+        cls.lingo.set_username(USERNAME2)
+        cls.lang = cls.lingo.user_data.learning_language
 
     def test_get_daily_xp_progress(self):
         try:
@@ -263,6 +285,21 @@ class DuolingoOtherUsernameTest(DuolingoTest):
         except duolingo.DuolingoException as e:
             assert USERNAME2 in str(e)
             assert "Could not get daily XP progress for user" in str(e)
+
+    def test_get_vocabulary(self):
+        try:
+            self.lingo.get_vocabulary()
+            assert False, "Should have failed to get vocabulary."
+        except duolingo.OtherUserException as e:
+            assert "Vocab cannot be listed when the user has been switched" in str(e)
+
+    def test_get_related_words(self):
+        try:
+            word = _example_word(self.lang)
+            self.lingo.get_related_words(word)
+            assert False, "Should have failed to get related words."
+        except duolingo.OtherUserException as e:
+            assert "Vocab cannot be listed when the user has been switched" in str(e)
 
 
 if __name__ == '__main__':
