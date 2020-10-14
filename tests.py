@@ -34,22 +34,22 @@ class DuolingoTest(unittest.TestCase):
     @patch("duolingo.Duolingo._get_data")
     def test_password_only_calls_login(self, mock_login, mock_data):
         duolingo.Duolingo(USERNAME, PASSWORD)
-        mock_login.assert_called_once()
-        mock_data.assert_called_once()
+        mock_login.assert_called_once_with()
+        mock_data.assert_called_once_with()
 
     @patch("duolingo.Duolingo._login")
     @patch("duolingo.Duolingo._get_data")
     def test_jwt_only_calls_login(self, mock_login, mock_data):
         duolingo.Duolingo(USERNAME, jwt="jwt-example")
-        mock_login.assert_called_once()
-        mock_data.assert_called_once()
+        mock_login.assert_called_once_with()
+        mock_data.assert_called_once_with()
 
     @patch("duolingo.Duolingo._login")
     @patch("duolingo.Duolingo._get_data")
     def test_file_only_calls_login(self, mock_login, mock_data):
         duolingo.Duolingo(USERNAME, session_file="temp/filename.json")
-        mock_login.assert_called_once()
-        mock_data.assert_called_once()
+        mock_login.assert_called_once_with()
+        mock_data.assert_called_once_with()
 
 
 class DuolingoLoginTest(unittest.TestCase):
