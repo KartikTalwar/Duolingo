@@ -600,13 +600,20 @@ class Duolingo(object):
                 continue
             resp_data = resp.json()
             for challenge in resp_data['challenges']:
-                self._add_to_voice_url_dict(lang_abbr, challenge['prompt'], challenge['tts'])
+                if "prompt" in challenge and "tts" in challenge:
+                    self._add_to_voice_url_dict(lang_abbr, challenge['prompt'], challenge['tts'])
                 if challenge.get("metadata") and challenge['metadata'].get("non_character_tts"):
                     for word, url in challenge['metadata']['non_character_tts']['tokens'].items():
                         self._add_to_voice_url_dict(lang_abbr, word, url)
-                for token in challenge['tokens']:
-                    if token.get("tts") and token.get("value"):
-                        self._add_to_voice_url_dict(lang_abbr, token['value'], token['tts'])
+                if "tokens" in challenge:
+                    self._add_token_list_to_voice_url_dict(lang_abbr, challenge["tokens"])
+
+    def _add_token_list_to_voice_url_dict(self, lang_abbr, token_list):
+        for token in token_list:
+            if isinstance(token, list):
+                self._add_token_list_to_voice_url_dict(lang_abbr, token)
+            if isinstance(token, dict) and token.get("tts") and token.get("value"):
+                self._add_to_voice_url_dict(lang_abbr, token['value'], token['tts'])
 
     def _add_to_voice_url_dict(self, lang_abbr, word, url):
         word = word.lower()
