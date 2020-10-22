@@ -231,6 +231,30 @@ class DuolingoLoginTest(unittest.TestCase):
         assert "a" in response
         assert isinstance(response['a'], list)
 
+    def test_segment_translation_word_list(self):
+        # Nothing should happen to short list
+        short_list = ["a", "e", "i", "o", "u"]
+        result = self.lingo._segment_translations_list(short_list)
+        assert result == [short_list]
+        # Just under count limit
+        just_under_count = ["a"] * 1999
+        result = self.lingo._segment_translations_list(just_under_count)
+        assert result == [just_under_count]
+        # Just over count limit
+        just_over_count = ["a"] * 2000
+        result = self.lingo._segment_translations_list(just_over_count)
+        assert result != [just_over_count]
+        assert result == [["a"] * 1999, ["a"]]
+        # Just under json length limit
+        just_under_length = ["aaaaaaaa"] * 1066
+        result = self.lingo._segment_translations_list(just_under_length)
+        assert result == [just_under_length]
+        # Just over json length limit
+        just_over_length = ["aaaaaaaa"] * 1067
+        result = self.lingo._segment_translations_list(just_over_length)
+        assert result != [just_over_length]
+        assert result == [["aaaaaaaa"] * 1066, ["aaaaaaaa"]]
+
     def test_get_vocabulary(self):
         response1 = self.lingo.get_vocabulary()
         response2 = self.lingo.get_vocabulary(self.lang)
