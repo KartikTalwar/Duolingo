@@ -479,6 +479,38 @@ class Duolingo(object):
         if not target:
             target = list(self.user_data.language_data.keys())[0]
 
+        list_segments = self._segment_translations_list(words)
+        results = dict()
+        for segment in list_segments:
+            results = {**results, **self._get_raw_translations(segment, source, target)}
+        return results
+
+    def _segment_translations_list(self, words):
+        # These seem to be the length limits before Duolingo's API rejects the request
+        word_count_limit = 2000
+        word_json_limit = 12800
+
+        # Handy internal function
+        def is_word_list_valid(word_list):
+            return (
+                len(word_list) < word_count_limit
+                and len(json.dumps(word_list)) < word_json_limit
+            )
+        # Fast return for simple lists
+        if is_word_list_valid(words):
+            return [words]
+        # Start building segments until they trip the limits
+        segments = []
+        segment = []
+        for word in words:
+            if not is_word_list_valid(segment + [word]):
+                segments.append(segment)
+                segment = []
+            segment.append(word)
+        segments.append(segment)
+        return segments
+
+    def _get_raw_translations(self, words, target, source):
         word_parameter = json.dumps(words, separators=(',', ':'))
         url = "https://d2.duolingo.com/api/1/dictionary/hints/{}/{}?tokens={}" \
             .format(target, source, word_parameter)
