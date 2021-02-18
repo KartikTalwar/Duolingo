@@ -4,3 +4,5 @@ omit =
     */python?.?/*
     */site-packages/_pytest/*
     *__init__*
+[run]
+relative_files = True
