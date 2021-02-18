@@ -31,6 +31,5 @@ jobs:
         env:
           DUOLINGO_USER: ${{ secrets.DUOLINGO_USER_1 }}
           DUOLINGO_PASSWORD: $ {{ secrets.DUOLINGO_PASS_1 }}
-          DUOLINGO_USER_2: ${{ secrets.DUOLINGO_USER_2 }}
       - name: Coverage
         run: coveralls
