@@ -30,6 +30,6 @@ jobs:
         run: pytest tests.py
         env:
           DUOLINGO_USER: ${{ secrets.DUOLINGO_USER_1 }}
-          DUOLINGO_PASSWORD: $ {{ secrets.DUOLINGO_PASS_1 }}
+          DUOLINGO_PASSWORD: ${{ secrets.DUOLINGO_PASS_1 }}
       - name: Coverage
         run: coveralls
