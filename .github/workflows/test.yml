@@ -14,9 +14,7 @@ jobs:
       matrix:
         python: [3.6, 3.7, 3.8]
     steps:
-      - uses: action/checkout@v2
-        with:
-          token: ${{ secrets.CHECKOUT_TOKEN }}
+      - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v2
         with:
