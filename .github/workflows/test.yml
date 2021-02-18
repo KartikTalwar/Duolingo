@@ -31,7 +31,7 @@ jobs:
         env:
           DUOLINGO_USER: ${{ secrets.DUOLINGO_USER_1 }}
           DUOLINGO_PASSWORD: ${{ secrets.DUOLINGO_PASS_1 }}
-      - name: Coverage
-        run: coveralls
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
