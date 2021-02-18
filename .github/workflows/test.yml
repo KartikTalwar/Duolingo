@@ -33,3 +33,5 @@ jobs:
           DUOLINGO_PASSWORD: ${{ secrets.DUOLINGO_PASS_1 }}
       - name: Coverage
         run: coveralls
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
