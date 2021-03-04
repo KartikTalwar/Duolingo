@@ -104,7 +104,7 @@ class Duolingo(object):
         request = self._make_req(login_url, data)
         attempt = request.json()
 
-        if attempt.get('response') == 'OK':
+        if "failure" not in attempt:
             self.jwt = request.headers['jwt']
             self._save_session_to_file()
             return True
