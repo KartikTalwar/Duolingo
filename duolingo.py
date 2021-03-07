@@ -91,7 +91,7 @@ class Duolingo(object):
 
     def _login(self):
         """
-        Authenticate through ``https://www.duolingo.com/login``.
+        Authenticate through ``https://www.duolingo.com/2017-06-30/login``.
         """
         if self.jwt is None:
             self._load_session_from_file()
@@ -99,8 +99,8 @@ class Duolingo(object):
             return True
         self.jwt = None
 
-        login_url = "https://www.duolingo.com/login"
-        data = {"login": self.username, "password": self.password}
+        login_url = "https://www.duolingo.com/2017-06-30/login"
+        data = {"identifier": self.username, "password": self.password}
         request = self._make_req(login_url, data)
         attempt = request.json()
 
