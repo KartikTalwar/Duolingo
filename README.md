@@ -417,7 +417,7 @@ Note: Order is not guaranteed.
 ```py
 # Sample Request
 lingo  = duolingo.Duolingo('kartik', '...')
-print(lingo.get_golden_topics('fr'))
+print(lingo.get_reviewable_topics('fr'))
 ```
 ##### Parameters
 `language_abbr` (string) **required**  
