@@ -698,7 +698,7 @@ print(lingo.get_audio_url('bonjour'))
 --The word you want an audio file for.  
 `language_abbr` (string) *optional*  
 --Abbrieviation of a given language. Default=`None`.  
-`random` (boolean) *optional*  
+`rand` (boolean) *optional*  
 --Whether to return a randomly selected language voice. Default=`True`.  
 `voice` (string) *optional*  
 --The name of a specific language voice. Default=`None`.
