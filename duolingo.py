@@ -221,6 +221,21 @@ class Duolingo(object):
             return True
         except AlreadyHaveStoreItemException:
             return False
+        
+    def buy_weekend_amulet(self):
+        """
+        figure out the users current learning language
+        use this one as parameter for the shop
+        """
+        lang = self.get_abbreviation_of(self.get_user_info()['learning_language_string'])
+        if lang is None:
+            raise DuolingoException('No learning language found')
+        try:
+            self.buy_item('weekend_amulet', lang)
+            return True
+        except AlreadyHaveStoreItemException:
+            return False
+    
 
     def _switch_language(self, lang):
         """
