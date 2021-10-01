@@ -70,12 +70,12 @@ class Duolingo(object):
         self.user_data = Struct(**self._get_data())
         self.voice_url_dict = None
 
-    def _make_req(self, url, data=None):
+    def _make_req(self, url, data=None, mode=None):
         headers = {}
         if self.jwt is not None:
             headers['Authorization'] = 'Bearer ' + self.jwt
         headers['User-Agent'] = self.USER_AGENT
-        req = requests.Request('POST' if data else 'GET',
+        req = requests.Request(mode if mode else ('POST' if data else 'GET'),
                                url,
                                json=data,
                                headers=headers,
@@ -144,6 +144,22 @@ class Duolingo(object):
     def set_username(self, username):
         self.username = username
         self.user_data = Struct(**self._get_data())
+
+    def set_course(self, new_from_language, new_learning_language):
+        """
+        Changes the current course a user is using
+        :param new_from_language: The language you already know that you are learning from needs to be the abbreviation
+        :param new_learning_language: The language you are learning needs to be the abbreviation
+        """
+        user_id = self.get_user_id()
+        data = {
+                "fromLanguage": new_from_language,
+                "learningLanguage": new_learning_language}
+        language_url = "https://www.duolingo.com/2017-06-30/users/%d?fields=courses,currentCourse,fromLanguage,learningLanguage" % (
+            user_id)
+        response = self._make_req(language_url, data, mode="PATCH")
+        self.user_data = Struct(**self._get_data())
+        return response.ok
 
     def get_leaderboard(self, unit, before):
         """
@@ -384,6 +400,10 @@ class Duolingo(object):
                   'ui_language']
 
         return self._make_dict(fields, self.user_data)
+
+    def get_user_id(self):
+        """Get user's id."""
+        return getattr(self.user_data, "id", None)
 
     def get_streak_info(self):
         """Get user's streak informations."""
@@ -676,7 +696,6 @@ class Duolingo(object):
                 related_lexemes = word_data['related_lexemes']
                 return [w for w in overview['vocab_overview']
                         if w['lexeme_id'] in related_lexemes]
-
 
     def get_word_definition_by_id(self, lexeme_id):
         """

@@ -38,6 +38,8 @@ Note: You are now required to provide a password to get any data from the Duolin
 - [Buy Streak Freeze](#buy-streak-freeze)
 ###### Switch account being read
 - [Set username](#set-username)
+###### Switch current course
+- [Set course](#set-course)
 ###### Language Information
 - [Get Language Details](#get-language-details)
 - [Get Language Progress](#get-language-progress)
@@ -272,6 +274,25 @@ print(lingo.get_languages())
 ['French', 'German', 'Russian', 'Chinese', 'Portuguese', 'Spanish']
 ['French']
 ```
+
+#### Set course
+`lingo.set_course(new_from_language, new_learning_language)`
+
+Sets the users current course, and reloads user data. This will allow you to read data about the new course.
+The function will allow you to swap to a course you are not currently taking, or one you are.
+This will require you to be signed in as the original user. Returns True if successful, false otherwise.
+```py
+# Sample Request
+lingo = Duolingo("kartik","...")
+print(lingo.set_course("en","es"))
+
+```
+##### Parameters
+`new_from_language` (string) **required**  
+-- The language you already know that you are learning from. Needs to be the abbreviation.
+
+`new_learning_language` (string) **required**  
+-- The language you are learning. Also needs to be the abbreviation.
 
 #### Get Language Details
 `lingo.get_language_details(language_name)`
