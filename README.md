@@ -54,6 +54,7 @@ Note: You are now required to provide a password to get any data from the Duolin
 - [Get Vocabulary](#get-vocabulary)
 - [Get Language Voices](#get-language-voices)
 - [Get Audio URL](#get-audio-url)
+- [Search Word In Dictionary](#search-word-in-dictionary)
 #### Get User Information
 `lingo.get_user_info()`
 
@@ -705,4 +706,47 @@ print(lingo.get_audio_url('bonjour'))
 ```py
 # Sample Response
 'https://d7mj4aqfscim2.cloudfront.net/tts/fr/token/bonjour'
+```
+
+#### Search word in dictionary
+`lingo.search_word_in_dictionary(query, language_id, ui_language)`
+
+Returns a list of search results from the Duolingo dictionary for a given query.
+```py
+# Sample Request
+lingo = duolingo.Duolingo('kartik', '...')
+print(lingo.search_word_in_dictionary('afdeling', 'nl-NL', 'en'))
+```
+##### Parameters
+`query` (string) **required**   
+--The word you want to find in the dictionary.   
+`language_id` (string) *optional*   
+--Abbrieviation of a given language. Default=`None`   
+`ui_language` (string) *optional*   
+--Abbreviation of the user interface language (user's native language). Default=`None`   
+```py
+# Sample Response
+[
+    {
+        "exactMatch": true,
+        "languageId": "nl-NL",
+        "lexemeId": "b04ee0b0448b0bbe7c79d7411a5910f9",
+        "text": "afdeling",
+        "translations":
+        {
+            "en": ["department","section"]
+        }
+    },
+    {
+        "exactMatch": false,
+        "languageId": "nl-NL",
+        "lexemeId": "7362ff30282e91a6047dd0448b2f2e07",
+        "text": "afdelingen",
+        "translations":
+        {
+            "en": ["departments"]
+        }
+    },
+    ...
+]
 ```
