@@ -723,6 +723,33 @@ class Duolingo(object):
             "lessons_today": lessons,
             "xp_today": sum(x['xp'] for x in lessons)
         }
+    
+    def search_word_in_dictionary(self, query, language_id = None, ui_language = None):
+        """
+        Get search results for a word from
+        ``https://duolingo-lexicon-prod.duolingo.com/api/1/search?exactness=1&languageId=``<language_id>``&query=``<query>``&uiLanguageId=``<ui_language>``
+        
+        :param query: A single word
+        :type query: str
+        :param language_id: Learning language as abbreviation
+        :type language_id: str
+        :param ui_language: UI language as abbreviation
+        :type ui_language: str
+        :return: List of search results
+        """
+        if not language_id:
+            language_id = list(self.user_data.language_data.keys())[0]
+        if not ui_language:
+            ui_language = self.user_data.ui_language
+        
+        url = "https://duolingo-lexicon-prod.duolingo.com/api/1/search?exactness=1&languageId=%s&query=%s&uiLanguageId=%s" % (language_id, query, ui_language)
+        
+        request = self.session.get(url)
+        
+        try:
+            return request.json()["results"]
+        except:
+            raise Exception('Could not get search results')
 
 
 attrs = [
