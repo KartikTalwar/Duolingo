@@ -293,6 +293,16 @@ class DuolingoLoginTest(unittest.TestCase):
         assert isinstance(response['xp_today'], int)
         assert isinstance(response['lessons_today'], list)
 
+    def test_search_word_in_dictionary(self):
+        response = self.search_word_in_dictionary("solos", "es", "en")
+        assert isinstance(response, list)
+        assert len(response) > 0
+        assert isinstance(response[0], dict)
+        keys = ["exactMatch", "languageId", "lexemeId", "text", "translations"]
+        for key in keys:
+            assert key in response[0]
+        assert isinstance(response[0]["translations"], dict)
+        assert isinstance(response[0]["translations"]["en"], list)
 
 class DuolingoOtherUsernameTest(DuolingoLoginTest):
 
