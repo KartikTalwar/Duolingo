@@ -567,7 +567,7 @@ class Duolingo(object):
         if self._cloudfront_server_url:
             return self._cloudfront_server_url
 
-        server_list = re.search(r'//.+\.cloudfront\.net', self._homepage)
+        server_list = re.search(r'//\w+\.cloudfront\.net', self._homepage)
         self._cloudfront_server_url = "https:{}".format(server_list.group(0))
 
         return self._cloudfront_server_url
