@@ -129,17 +129,17 @@ class Duolingo(object):
         resp = self._make_req(self.get_user_url())
         return resp.status_code == 200
 
-    def get_user_url_by_id(self, fields=None):
+    def get_user_url_by_id(self, fields=None, user_id=None):
         if fields is None:
             fields = []
-        url = 'https://www.duolingo.com/2017-06-30/users/{}'.format(self.user_data.id)
+        url = f'https://www.duolingo.com/2017-06-30/users/{user_id or self.user_data.id}'
         fields_params = requests.utils.requote_uri(','.join(fields))
         if fields_params:
             url += '?fields={}'.format(fields_params)
         return url
 
-    def get_user_url(self):
-        return "https://duolingo.com/users/%s" % self.username
+    def get_user_url(self, username=None):
+        return "https://duolingo.com/users/%s" % (username or self.username)
 
     def set_username(self, username):
         self.username = username
@@ -221,7 +221,7 @@ class Duolingo(object):
             return True
         except AlreadyHaveStoreItemException:
             return False
-        
+
     def buy_weekend_amulet(self):
         """
         figure out the users current learning language
@@ -235,7 +235,6 @@ class Duolingo(object):
             return True
         except AlreadyHaveStoreItemException:
             return False
-    
 
     def _switch_language(self, lang):
         """
@@ -256,27 +255,52 @@ class Duolingo(object):
         except ValueError:
             raise DuolingoException('Failed to switch language')
 
-    def get_data_by_user_id(self, fields=None):
+    def get_data_by_user_id(self, fields=None, user_id=None):
         """
         Get user's data from ``https://www.duolingo.com/2017-06-30/users/<user_id>``.
         """
         if fields is None:
             fields = []
-        get = self._make_req(self.get_user_url_by_id(fields))
+        get = self._make_req(self.get_user_url_by_id(fields, user_id))
         if get.status_code == 404:
             raise DuolingoException('User not found')
         else:
             return get.json()
 
-    def _get_data(self):
+    def _get_data(self, username=None):
         """
         Get user's data from ``https://www.duolingo.com/users/<username>``.
         """
-        get = self._make_req(self.get_user_url())
+        get = self._make_req(self.get_user_url(username))
         if get.status_code == 404:
             raise Exception('User not found')
         else:
             return get.json()
+
+    def load_other_user(self, username=None, user_id=None):
+        """
+        Get another user's data from ``https://www.duolingo.com/users/<username>`` and set it as the loaded username (can differ from authenticated user).
+        :return: Object with new user's data
+        :rtype: obj
+        """
+        if not user_id and not username:
+            raise Exception('Either username or user_id must be provided')
+        
+        if username:
+            self.user_data = Struct(**self._get_data(username))
+            self.username = username
+        else:
+            self.user_data = Struct(**self.get_data_by_user_id(user_id=user_id))
+        return self.user_data
+
+    def get_user_id_from_username(self, username):
+        """
+        Get the userId from the given username
+        """
+        if username == self.username:
+            return self.user_data.id
+        else:
+            return Struct(**self._get_data(username)).id
 
     @staticmethod
     def _make_dict(keys, array):
@@ -284,7 +308,7 @@ class Duolingo(object):
 
         for key in keys:
             if type(array) == dict:
-                data[key] = array[key]
+                data[key] = array.get(key, None)
             else:
                 data[key] = getattr(array, key, None)
 
@@ -419,6 +443,7 @@ class Duolingo(object):
         """Get user's friends."""
         for k, v in self.user_data.language_data.items():
             data = []
+            if not 'points_ranking_data' in v: continue
             for friend in v['points_ranking_data']:
                 temp = {'username': friend['username'],
                         'id': friend['id'],
@@ -428,6 +453,29 @@ class Duolingo(object):
                 data.append(temp)
 
             return data
+        return []
+
+    def _get_friends(self, username=None, user_id=None, _type=None):
+        if _type not in ['followers', 'following']:
+            raise Exception(f'Type of friends must be followers or following, not [{_type}]')
+        if not user_id and not username:
+            raise Exception('Either username or user_id must be provided')
+        if not user_id:
+            user_id = self.get_user_id_from_username(username)
+
+        get = self._make_req(f'https://friends-prod.duolingo.com/users/{user_id}/{_type}?pageSize=5000')
+        if get.status_code == 404:
+            raise Exception(f'{_type} not found')
+        else:
+            return get.json()[_type]["users"]
+
+    def get_followers(self, username=None, user_id=None):
+        """Get a user's list of followers."""
+        return self._get_friends(username, user_id, "followers")
+
+    def get_following(self, username=None, user_id=None):
+        """Get the list of users followed by a user."""
+        return self._get_friends(username, user_id, "following")
 
     def get_known_words(self, lang):
         """Get a list of all words learned by user in a language."""
@@ -609,7 +657,7 @@ class Duolingo(object):
             self._populate_voice_url_dictionary(language_abbr)
         # If no audio exists for a word, return None
         if word not in self.voice_url_dict[language_abbr]:
-            return None
+            return ""
         # Get word audio links
         word_links = list(self.voice_url_dict[language_abbr][word])
         # If a voice is specified, get that one or None
@@ -676,7 +724,7 @@ class Duolingo(object):
                 related_lexemes = word_data['related_lexemes']
                 return [w for w in overview['vocab_overview']
                         if w['lexeme_id'] in related_lexemes]
-
+        return []
 
     def get_word_definition_by_id(self, lexeme_id):
         """
@@ -716,7 +764,7 @@ class Duolingo(object):
         update_cutoff = round((reported_midnight + time_discrepancy).timestamp())
 
         lessons = [lesson for lesson in daily_progress['xpGains'] if
-                lesson['time'] > update_cutoff]
+                   lesson['time'] > update_cutoff]
 
         return {
             "xp_goal": daily_progress['xpGoal'],

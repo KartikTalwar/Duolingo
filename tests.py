@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 import duolingo
 
+
 USERNAME = os.environ.get('DUOLINGO_USER', 'ferguslongley')
 PASSWORD = os.environ.get('DUOLINGO_PASSWORD')
 USERNAME2 = os.environ.get("DUOLINGO_USER_2", "Spaniard")
@@ -18,7 +19,8 @@ def _example_word(lang):
     """
     return {
         "de": "mann",
-        "es": "hombre"
+        "es": "hombre",
+        "fr": "garçon"
     }.get(lang)
 
 
@@ -278,7 +280,7 @@ class DuolingoLoginTest(unittest.TestCase):
         response = self.lingo.get_audio_url(word, self.lang)
         assert isinstance(response, str)
         response = self.lingo.get_audio_url("zz")
-        assert response is None
+        assert response == ""
 
     def test_get_word_definition_by_id(self):
         response = self.lingo.get_word_definition_by_id("52383869a8feb3e5cf83dbf7fab9a018")
@@ -301,6 +303,7 @@ class DuolingoOtherUsernameTest(DuolingoLoginTest):
         cls.lingo = duolingo.Duolingo(USERNAME, PASSWORD)
         cls.lingo.set_username(USERNAME2)
         cls.lang = cls.lingo.user_data.learning_language
+        cls.USERNAME_TEST = "duo"
 
     def test_get_daily_xp_progress(self):
         try:
@@ -324,6 +327,46 @@ class DuolingoOtherUsernameTest(DuolingoLoginTest):
             assert False, "Should have failed to get related words."
         except duolingo.OtherUserException as e:
             assert "Vocab cannot be listed when the user has been switched" in str(e)
+
+    def test_get_user_id_from_username(self):
+        user_id = self.lingo.get_user_id_from_username(USERNAME2)
+        print(f'userid={user_id}')
+        assert isinstance(user_id, int), "user_id should be a number"
+
+    def test_load_other_user(self):
+        other = self.lingo.load_other_user(USERNAME2)
+        assert other == self.lingo.user_data, "should return obj with user_data"
+        assert self.lingo.username == USERNAME2, "username from other user should have been updated"
+        response = self.lingo.get_user_info()
+        assert isinstance(response, dict)
+        assert "avatar" in response
+        assert "id" in response
+        assert "location" in response
+        assert "learning_language_string" in response
+
+    def test_get_followers(self):
+        try: self.lingo.get_followers()
+        except Exception as e:
+            assert "Either username or user_id must be provided" in str(e)
+        f = self.lingo.get_followers(self.USERNAME_TEST)
+        assert isinstance(f, list)
+        assert len(f) > 0
+        assert "userId" in f[0]
+        user_id = self.lingo.get_user_id_from_username(self.USERNAME_TEST)
+        f_id = self.lingo.get_followers(user_id=user_id)
+        assert f == f_id
+
+    def test_get_following(self):
+        try: self.lingo.get_following()
+        except Exception as e:
+            assert "Either username or user_id must be provided" in str(e)
+        f = self.lingo.get_following(self.USERNAME_TEST)
+        assert isinstance(f, list)
+        assert len(f) > 0
+        assert "userId" in f[0]
+        user_id = self.lingo.get_user_id_from_username(self.USERNAME_TEST)
+        f_id = self.lingo.get_following(user_id=user_id)
+        assert f == f_id
 
 
 if __name__ == '__main__':
