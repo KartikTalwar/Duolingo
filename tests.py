@@ -4,9 +4,6 @@ from datetime import datetime
 from unittest.mock import patch
 
 import duolingo
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 USERNAME = os.environ.get('DUOLINGO_USER', 'ferguslongley')
