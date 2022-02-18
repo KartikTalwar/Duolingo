@@ -470,9 +470,11 @@ class Duolingo(object):
             return get.json()[_type]["users"]
 
     def get_followers(self, username=None, user_id=None):
+        """Get a user's list of followers."""
         return self._get_friends(username, user_id, "followers")
 
     def get_following(self, username=None, user_id=None):
+        """Get the list of users followed by a user."""
         return self._get_friends(username, user_id, "following")
 
     def get_known_words(self, lang):
