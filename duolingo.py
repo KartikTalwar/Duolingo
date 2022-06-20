@@ -34,14 +34,6 @@ class CaptchaException(DuolingoException):
     pass
 
 
-class OtherUserException(DuolingoException):
-    """
-    This exception is raised when set_username() has been called to get info on another user, but a method has then
-    been used which cannot give data on that new user.
-    """
-    pass
-
-
 class Duolingo(object):
     USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 " \
                  "Safari/537.36"
@@ -55,7 +47,6 @@ class Duolingo(object):
         requests.
         """
         self.username = username
-        self._original_username = username
         self.password = password
         self.session_file = session_file
         self.session = requests.Session()
@@ -68,18 +59,21 @@ class Duolingo(object):
             raise DuolingoException("Password, jwt, or session_file must be specified in order to authenticate.")
 
         self.user_data = Struct(**self._get_data())
+        self.user_id = self.user_data.id
         self.voice_url_dict = None
 
-    def _make_req(self, url, data=None):
+    def _make_req(self, url, data=None, params=None, method=None):
         headers = {}
         if self.jwt is not None:
             headers['Authorization'] = 'Bearer ' + self.jwt
         headers['User-Agent'] = self.USER_AGENT
-        req = requests.Request('POST' if data else 'GET',
+        if not method:
+            method = 'POST' if data else 'GET'
+        req = requests.Request(method,
                                url,
                                json=data,
-                               headers=headers,
-                               cookies=self.session.cookies)
+                               params=params,
+                               headers=headers)
         prepped = req.prepare()
         resp = self.session.send(prepped)
         if resp.status_code == 403 and resp.json().get("blockScript") is not None:
@@ -126,23 +120,28 @@ class Duolingo(object):
                 json.dump({"jwt_session": self.jwt}, f)
 
     def _check_login(self):
-        resp = self._make_req(self.get_user_url())
+        resp = self._make_req(f"https://duolingo.com/users/{self.username}")
         return resp.status_code == 200
 
-    def get_user_url_by_id(self, fields=None):
-        if fields is None:
-            fields = []
-        url = 'https://www.duolingo.com/2017-06-30/users/{}'.format(self.user_data.id)
-        fields_params = requests.utils.requote_uri(','.join(fields))
-        if fields_params:
-            url += '?fields={}'.format(fields_params)
-        return url
-
-    def get_user_url(self):
-        return "https://duolingo.com/users/%s" % self.username
+    def get_id_by_name(self, name):
+        return self._get_data(name)["id"]
 
     def set_username(self, username):
-        self.username = username
+        data = {"username": username}
+        params = {"fields": "username"}
+        r = self._make_req(
+            f"https://www.duolingo.com/2017-06-30/users/{self.user_id}",
+            data=data,
+            params=params,
+            method="PATCH",
+        )
+
+        if r.status_code == 400:
+            raise DuolingoException(*r.json()["details"])
+        elif not r:
+            return
+
+        self.username = r.json()["username"]
         self.user_data = Struct(**self._get_data())
 
     def get_leaderboard(self, unit, before):
@@ -221,7 +220,7 @@ class Duolingo(object):
             return True
         except AlreadyHaveStoreItemException:
             return False
-        
+
     def buy_weekend_amulet(self):
         """
         figure out the users current learning language
@@ -235,9 +234,8 @@ class Duolingo(object):
             return True
         except AlreadyHaveStoreItemException:
             return False
-    
 
-    def _switch_language(self, lang):
+    def switch_language(self, lang):
         """
         Change the learned language with
         ``https://www.duolingo.com/switch_language``.
@@ -256,23 +254,28 @@ class Duolingo(object):
         except ValueError:
             raise DuolingoException('Failed to switch language')
 
-    def get_data_by_user_id(self, fields=None):
+    def _get_data_by_user_id(self, user_id=None, fields=None):
         """
         Get user's data from ``https://www.duolingo.com/2017-06-30/users/<user_id>``.
         """
-        if fields is None:
-            fields = []
-        get = self._make_req(self.get_user_url_by_id(fields))
+        if user_id is None:
+            user_id = self.user_id
+        params = {}
+        if fields:
+            params["fields"] = ','.join(fields)
+        get = self._make_req(f"https://www.duolingo.com/2017-06-30/users/{user_id}", params=params)
         if get.status_code == 404:
             raise DuolingoException('User not found')
         else:
             return get.json()
 
-    def _get_data(self):
+    def _get_data(self, username=None):
         """
-        Get user's data from ``https://www.duolingo.com/users/<username>``.
+        Get user's data from ``https://duolingo.com/users/<username>``.
         """
-        get = self._make_req(self.get_user_url())
+        if username is None:
+            username = self.username
+        get = self._make_req(f"https://duolingo.com/users/{username}")
         if get.status_code == 404:
             raise Exception('User not found')
         else:
@@ -398,7 +401,7 @@ class Duolingo(object):
         """Get user's last actions."""
         if language_abbr:
             if not self._is_current_language(language_abbr):
-                self._switch_language(language_abbr)
+                self.switch_language(language_abbr)
             return self.user_data.language_data[language_abbr]['calendar']
         else:
             return self.user_data.calendar
@@ -406,7 +409,7 @@ class Duolingo(object):
     def get_language_progress(self, lang):
         """Get informations about user's progression in a language."""
         if not self._is_current_language(lang):
-            self._switch_language(lang)
+            self.switch_language(lang)
 
         fields = ['streak', 'language_string', 'level_progress',
                   'num_skills_learned', 'level_percent', 'level_points',
@@ -538,11 +541,9 @@ class Duolingo(object):
 
     def get_vocabulary(self, language_abbr=None):
         """Get overview of user's vocabulary in a language."""
-        if self.username != self._original_username:
-            raise OtherUserException("Vocab cannot be listed when the user has been switched.")
 
         if language_abbr and not self._is_current_language(language_abbr):
-            self._switch_language(language_abbr)
+            self.switch_language(language_abbr)
 
         overview_url = "https://www.duolingo.com/vocabulary/overview"
         overview_request = self._make_req(overview_url)
@@ -677,7 +678,6 @@ class Duolingo(object):
                 return [w for w in overview['vocab_overview']
                         if w['lexeme_id'] in related_lexemes]
 
-
     def get_word_definition_by_id(self, lexeme_id):
         """
         Get the dictionary entry from
@@ -697,7 +697,7 @@ class Duolingo(object):
             raise Exception('Could not get word definition')
 
     def get_daily_xp_progress(self):
-        daily_progress = self.get_data_by_user_id(["xpGoal", "xpGains", "streakData"])
+        daily_progress = self._get_data_by_user_id(fields=["xpGoal", "xpGains", "streakData"])
 
         if not daily_progress:
             raise DuolingoException(
