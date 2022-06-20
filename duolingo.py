@@ -66,6 +66,8 @@ class Duolingo(object):
         headers = {}
         if self.jwt is not None:
             headers['Authorization'] = 'Bearer ' + self.jwt
+            self.session.cookies.set("jwt_token", self.jwt, domain=".duolingo.com")
+
         headers['User-Agent'] = self.USER_AGENT
         if not method:
             method = 'POST' if data else 'GET'
