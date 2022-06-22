@@ -256,20 +256,27 @@ class Duolingo(object):
         except ValueError:
             raise DuolingoException('Failed to switch language')
 
-    def _get_data_by_user_id(self, user_id=None, fields=None):
+    def _get_data_by_user_id(self, user_id=None, fields=None, to_dict=False):
         """
         Get user's data from ``https://www.duolingo.com/2017-06-30/users/<user_id>``.
         """
         if user_id is None:
             user_id = self.user_id
+
         params = {}
         if fields:
             params["fields"] = ','.join(fields)
         get = self._make_req(f"https://www.duolingo.com/2017-06-30/users/{user_id}", params=params)
         if get.status_code == 404:
             raise DuolingoException('User not found')
-        else:
-            return get.json()
+
+        data = get.json()
+
+        if to_dict or len(fields) == 0:
+            return data
+        if len(fields) == 1:
+            return data.get(fields[0])
+        return tuple(data.get(field) for field in fields)
 
     def _get_data(self, username=None):
         """
@@ -277,6 +284,7 @@ class Duolingo(object):
         """
         if username is None:
             username = self.username
+
         get = self._make_req(f"https://duolingo.com/users/{username}")
         if get.status_code == 404:
             raise Exception('User not found')
@@ -699,7 +707,7 @@ class Duolingo(object):
             raise Exception('Could not get word definition')
 
     def get_daily_xp_progress(self):
-        daily_progress = self._get_data_by_user_id(fields=["xpGoal", "xpGains", "streakData"])
+        xpGoal, xpGains, streakData = self._get_data_by_user_id(fields=["xpGoal", "xpGains", "streakData"])
 
         if not daily_progress:
             raise DuolingoException(
@@ -708,7 +716,7 @@ class Duolingo(object):
 
         # xpGains lists the lessons completed on the last day where lessons were done.
         # We use the streakData.updatedTimestamp to get the last "midnight", and get lessons after that.
-        reported_timestamp = daily_progress['streakData']['updatedTimestamp']
+        reported_timestamp = streakData['updatedTimestamp']
         reported_midnight = datetime.fromtimestamp(reported_timestamp)
         midnight = datetime.fromordinal(datetime.today().date().toordinal())
 
@@ -717,11 +725,11 @@ class Duolingo(object):
         time_discrepancy = min(midnight - reported_midnight, timedelta(0))
         update_cutoff = round((reported_midnight + time_discrepancy).timestamp())
 
-        lessons = [lesson for lesson in daily_progress['xpGains'] if
-                lesson['time'] > update_cutoff]
+        lessons = [lesson for lesson in xpGains if
+                   lesson['time'] > update_cutoff]
 
         return {
-            "xp_goal": daily_progress['xpGoal'],
+            "xp_goal": xpGoal,
             "lessons_today": lessons,
             "xp_today": sum(x['xp'] for x in lessons)
         }
