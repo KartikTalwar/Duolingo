@@ -343,19 +343,23 @@ class Duolingo(object):
         """
         return self._get_data_by_user_id(fields=["courses"])
 
+    abbr_to_lang = None
+
     def get_language_from_abbr(self, abbr):
         """Get language full name from abbreviation."""
-        for language in self.user_data.languages:
-            if language['language'] == abbr:
-                return language['language_string']
-        return None
+        if not self.abbr_to_lang:
+            self.abbr_to_lang = {lang['language']:lang['language_string'] for lang in self.user_data.languages}
+
+        return self.abbr_to_lang.get(abbr)
+
+    lang_to_abbr = None
 
     def get_abbreviation_of(self, name):
         """Get abbreviation of a language."""
-        for language in self.user_data.languages:
-            if language['language_string'].lower() == name.lower():
-                return language['language']
-        return None
+        if not self.abbr_to_lang:
+            self.abbr_to_lang = {lang['language_string'].lower():lang['language'] for lang in self.user_data.languages}
+
+        return self.abbr_to_lang.get(name.lower())
 
     def get_language_details(self, language):
         """Get user's status about a language."""
