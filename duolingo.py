@@ -169,20 +169,24 @@ class Duolingo(object):
             if player["user_id"] == self.user_id:
                 return i + 1
 
-    def buy_item(self, item_name, abbr):
-        url = 'https://www.duolingo.com/2017-06-30/users/{}/shop-items'
-        url = url.format(self.user_data.id)
+    def buy_item(self, item_name):
+        url = f'https://www.duolingo.com/2017-06-30/users/{self.user_id}/shop-items'
 
-        data = {'itemName': item_name, 'learningLanguage': abbr}
+        data = {'itemName': item_name}
         request = self._make_req(url, data)
 
         """
         status code '200' indicates that the item was purchased
-        returns a text like: {"streak_freeze":"2017-01-10 02:39:59.594327"}
+        returns a text like:
+            {"purchaseId": "", "purchaseDate": <timestamp>, "purchasePrice": 10, "id": "streak_freeze", "itemName": "streak_freeze", "quantity": 2}
         """
 
         if request.status_code == 400:
-            resp_json = request.json()
+            try:
+                resp_json = request.json()
+            except ValueError:
+                raise DuolingoException(f"Not possible to buy item {item_name}")
+
             if resp_json.get("error") == "ALREADY_HAVE_STORE_ITEM":
                 raise AlreadyHaveStoreItemException("Already equipped with {}.".format(item_name))
             if resp_json.get("error") == "INSUFFICIENT_FUNDS":
@@ -201,13 +205,10 @@ class Duolingo(object):
         figure out the users current learning language
         use this one as parameter for the shop
         """
-        lang = self.get_abbreviation_of(self.get_user_info()['learning_language_string'])
-        if lang is None:
-            raise DuolingoException('No learning language found')
         try:
-            self.buy_item('streak_freeze', lang)
+            self.buy_item('streak_freeze')
             return True
-        except AlreadyHaveStoreItemException:
+        except DuolingoException:
             return False
 
     def buy_weekend_amulet(self):
@@ -215,13 +216,10 @@ class Duolingo(object):
         figure out the users current learning language
         use this one as parameter for the shop
         """
-        lang = self.get_abbreviation_of(self.get_user_info()['learning_language_string'])
-        if lang is None:
-            raise DuolingoException('No learning language found')
         try:
-            self.buy_item('weekend_amulet', lang)
+            self.buy_item('weekend_amulet')
             return True
-        except AlreadyHaveStoreItemException:
+        except DuolingoException:
             return False
 
     def switch_language(self, lang):
@@ -567,7 +565,7 @@ class Duolingo(object):
 
     def get_language_voices(self, language_abbr=None):
         if not language_abbr:
-            language_abbr = list(self.user_data.language_data.keys())[0]
+            language_abbr = self.user_data.learning_language
         voices = []
         if not self._tts_voices:
             self._process_tts_voices()
@@ -585,7 +583,7 @@ class Duolingo(object):
         word = word.lower()
         # Get default language abbr
         if not language_abbr:
-            language_abbr = list(self.user_data.language_data.keys())[0]
+            language_abbr = self.user_data.learning_language
         if language_abbr not in self.user_data.language_data:
             raise DuolingoException("This language is not one you are studying")
         # Populate voice url dict
@@ -607,7 +605,9 @@ class Duolingo(object):
             return random.choice(word_links)
         return word_links[0]
 
-    def _populate_voice_url_dictionary(self, lang_abbr):
+    def _populate_voice_url_dictionary(self, lang_abbr=None):
+        if not lang_abbr:
+            lang_abbr = self.user_data.learning_language
         if self.voice_url_dict is None:
             self.voice_url_dict = {}
         self.voice_url_dict[lang_abbr] = {}
@@ -653,6 +653,9 @@ class Duolingo(object):
         self.voice_url_dict[lang_abbr][word].add(url)
 
     def get_related_words(self, word, language_abbr=None):
+        if not language_abbr:
+            language_abbr = self.user_data.learning_language
+
         overview = self.get_vocabulary(language_abbr)
 
         for word_data in overview['vocab_overview']:
