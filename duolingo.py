@@ -272,7 +272,7 @@ class Duolingo(object):
 
         data = get.json()
 
-        if to_dict or len(fields) == 0:
+        if to_dict or not fields:
             return data
         if len(fields) == 1:
             return data.get(fields[0])
@@ -418,29 +418,23 @@ class Duolingo(object):
 
     def get_language_progress(self, lang):
         """Get informations about user's progression in a language."""
-        if not self._is_current_language(lang):
+        if not lang:
+            lang = self.user_data.learning_language
+        else:
             self.switch_language(lang)
 
         fields = ['streak', 'language_string', 'level_progress',
                   'num_skills_learned', 'level_percent', 'level_points',
-                  'points_rank', 'next_level', 'level_left', 'language',
+                  'next_level', 'level_left', 'language',
                   'points', 'fluency_score', 'level']
 
         return self._make_dict(fields, self.user_data.language_data[lang])
 
-    def get_friends(self):
+    def get_friends(self, limit=1000):
         """Get user's friends."""
-        for k, v in self.user_data.language_data.items():
-            data = []
-            for friend in v['points_ranking_data']:
-                temp = {'username': friend['username'],
-                        'id': friend['id'],
-                        'points': friend['points_data']['total'],
-                        'languages': [i['language_string'] for i in
-                                      friend['points_data']['languages']]}
-                data.append(temp)
+        get = self._make_req("https://friends-prod.duolingo.com/users/951841364/profile", params={"pageSize": limit})
 
-            return data
+        return get.json()["following"]["users"]
 
     def get_known_words(self, lang):
         """Get a list of all words learned by user in a language."""
@@ -735,13 +729,14 @@ class Duolingo(object):
         }
 
 
-attrs = [
-    'settings', 'languages', 'user_info', 'streak_info',
-    'calendar', 'language_progress', 'friends', 'known_words',
-    'learned_skills', 'known_topics', 'vocabulary'
-]
+if __name__ == "__main__":
+    attrs = [
+        'settings', 'languages', 'user_info', 'streak_info',
+        'calendar', 'language_progress', 'friends', 'known_words',
+        'learned_skills', 'known_topics', 'vocabulary'
+    ]
 
-for attr in attrs:
-    getter = getattr(Duolingo, "get_" + attr)
-    prop = property(getter)
-    setattr(Duolingo, attr, prop)
+    for attr in attrs:
+        getter = getattr(Duolingo, "get_" + attr)
+        prop = property(getter)
+        setattr(Duolingo, attr, prop)
