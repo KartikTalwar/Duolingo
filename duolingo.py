@@ -334,24 +334,16 @@ class Duolingo(object):
 
         return self._make_dict(keys, self.user_data)
 
-    def get_languages(self, abbreviations=False):
+    def get_languages(self):
         """
         Get practiced languages.
 
         :param abbreviations: Get language as abbreviation or not
         :type abbreviations: bool
         :return: List of languages
-        :rtype: list of str
+        :rtype: list of dict
         """
-        data = []
-
-        for lang in self.user_data.languages:
-            if lang['learning']:
-                if abbreviations:
-                    data.append(lang['language'])
-                else:
-                    data.append(lang['language_string'])
-        return data
+        return self._get_data_by_user_id(fields=["courses"])
 
     def get_language_from_abbr(self, abbr):
         """Get language full name from abbreviation."""
