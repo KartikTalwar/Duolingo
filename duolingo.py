@@ -50,7 +50,6 @@ class Duolingo(object):
         self.password = password
         self.session_file = session_file
         self.session = requests.Session()
-        self.leader_data = None
         self.jwt = jwt
 
         if password or jwt or session_file:
@@ -146,10 +145,10 @@ class Duolingo(object):
         self.username = r.json()["username"]
         self.user_data = Struct(**self._get_data())
 
-    def get_leaderboard(self, unit, before):
+    def get_leaderboard(self):
         """
         Get user's rank in the week in descending order, stream from
-        ``https://www.duolingo.com/friendships/leaderboard_activity?unit=week&_=time
+        ``https://duolingo-leaderboards-prod.duolingo.com/leaderboards/7d9f5dd1-8423-491a-91f2-2532052038ce/users/<user_id>
 
         :param unit: maybe week or month
         :type unit: str
@@ -157,30 +156,18 @@ class Duolingo(object):
         :type before: Union[datetime, str]
         :rtype: List
         """
-        if not unit:
-            raise ValueError('Needs unit as argument (week or month)')
 
-        if not before:
-            raise ValueError('Needs str in Datetime format "%Y.%m.%d %H:%M:%S"')
+        url = f"https://duolingo-leaderboards-prod.duolingo.com/leaderboards/7d9f5dd1-8423-491a-91f2-2532052038ce/users/{self.user_id}"
 
-        if isinstance(before, datetime):
-            before = before.strftime("%Y.%m.%d %H:%M:%S")
+        leader_data = self._make_req(url).json()
+        if not leader_data.get("active"):
+            return []
+        return leader_data["active"]["cohort"]["rankings"]
 
-        url = 'https://www.duolingo.com/friendships/leaderboard_activity?unit={}&_={}'
-        url = url.format(unit, before)
-
-        self.leader_data = self._make_req(url).json()
-        data = []
-        for result in self.get_friends():
-            for value in self.leader_data['ranking']:
-                if result['id'] == int(value):
-                    temp = {'points': int(self.leader_data['ranking'][value]),
-                            'unit': unit,
-                            'id': result['id'],
-                            'username': result['username']}
-                    data.append(temp)
-
-        return sorted(data, key=lambda user: user['points'], reverse=True)
+    def get_leaderboard_position(self):
+        for i, player in enumerate(self.get_leaderboard()):
+            if player["user_id"] == self.user_id:
+                return i + 1
 
     def buy_item(self, item_name, abbr):
         url = 'https://www.duolingo.com/2017-06-30/users/{}/shop-items'
