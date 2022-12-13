@@ -221,7 +221,7 @@ class Duolingo(object):
             return True
         except AlreadyHaveStoreItemException:
             return False
-        
+
     def buy_weekend_amulet(self):
         """
         figure out the users current learning language
@@ -235,7 +235,7 @@ class Duolingo(object):
             return True
         except AlreadyHaveStoreItemException:
             return False
-    
+
 
     def _switch_language(self, lang):
         """
@@ -410,7 +410,7 @@ class Duolingo(object):
 
         fields = ['streak', 'language_string', 'level_progress',
                   'num_skills_learned', 'level_percent', 'level_points',
-                  'points_rank', 'next_level', 'level_left', 'language',
+                  'next_level', 'level_left', 'language',
                   'points', 'fluency_score', 'level']
 
         return self._make_dict(fields, self.user_data.language_data[lang])
