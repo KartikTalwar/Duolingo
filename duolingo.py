@@ -97,7 +97,6 @@ class Duolingo(object):
             self._load_session_from_file()
         if self._check_login():
             return True
-        self.jwt = None
 
         login_url = "https://www.duolingo.com/login"
         data = {"login": self.username, "password": self.password}
