@@ -34,14 +34,6 @@ class CaptchaException(DuolingoException):
     pass
 
 
-class OtherUserException(DuolingoException):
-    """
-    This exception is raised when set_username() has been called to get info on another user, but a method has then
-    been used which cannot give data on that new user.
-    """
-    pass
-
-
 class Duolingo(object):
     USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 " \
                  "Safari/537.36"
@@ -55,11 +47,9 @@ class Duolingo(object):
         requests.
         """
         self.username = username
-        self._original_username = username
         self.password = password
         self.session_file = session_file
         self.session = requests.Session()
-        self.leader_data = None
         self.jwt = jwt
 
         if password or jwt or session_file:
@@ -68,18 +58,23 @@ class Duolingo(object):
             raise DuolingoException("Password, jwt, or session_file must be specified in order to authenticate.")
 
         self.user_data = Struct(**self._get_data())
+        self.user_id = self.user_data.id
         self.voice_url_dict = None
 
-    def _make_req(self, url, data=None):
+    def _make_req(self, url, data=None, params=None, method=None):
         headers = {}
         if self.jwt is not None:
             headers['Authorization'] = 'Bearer ' + self.jwt
+            self.session.cookies.set("jwt_token", self.jwt, domain=".duolingo.com")
+
         headers['User-Agent'] = self.USER_AGENT
-        req = requests.Request('POST' if data else 'GET',
+        if not method:
+            method = 'POST' if data else 'GET'
+        req = requests.Request(method,
                                url,
                                json=data,
-                               headers=headers,
-                               cookies=self.session.cookies)
+                               params=params,
+                               headers=headers)
         prepped = req.prepare()
         resp = self.session.send(prepped)
         if resp.status_code == 403 and resp.json().get("blockScript") is not None:
@@ -126,29 +121,34 @@ class Duolingo(object):
                 json.dump({"jwt_session": self.jwt}, f)
 
     def _check_login(self):
-        resp = self._make_req(self.get_user_url())
+        resp = self._make_req(f"https://duolingo.com/users/{self.username}")
         return resp.status_code == 200
 
-    def get_user_url_by_id(self, fields=None):
-        if fields is None:
-            fields = []
-        url = 'https://www.duolingo.com/2017-06-30/users/{}'.format(self.user_data.id)
-        fields_params = requests.utils.requote_uri(','.join(fields))
-        if fields_params:
-            url += '?fields={}'.format(fields_params)
-        return url
-
-    def get_user_url(self):
-        return "https://duolingo.com/users/%s" % self.username
+    def get_id_by_name(self, name):
+        return self._get_data(name)["id"]
 
     def set_username(self, username):
-        self.username = username
+        data = {"username": username}
+        params = {"fields": "username"}
+        r = self._make_req(
+            f"https://www.duolingo.com/2017-06-30/users/{self.user_id}",
+            data=data,
+            params=params,
+            method="PATCH",
+        )
+
+        if r.status_code == 400:
+            raise DuolingoException(*r.json()["details"])
+        elif not r:
+            return
+
+        self.username = r.json()["username"]
         self.user_data = Struct(**self._get_data())
 
-    def get_leaderboard(self, unit, before):
+    def get_leaderboard(self):
         """
         Get user's rank in the week in descending order, stream from
-        ``https://www.duolingo.com/friendships/leaderboard_activity?unit=week&_=time
+        ``https://duolingo-leaderboards-prod.duolingo.com/leaderboards/7d9f5dd1-8423-491a-91f2-2532052038ce/users/<user_id>
 
         :param unit: maybe week or month
         :type unit: str
@@ -156,45 +156,37 @@ class Duolingo(object):
         :type before: Union[datetime, str]
         :rtype: List
         """
-        if not unit:
-            raise ValueError('Needs unit as argument (week or month)')
 
-        if not before:
-            raise ValueError('Needs str in Datetime format "%Y.%m.%d %H:%M:%S"')
+        url = f"https://duolingo-leaderboards-prod.duolingo.com/leaderboards/7d9f5dd1-8423-491a-91f2-2532052038ce/users/{self.user_id}"
 
-        if isinstance(before, datetime):
-            before = before.strftime("%Y.%m.%d %H:%M:%S")
+        leader_data = self._make_req(url).json()
+        if not leader_data.get("active"):
+            return []
+        return leader_data["active"]["cohort"]["rankings"]
 
-        url = 'https://www.duolingo.com/friendships/leaderboard_activity?unit={}&_={}'
-        url = url.format(unit, before)
+    def get_leaderboard_position(self):
+        for i, player in enumerate(self.get_leaderboard()):
+            if player["user_id"] == self.user_id:
+                return i + 1
 
-        self.leader_data = self._make_req(url).json()
-        data = []
-        for result in self.get_friends():
-            for value in self.leader_data['ranking']:
-                if result['id'] == int(value):
-                    temp = {'points': int(self.leader_data['ranking'][value]),
-                            'unit': unit,
-                            'id': result['id'],
-                            'username': result['username']}
-                    data.append(temp)
+    def buy_item(self, item_name):
+        url = f'https://www.duolingo.com/2017-06-30/users/{self.user_id}/shop-items'
 
-        return sorted(data, key=lambda user: user['points'], reverse=True)
-
-    def buy_item(self, item_name, abbr):
-        url = 'https://www.duolingo.com/2017-06-30/users/{}/shop-items'
-        url = url.format(self.user_data.id)
-
-        data = {'itemName': item_name, 'learningLanguage': abbr}
+        data = {'itemName': item_name}
         request = self._make_req(url, data)
 
         """
         status code '200' indicates that the item was purchased
-        returns a text like: {"streak_freeze":"2017-01-10 02:39:59.594327"}
+        returns a text like:
+            {"purchaseId": "", "purchaseDate": <timestamp>, "purchasePrice": 10, "id": "streak_freeze", "itemName": "streak_freeze", "quantity": 2}
         """
 
         if request.status_code == 400:
-            resp_json = request.json()
+            try:
+                resp_json = request.json()
+            except ValueError:
+                raise DuolingoException(f"Not possible to buy item {item_name}")
+
             if resp_json.get("error") == "ALREADY_HAVE_STORE_ITEM":
                 raise AlreadyHaveStoreItemException("Already equipped with {}.".format(item_name))
             if resp_json.get("error") == "INSUFFICIENT_FUNDS":
@@ -213,31 +205,24 @@ class Duolingo(object):
         figure out the users current learning language
         use this one as parameter for the shop
         """
-        lang = self.get_abbreviation_of(self.get_user_info()['learning_language_string'])
-        if lang is None:
-            raise DuolingoException('No learning language found')
         try:
-            self.buy_item('streak_freeze', lang)
+            self.buy_item('streak_freeze')
             return True
-        except AlreadyHaveStoreItemException:
+        except DuolingoException:
             return False
-        
+
     def buy_weekend_amulet(self):
         """
         figure out the users current learning language
         use this one as parameter for the shop
         """
-        lang = self.get_abbreviation_of(self.get_user_info()['learning_language_string'])
-        if lang is None:
-            raise DuolingoException('No learning language found')
         try:
-            self.buy_item('weekend_amulet', lang)
+            self.buy_item('weekend_amulet')
             return True
-        except AlreadyHaveStoreItemException:
+        except DuolingoException:
             return False
-    
 
-    def _switch_language(self, lang):
+    def switch_language(self, lang):
         """
         Change the learned language with
         ``https://www.duolingo.com/switch_language``.
@@ -256,23 +241,36 @@ class Duolingo(object):
         except ValueError:
             raise DuolingoException('Failed to switch language')
 
-    def get_data_by_user_id(self, fields=None):
+    def _get_data_by_user_id(self, user_id=None, fields=None, to_dict=False):
         """
         Get user's data from ``https://www.duolingo.com/2017-06-30/users/<user_id>``.
         """
-        if fields is None:
-            fields = []
-        get = self._make_req(self.get_user_url_by_id(fields))
+        if user_id is None:
+            user_id = self.user_id
+
+        params = {}
+        if fields:
+            params["fields"] = ','.join(fields)
+        get = self._make_req(f"https://www.duolingo.com/2017-06-30/users/{user_id}", params=params)
         if get.status_code == 404:
             raise DuolingoException('User not found')
-        else:
-            return get.json()
 
-    def _get_data(self):
+        data = get.json()
+
+        if to_dict or not fields:
+            return data
+        if len(fields) == 1:
+            return data.get(fields[0])
+        return tuple(data.get(field) for field in fields)
+
+    def _get_data(self, username=None):
         """
-        Get user's data from ``https://www.duolingo.com/users/<username>``.
+        Get user's data from ``https://duolingo.com/users/<username>``.
         """
-        get = self._make_req(self.get_user_url())
+        if username is None:
+            username = self.username
+
+        get = self._make_req(f"https://duolingo.com/users/{username}")
         if get.status_code == 404:
             raise Exception('User not found')
         else:
@@ -304,7 +302,8 @@ class Duolingo(object):
     def _get_skill_ordinal(skills_dict, skill, breadcrumbs):
         # If name is already in breadcrumbs, we've found a loop
         if skill['name'] in breadcrumbs:
-            raise DuolingoException("Loop encountered: {}".format(breadcrumbs + [skill['name']]))
+            print(DuolingoException("Loop encountered: {}".format(breadcrumbs + [skill['name']])))
+            return 0
         # If order already set for this skill, return it
         if "dependency_order" in skill:
             return skill["dependency_order"]
@@ -334,38 +333,34 @@ class Duolingo(object):
 
         return self._make_dict(keys, self.user_data)
 
-    def get_languages(self, abbreviations=False):
+    def get_languages(self):
         """
         Get practiced languages.
 
         :param abbreviations: Get language as abbreviation or not
         :type abbreviations: bool
         :return: List of languages
-        :rtype: list of str
+        :rtype: list of dict
         """
-        data = []
+        return self._get_data_by_user_id(fields=["courses"])
 
-        for lang in self.user_data.languages:
-            if lang['learning']:
-                if abbreviations:
-                    data.append(lang['language'])
-                else:
-                    data.append(lang['language_string'])
-        return data
+    abbr_to_lang = None
 
     def get_language_from_abbr(self, abbr):
         """Get language full name from abbreviation."""
-        for language in self.user_data.languages:
-            if language['language'] == abbr:
-                return language['language_string']
-        return None
+        if not self.abbr_to_lang:
+            self.abbr_to_lang = {lang['language']:lang['language_string'] for lang in self.user_data.languages}
+
+        return self.abbr_to_lang.get(abbr)
+
+    lang_to_abbr = None
 
     def get_abbreviation_of(self, name):
         """Get abbreviation of a language."""
-        for language in self.user_data.languages:
-            if language['language_string'].lower() == name.lower():
-                return language['language']
-        return None
+        if not self.abbr_to_lang:
+            self.abbr_to_lang = {lang['language_string'].lower():lang['language'] for lang in self.user_data.languages}
+
+        return self.abbr_to_lang.get(name.lower())
 
     def get_language_details(self, language):
         """Get user's status about a language."""
@@ -386,9 +381,16 @@ class Duolingo(object):
         return self._make_dict(fields, self.user_data)
 
     def get_streak_info(self):
-        """Get user's streak informations."""
+        """Get user's streak information."""
         fields = ['daily_goal', 'site_streak', 'streak_extended_today']
-        return self._make_dict(fields, self.user_data)
+
+        public_streak_data = self._get_data_by_user_id(fields=["streakData"])
+        private_streak_data = self._make_dict(fields, self.user_data)
+
+        # Merge the two dictionaries
+        private_streak_data.update(public_streak_data)
+
+        return private_streak_data
 
     def _is_current_language(self, abbr):
         """Get if user is learning a language."""
@@ -398,40 +400,45 @@ class Duolingo(object):
         """Get user's last actions."""
         if language_abbr:
             if not self._is_current_language(language_abbr):
-                self._switch_language(language_abbr)
+                self.switch_language(language_abbr)
             return self.user_data.language_data[language_abbr]['calendar']
         else:
             return self.user_data.calendar
 
     def get_language_progress(self, lang):
         """Get informations about user's progression in a language."""
-        if not self._is_current_language(lang):
-            self._switch_language(lang)
+        lang = self._change_lang_to_abbr(lang)
+
+        if not lang:
+            lang = self.user_data.learning_language
+        else:
+            self.switch_language(lang)
 
         fields = ['streak', 'language_string', 'level_progress',
                   'num_skills_learned', 'level_percent', 'level_points',
-                  'points_rank', 'next_level', 'level_left', 'language',
+                  'next_level', 'level_left', 'language',
                   'points', 'fluency_score', 'level']
 
         return self._make_dict(fields, self.user_data.language_data[lang])
 
-    def get_friends(self):
+    def get_friends(self, limit=1000):
         """Get user's friends."""
-        for k, v in self.user_data.language_data.items():
-            data = []
-            for friend in v['points_ranking_data']:
-                temp = {'username': friend['username'],
-                        'id': friend['id'],
-                        'points': friend['points_data']['total'],
-                        'languages': [i['language_string'] for i in
-                                      friend['points_data']['languages']]}
-                data.append(temp)
+        get = self._make_req("https://friends-prod.duolingo.com/users/951841364/profile", params={"pageSize": limit})
 
-            return data
+        return get.json()["following"]["users"]
+
+    def _change_lang_to_abbr(self, lang):
+        if lang is None:
+            return self.user_data.learning_language
+        elif len(lang) == 2:
+            return lang
+        else:
+            return self.get_abbreviation_of(lang)
 
     def get_known_words(self, lang):
         """Get a list of all words learned by user in a language."""
         words = []
+        lang = self._change_lang_to_abbr(lang)
         for topic in self.user_data.language_data[lang]['skills']:
             if topic['learned']:
                 words += topic['words']
@@ -442,6 +449,7 @@ class Duolingo(object):
         Return the learned skill objects sorted by the order they were learned
         in.
         """
+        lang = self._change_lang_to_abbr(lang)
         skills = [
             skill for skill in self.user_data.language_data[lang]['skills']
         ]
@@ -454,24 +462,28 @@ class Duolingo(object):
 
     def get_known_topics(self, lang):
         """Return the topics learned by a user in a language."""
+        lang = self._change_lang_to_abbr(lang)
         return [topic['title']
                 for topic in self.user_data.language_data[lang]['skills']
                 if topic['learned']]
 
     def get_unknown_topics(self, lang):
         """Return the topics remaining to learn by a user in a language."""
+        lang = self._change_lang_to_abbr(lang)
         return [topic['title']
                 for topic in self.user_data.language_data[lang]['skills']
                 if not topic['learned']]
 
     def get_golden_topics(self, lang):
         """Return the topics mastered ("golden") by a user in a language."""
+        lang = self._change_lang_to_abbr(lang)
         return [topic['title']
                 for topic in self.user_data.language_data[lang]['skills']
                 if topic['learned'] and topic['strength'] == 1.0]
 
     def get_reviewable_topics(self, lang):
         """Return the topics learned but not golden by a user in a language."""
+        lang = self._change_lang_to_abbr(lang)
         return [topic['title']
                 for topic in self.user_data.language_data[lang]['skills']
                 if topic['learned'] and topic['strength'] < 1.0]
@@ -538,11 +550,9 @@ class Duolingo(object):
 
     def get_vocabulary(self, language_abbr=None):
         """Get overview of user's vocabulary in a language."""
-        if self.username != self._original_username:
-            raise OtherUserException("Vocab cannot be listed when the user has been switched.")
 
         if language_abbr and not self._is_current_language(language_abbr):
-            self._switch_language(language_abbr)
+            self.switch_language(language_abbr)
 
         overview_url = "https://www.duolingo.com/vocabulary/overview"
         overview_request = self._make_req(overview_url)
@@ -583,7 +593,7 @@ class Duolingo(object):
 
     def get_language_voices(self, language_abbr=None):
         if not language_abbr:
-            language_abbr = list(self.user_data.language_data.keys())[0]
+            language_abbr = self.user_data.learning_language
         voices = []
         if not self._tts_voices:
             self._process_tts_voices()
@@ -601,7 +611,7 @@ class Duolingo(object):
         word = word.lower()
         # Get default language abbr
         if not language_abbr:
-            language_abbr = list(self.user_data.language_data.keys())[0]
+            language_abbr = self.user_data.learning_language
         if language_abbr not in self.user_data.language_data:
             raise DuolingoException("This language is not one you are studying")
         # Populate voice url dict
@@ -623,7 +633,9 @@ class Duolingo(object):
             return random.choice(word_links)
         return word_links[0]
 
-    def _populate_voice_url_dictionary(self, lang_abbr):
+    def _populate_voice_url_dictionary(self, lang_abbr=None):
+        if not lang_abbr:
+            lang_abbr = self.user_data.learning_language
         if self.voice_url_dict is None:
             self.voice_url_dict = {}
         self.voice_url_dict[lang_abbr] = {}
@@ -669,6 +681,9 @@ class Duolingo(object):
         self.voice_url_dict[lang_abbr][word].add(url)
 
     def get_related_words(self, word, language_abbr=None):
+        if not language_abbr:
+            language_abbr = self.user_data.learning_language
+
         overview = self.get_vocabulary(language_abbr)
 
         for word_data in overview['vocab_overview']:
@@ -676,7 +691,6 @@ class Duolingo(object):
                 related_lexemes = word_data['related_lexemes']
                 return [w for w in overview['vocab_overview']
                         if w['lexeme_id'] in related_lexemes]
-
 
     def get_word_definition_by_id(self, lexeme_id):
         """
@@ -697,16 +711,16 @@ class Duolingo(object):
             raise Exception('Could not get word definition')
 
     def get_daily_xp_progress(self):
-        daily_progress = self.get_data_by_user_id(["xpGoal", "xpGains", "streakData"])
+        xpGoal, xpGains, streakData = self._get_data_by_user_id(fields=["xpGoal", "xpGains", "streakData"])
 
-        if not daily_progress:
+        if not xpGoal:
             raise DuolingoException(
                 "Could not get daily XP progress for user \"{}\". Are you logged in as that user?".format(self.username)
             )
 
         # xpGains lists the lessons completed on the last day where lessons were done.
         # We use the streakData.updatedTimestamp to get the last "midnight", and get lessons after that.
-        reported_timestamp = daily_progress['streakData']['updatedTimestamp']
+        reported_timestamp = streakData['updatedTimestamp']
         reported_midnight = datetime.fromtimestamp(reported_timestamp)
         midnight = datetime.fromordinal(datetime.today().date().toordinal())
 
@@ -715,23 +729,24 @@ class Duolingo(object):
         time_discrepancy = min(midnight - reported_midnight, timedelta(0))
         update_cutoff = round((reported_midnight + time_discrepancy).timestamp())
 
-        lessons = [lesson for lesson in daily_progress['xpGains'] if
-                lesson['time'] > update_cutoff]
+        lessons = [lesson for lesson in xpGains if
+                   lesson['time'] > update_cutoff]
 
         return {
-            "xp_goal": daily_progress['xpGoal'],
+            "xp_goal": xpGoal,
             "lessons_today": lessons,
             "xp_today": sum(x['xp'] for x in lessons)
         }
 
 
-attrs = [
-    'settings', 'languages', 'user_info', 'streak_info',
-    'calendar', 'language_progress', 'friends', 'known_words',
-    'learned_skills', 'known_topics', 'vocabulary'
-]
+if __name__ == "__main__":
+    attrs = [
+        'settings', 'languages', 'user_info', 'streak_info',
+        'calendar', 'language_progress', 'friends', 'known_words',
+        'learned_skills', 'known_topics', 'vocabulary'
+    ]
 
-for attr in attrs:
-    getter = getattr(Duolingo, "get_" + attr)
-    prop = property(getter)
-    setattr(Duolingo, attr, prop)
+    for attr in attrs:
+        getter = getattr(Duolingo, "get_" + attr)
+        prop = property(getter)
+        setattr(Duolingo, attr, prop)
