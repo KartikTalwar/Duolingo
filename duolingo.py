@@ -302,7 +302,8 @@ class Duolingo(object):
     def _get_skill_ordinal(skills_dict, skill, breadcrumbs):
         # If name is already in breadcrumbs, we've found a loop
         if skill['name'] in breadcrumbs:
-            raise DuolingoException("Loop encountered: {}".format(breadcrumbs + [skill['name']]))
+            print(DuolingoException("Loop encountered: {}".format(breadcrumbs + [skill['name']])))
+            return 0
         # If order already set for this skill, return it
         if "dependency_order" in skill:
             return skill["dependency_order"]
@@ -380,9 +381,16 @@ class Duolingo(object):
         return self._make_dict(fields, self.user_data)
 
     def get_streak_info(self):
-        """Get user's streak informations."""
+        """Get user's streak information."""
         fields = ['daily_goal', 'site_streak', 'streak_extended_today']
-        return self._make_dict(fields, self.user_data)
+
+        public_streak_data = self._get_data_by_user_id(fields=["streakData"])
+        private_streak_data = self._make_dict(fields, self.user_data)
+
+        # Merge the two dictionaries
+        private_streak_data.update(public_streak_data)
+
+        return private_streak_data
 
     def _is_current_language(self, abbr):
         """Get if user is learning a language."""
@@ -399,6 +407,8 @@ class Duolingo(object):
 
     def get_language_progress(self, lang):
         """Get informations about user's progression in a language."""
+        lang = self._change_lang_to_abbr(lang)
+
         if not lang:
             lang = self.user_data.learning_language
         else:
@@ -417,9 +427,18 @@ class Duolingo(object):
 
         return get.json()["following"]["users"]
 
+    def _change_lang_to_abbr(self, lang):
+        if lang is None:
+            return self.user_data.learning_language
+        elif len(lang) == 2:
+            return lang
+        else:
+            return self.get_abbreviation_of(lang)
+
     def get_known_words(self, lang):
         """Get a list of all words learned by user in a language."""
         words = []
+        lang = self._change_lang_to_abbr(lang)
         for topic in self.user_data.language_data[lang]['skills']:
             if topic['learned']:
                 words += topic['words']
@@ -430,6 +449,7 @@ class Duolingo(object):
         Return the learned skill objects sorted by the order they were learned
         in.
         """
+        lang = self._change_lang_to_abbr(lang)
         skills = [
             skill for skill in self.user_data.language_data[lang]['skills']
         ]
@@ -442,24 +462,28 @@ class Duolingo(object):
 
     def get_known_topics(self, lang):
         """Return the topics learned by a user in a language."""
+        lang = self._change_lang_to_abbr(lang)
         return [topic['title']
                 for topic in self.user_data.language_data[lang]['skills']
                 if topic['learned']]
 
     def get_unknown_topics(self, lang):
         """Return the topics remaining to learn by a user in a language."""
+        lang = self._change_lang_to_abbr(lang)
         return [topic['title']
                 for topic in self.user_data.language_data[lang]['skills']
                 if not topic['learned']]
 
     def get_golden_topics(self, lang):
         """Return the topics mastered ("golden") by a user in a language."""
+        lang = self._change_lang_to_abbr(lang)
         return [topic['title']
                 for topic in self.user_data.language_data[lang]['skills']
                 if topic['learned'] and topic['strength'] == 1.0]
 
     def get_reviewable_topics(self, lang):
         """Return the topics learned but not golden by a user in a language."""
+        lang = self._change_lang_to_abbr(lang)
         return [topic['title']
                 for topic in self.user_data.language_data[lang]['skills']
                 if topic['learned'] and topic['strength'] < 1.0]
@@ -689,7 +713,7 @@ class Duolingo(object):
     def get_daily_xp_progress(self):
         xpGoal, xpGains, streakData = self._get_data_by_user_id(fields=["xpGoal", "xpGains", "streakData"])
 
-        if not daily_progress:
+        if not xpGoal:
             raise DuolingoException(
                 "Could not get daily XP progress for user \"{}\". Are you logged in as that user?".format(self.username)
             )
